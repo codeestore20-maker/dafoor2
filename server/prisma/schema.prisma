@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subjects      Subject[]
+  chatSessions  ChatSession[]
+  quizAttempts  QuizAttempt[]
+  notebooks     Notebook[]
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String   // Storing icon name e.g., "Calculator"
+  color     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resources Resource[]
+}
+
+model Resource {
+  id        String   @id @default(uuid())
+  title     String
+  type      String   // PDF, DOCX, etc.
+  url       String   // URL to file (S3/UploadThing in future)
+  size      String?  // File size e.g. "2.4 MB"
+  content   String?  @db.Text // Extracted text
+  language  String   @default("english") // Content language
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // AI Generated Content
+  summary         Summary?
+  notes           Note[]
+  flashcardDecks  FlashcardDeck[]
+  quizzes         Quiz[]
+  glossaryTerms   GlossaryTerm[]
+  examPredictions ExamPrediction[]
+  weakPoints      WeakPoint[]
+  embeddings      ResourceEmbedding[]
+}
+
+model ResourceEmbedding {
+  id         String                 @id @default(uuid())
+  resourceId String
+  resource   Resource               @relation(fields: [resourceId], references: [id])
+  content    String                 @db.Text // The chunk of text
+  vector     Unsupported("vector")? // pgvector embedding
+  
+  @@index([resourceId])
+}
+
+model Summary {
+  id         String   @id @default(uuid())
+  resourceId String   @unique
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  content    String   @db.Text // Markdown content with formatting
+  keyTakeaways String[] 
+  readingTime Int     // in minutes
+  createdAt  DateTime @default(now())
+}
+
+model Note {
+  id         String   @id @default(uuid())
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  content    String   @db.Text // Markdown
+  pageNumber Int?
+  createdAt  DateTime @default(now())
+}
+
+model FlashcardDeck {
+  id         String      @id @default(uuid())
+  title      String
+  resourceId String
+  resource   Resource    @relation(fields: [resourceId], references: [id])
+  cards      Flashcard[]
+  createdAt  DateTime    @default(now())
+}
+
+model Flashcard {
+  id        String        @id @default(uuid())
+  deckId    String
+  deck      FlashcardDeck @relation(fields: [deckId], references: [id])
+  front     String
+  back      String
+  status    String        @default("new") // new, learning, mastered
+  nextReview DateTime?
+}
+
+model Quiz {
+  id         String     @id @default(uuid())
+  title      String
+  resourceId String
+  resource   Resource   @relation(fields: [resourceId], references: [id])
+  questions  Question[]
+  attempts   QuizAttempt[]
+  createdAt  DateTime   @default(now())
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id])
+  text          String
+  options       String[] // JSON array of options
+  correctAnswer Int      // Index of correct option
+  explanation   String?
+  concept       String?  // Linked concept for WeakPoints
+}
+
+model QuizAttempt {
+  id        String   @id @default(uuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  score     Int
+  mistakes  Json?    // Array of mistake details
+  createdAt DateTime @default(now())
+}
+
+model WeakPoint {
+  id          String   @id @default(uuid())
+  resourceId  String
+  resource    Resource @relation(fields: [resourceId], references: [id])
+  concept     String
+  mistakeCount Int     @default(1)
+  lastMistake DateTime @default(now())
+  status      String   // "Needs Work", "Improving", "Mastered"
+  repairLesson Json?   // Cached generated lesson content
+}
+
+model GlossaryTerm {
+  id         String   @id @default(uuid())
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id])
+  term       String
+  definition String
+  context    String?
+  pageNumber Int?
+}
+
+model ExamPrediction {
+  id          String   @id @default(uuid())
+  resourceId  String
+  resource    Resource @relation(fields: [resourceId], references: [id])
+  topic       String
+  probability Int      // 0-100
+  reasoning   String?
+  keyConcepts String[] // Added for better predictions
+  frequency   String   // "High", "Medium", "Low"
+}
+
+model ChatSession {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  title     String
+  createdAt DateTime  @default(now())
+  messages  Message[]
+}
+
+model Message {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+  role      String      // "user" or "assistant"
+  content   String      @db.Text
+  createdAt DateTime    @default(now())
+}
+
+model Notebook {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  content   String?  @db.Text // HTML or JSON content
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playpen+Sans:wght@100..800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+  }
+  .text-shadow-chalk {
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.2);
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+  }
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+  /* RTL Utilities */
+  .rtl {
+    direction: rtl;
+  }
+  .ltr {
+    direction: ltr;
+  }
+}
+
+/* Define Custom Fonts */
+@font-face {
+  font-family: 'Lemon Brush Arabic';
+  src: url('/fonts/LemonBrushArabic.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  /* Exclude numbers from this font to fix ugly number rendering */
+  unicode-range: U+0600-065F, U+0670-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Tufuli Arabic';
+  src: url('/fonts/TufuliArabic.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  /* Exclude numbers */
+  unicode-range: U+0600-065F, U+0670-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Tufuli Arabic';
+  src: url('/fonts/TufuliArabic-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  /* Exclude numbers */
+  unicode-range: U+0600-065F, U+0670-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+@font-face {
+  font-family: 'Tufuli Arabic';
+  src: url('/fonts/TufuliArabic-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  /* Exclude numbers */
+  unicode-range: U+0600-065F, U+0670-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+body {
+  background-color: #FFF8E7;
+  color: #4A4A4A;
+  font-family: 'Georgia', serif;
+}
+
+/* English Fonts */
+.font-hand {
+  font-family: 'Playpen Sans', cursive;
+}
+
+/* Arabic Fonts Configuration */
+
+/* 1. Base Text (Summaries, Paragraphs, Inputs) - Readable & Casual */
+.rtl body {
+  font-family: 'Playpen Sans', cursive;
+}
+
+/* 2. Main Titles & Logo - Expressive & Bold */
+/* Using Tufuli as fallback for numbers and latin characters due to unicode-range */
+.rtl h1 {
+  font-family: 'Lemon Brush Arabic', 'Tufuli Arabic', 'Playpen Sans', cursive;
+  line-height: 1.4;
+}
+
+/* 3. Subheadings, UI Elements, Sidebar, Buttons - Playful & Geometric */
+.rtl h2, 
+.rtl h3, 
+.rtl h4, 
+.rtl h5, 
+.rtl h6,
+.rtl button,
+.rtl .font-hand {
+  font-family: 'Tufuli Arabic', 'Playpen Sans', sans-serif;
+}
+
+/* Exception: Make sure big "Handwritten" English classes use Lemon Brush in Arabic for impact if they are titles */
+.rtl .text-4xl.font-hand, 
+.rtl .text-5xl.font-hand, 
+.rtl .text-6xl.font-hand {
+  font-family: 'Lemon Brush Arabic', 'Tufuli Arabic', 'Playpen Sans', cursive;
+}
+
+/* Exception: Summaries headers should be readable, not too brushy */
+.rtl .prose h1, 
+.rtl .prose h2, 
+.rtl .prose h3 {
+  font-family: 'Tufuli Arabic', 'Playpen Sans', sans-serif;
+}
+
+.rtl .prose p, 
+.rtl .prose li, 
+.rtl .prose blockquote {
+  font-family: 'Tufuli Arabic', 'Playpen Sans', cursive;
+}
+
+/* Ensure icons flip in RTL */
+.rtl .flip-rtl {
+  transform: scaleX(-1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-left: 1px solid #ddd;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #F4D03F;
+  border: 2px solid #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e0c030;
+}

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "theme": {
+    "name": "HORMOZI",
+    "overrides": {
+      "yPercent": 50
+    }
+  },
+  "captions": [
+    {
+      "id": "c1",
+      "start": 0.28,
+      "end": 1.71,
+      "text": "napoleon bonaparte",
+      "visible": true
+    },
+    {
+      "id": "c2",
+      "start": 1.71,
+      "end": 2.03,
+      "text": "one of",
+      "visible": true
+    },
+    {
+      "id": "c3",
+      "start": 2.03,
+      "end": 2.91,
+      "text": "the most",
+      "visible": true
+    },
+    {
+      "id": "c4",
+      "start": 2.91,
+      "end": 3.63,
+      "text": "influential figures",
+      "visible": true
+    },
+    {
+      "id": "c5",
+      "start": 3.63,
+      "end": 4.34,
+      "text": "in european",
+      "visible": true
+    },
+    {
+      "id": "c6",
+      "start": 4.34,
+      "end": 5,
+      "text": "history",
+      "visible": true
+    }
+  ]
+}
