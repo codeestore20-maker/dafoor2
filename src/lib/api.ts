@@ -9,6 +9,30 @@ export const api = axios.create({
   },
 });
 
+// Add request interceptor to inject token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const authService = {
+  login: async (data: any) => {
+    const response = await api.post('/auth/login', data);
+    return response.data;
+  },
+  register: async (data: any) => {
+    const response = await api.post('/auth/register', data);
+    return response.data;
+  },
+  me: async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
+  }
+};
+
 export const subjectService = {
   getAll: async () => {
     const response = await api.get('/subjects');

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { ViewMode } from '../components/StudySidebar';
-import { AITeacher } from '../components/AITeacher';
+import { ViewMode } from '../components/study/StudySidebar';
+import { AITeacher } from '../components/study/AITeacher';
 import { Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff, Menu, MessageSquare, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';

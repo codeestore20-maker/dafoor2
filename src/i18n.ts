@@ -165,16 +165,34 @@ const resources = {
       
       // Navbar
       "search_placeholder_global": "Search for anything...",
-
-      // AI Teacher
-      "prof_owl": "Prof. Owl",
-      "academic_guide": "Academic Guide",
-      "chat_history": "Chat History",
-      "new_chat": "New Chat",
-      "past_sessions": "Past Sessions",
-      "ask_placeholder": "Ask Professor Owl...",
-      "welcome_message": "Hoot! I am Professor Owl. Ready to help you soar through your studies! What shall we learn today?",
-      "approved": "APPROVED"
+      
+      // Auth Pages
+      "welcome_back_title": "Welcome back, Genius!",
+      "new_here": "New here?",
+      "create_account_promo": "Join thousands of students acing their exams.",
+      "google_login": "Continue with Google",
+      "apple_login": "Continue with Apple",
+      "marketing_quote": "Study smarter, not harder.",
+      "marketing_sub": "Let AI organize your chaos.",
+      "email_label": "Email Address",
+      "password_label": "Password",
+      "name_label": "Full Name",
+      "or_divider": "OR",
+      "email_placeholder": "student@university.edu",
+      "password_placeholder": "••••••••",
+      "name_placeholder": "Your Name",
+      "login_btn": "Log In",
+      "register_btn": "Create Account",
+      "no_account": "Don't have an account?",
+      "has_account": "Already have an account?",
+      "register_link": "Register Now",
+      "login_link": "Log In",
+      
+      // Marketing Side
+      "testimonial_1": "This app saved my GPA! Best study tool ever.",
+      "testimonial_author_1": "Sarah, Med Student",
+      "stat_users": "Active Students",
+      "stat_hours": "Study Hours Saved"
     }
   },
   ar: {
@@ -193,6 +211,7 @@ const resources = {
       "german": "الألمانية",
       "switch_language": "English",
       "repository": "المكتبة",
+      "dashboard": "الرئيسية",
       "back_to_library": "رجوع للمكتبة",
       "ai_learning": "مذاكرة ذكية",
       "deep_summary": "الزبدة (ملخص)",
@@ -350,7 +369,40 @@ const resources = {
       "quote_text": "التعليم جواز سفرك للمستقبل، لأن بكرة ملك للي يجهز له اليوم.",
       "quote_author": "مالكوم إكس",
       "did_you_know": "تدري؟",
-      "tip_text": "التكرار المتباعد هو سر الحفظ. راجع المعلومة على فترات متباعدة وبتثبت في مخك صح."
+      "tip_text": "التكرار المتباعد هو سر الحفظ. راجع المعلومة على فترات متباعدة وبتثبت في مخك صح.",
+
+      // Auth Pages
+      "welcome_back_title": "هلا بالدافور!",
+      "new_here": "جديد معنا؟",
+      "create_account_promo": "انضم لآلاف الطلاب اللي رفعوا درجاتهم.",
+      "google_login": "كمل بحساب Google",
+      "apple_login": "كمل بحساب Apple",
+      "marketing_quote": "ذاكر بذكاء، مو بجهد.",
+      "marketing_sub": "خل الذكاء الاصطناعي يرتب حوستك.",
+      "email_label": "البريد الإلكتروني",
+      "password_label": "كلمة المرور",
+      "name_label": "اسم الدافور",
+      "or_divider": "أو",
+      "email_placeholder": "student@university.edu",
+      "password_placeholder": "••••••••",
+      "name_placeholder": "اسمك الكريم",
+      "login_btn": "دخول",
+      "register_btn": "سجل حساب",
+      "no_account": "ما عندك حساب؟",
+      "has_account": "عندك حساب؟",
+      "register_link": "سجل الحين",
+      "login_link": "سجل دخولك",
+      "login_failed": "خطأ في تسجيل الدخول، تأكد من بياناتك.",
+      "registration_failed": "ما قدرنا نسجلك، تأكد من البيانات أو حاول بعدين.",
+      "user_exists": "هالمستخدم موجود من قبل!",
+      "user_not_found": "ما لقينا هالحساب، تأكد من الإيميل.",
+      "invalid_password": "كلمة المرور غلط.",
+      
+      // Marketing Side
+      "testimonial_1": "والله التطبيق فك أزمة! ارتفع معدلي بسببه.",
+      "testimonial_author_1": "سارة، طب بشري",
+      "stat_users": "طالب دافور",
+      "stat_hours": "ساعة وفرناها"
     }
   }
 };
