@@ -37,7 +37,7 @@ export const ResourcesController = {
         });
         
         // Transform for frontend
-        const formatted = resources.map(r => ({
+        const formatted = resources.map((r: any) => ({
               id: r.id,
               name: r.title,
               type: r.type,
