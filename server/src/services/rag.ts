@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import OpenAI from 'openai';
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
@@ -10,8 +10,6 @@ const deepseek = new OpenAI({
   baseURL: 'https://api.deepseek.com',
   apiKey: process.env.DEEPSEEK_API_KEY
 });
-
-const prisma = new PrismaClient();
 
 export const ragService = {
   processFile: async (filePath: string, resourceId: string, mimeType: string) => {
