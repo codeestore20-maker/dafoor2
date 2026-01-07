@@ -48,7 +48,7 @@ export function DeepSummary() {
             <Sparkles size={40} />
           </div>
           <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
-            {t('deep_summary_ready')}
+            {t('deep_summary_empty')}
           </h2>
           <p className="text-stone-600 mb-8">
             {t('ai_not_analyzed')}

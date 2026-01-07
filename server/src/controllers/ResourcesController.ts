@@ -90,9 +90,6 @@ export const ResourcesController = {
             return res.status(400).json({ error: "No file uploaded" });
         }
         
-        // Log the raw body to debug language reception
-        console.log("Upload Body:", req.body);
-
         const { subjectId, language } = req.body;
         if (!subjectId) {
             return res.status(400).json({ error: "Subject ID required" });

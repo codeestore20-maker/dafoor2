@@ -97,7 +97,7 @@ export function QuizMode() {
             <HelpCircle size={40} />
           </div>
           <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
-            {t('quiz_ready')}
+            {t('quiz_empty')}
           </h2>
           <p className="font-serif text-stone-600 mb-8">
             {t('quiz_desc')}

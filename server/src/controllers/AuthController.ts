@@ -63,8 +63,6 @@ export const AuthController = {
       }
 
       // Check password
-      // Note: If user was created before password field existed, this might fail.
-      // But we reset the DB, so it should be fine.
       if (!user.password) {
           return res.status(400).json({ error: 'Invalid account state. Please contact support.' });
       }

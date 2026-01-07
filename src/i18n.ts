@@ -98,7 +98,7 @@ const resources = {
       
       // Deep Summary
       "loading_summary": "Loading summary...",
-      "deep_summary_ready": "Deep Summary Ready",
+      "deep_summary_empty": "No Summary Yet",
       "ai_not_analyzed": "Our AI hasn't analyzed this document yet. Click below to generate a comprehensive summary with key takeaways and concepts.",
       "generate_summary": "Generate Summary",
       "generating": "Generating...",
@@ -121,17 +121,20 @@ const resources = {
       
       // Flashcards
       "loading_flashcards": "Loading flashcards...",
-      "flashcards_ready": "Flashcards Ready",
+      "flashcards_empty": "Create Flashcards",
       "flashcards_desc": "Turn your study material into active recall practice. Our AI will generate key concept flashcards for you.",
       "generate_flashcards": "Generate Flashcards",
       "mastered_count": "Mastered: {{count}}",
+      "next": "Next",
+      "previous": "Previous",
+      "flip_card": "Flip Card",
       "tap_to_flip": "Tap to flip",
       "review_again": "Review Again",
       "mastered": "Mastered",
       
       // Quiz Mode
       "loading_quiz": "Loading quiz...",
-      "quiz_ready": "Pop Quiz Ready",
+      "quiz_empty": "Create Pop Quiz",
       "quiz_desc": "Test your knowledge with an AI-generated quiz based on your study material.",
       "generate_quiz": "Generate Quiz",
       "quiz_complete": "Quiz Complete!",
@@ -153,7 +156,7 @@ const resources = {
       
       // Smart Notes
       "drafting_notes": "Drafting notes...",
-      "smart_notes_ready": "Smart Notes Ready",
+      "smart_notes_empty": "Create Smart Notes",
       "smart_notes_desc": "Get concise, bullet-point notes extracting key concepts, formulas, and facts from your document.",
       "generate_notes": "Generate Notes",
       "writing": "Writing...",
@@ -281,7 +284,7 @@ const resources = {
       
       // Deep Summary
       "loading_summary": "نلخص لك...",
-      "deep_summary_ready": "الزبدة جاهزة",
+      "deep_summary_empty": "ما فيه ملخص للحين",
       "ai_not_analyzed": "للحين ما حللنا هالملف. اضغط تحت عشان نعطيك الزبدة.",
       "generate_summary": "عطني الزبدة",
       "generating": "شغالين عليها...",
@@ -304,21 +307,25 @@ const resources = {
       
       // Flashcards
       "loading_flashcards": "نجهز البطاقات...",
-      "flashcards_ready": "البطاقات جاهزة",
+      "flashcards_empty": "أنشئ بطاقات",
       "generate_flashcards": "سو لي بطاقات",
       "flashcards_desc": "ذاكر بسرعة وبذكاء مع نظام البطاقات.",
       "flip_card": "اقلب البطاقة",
       "next_card": "اللي بعده",
-      "mastered": "ختمتها",
+      "mastered": "فهمتها",
       "needs_practice": "يبيلها مراجعة",
       "mastered_count": "ختمت: {{count}}",
-      "tap_to_flip": "اضغط للقلب",
+      "start": "البداية",
+      "finish": "النهاية",
+      "tap_to_flip": "اضغط لقلب البطاقة",
+      "next": "التالي",
+      "previous": "السابق",
       "review_again": "راجع مرة ثانية",
       
       // Quiz
       "quiz_mode": "وضع الاختبار",
       "loading_quiz": "نكتب الأسئلة...",
-      "quiz_ready": "الاختبار جاهز",
+      "quiz_empty": "أنشئ اختبار سريع",
       "generate_quiz": "سوي لي اختبار",
       "quiz_desc": "اختبر فهمك بأسئلة اختيار من متعدد.",
       "submit_answer": "اعتمد الإجابة",
@@ -344,7 +351,7 @@ const resources = {
       
       // Smart Notes
       "drafting_notes": "نكتب الملاحظات...",
-      "smart_notes_ready": "الملاحظات جاهزة",
+      "smart_notes_empty": "أنشئ ملاحظات ذكية",
       "smart_notes_desc": "ملخصات ونقاط رئيسية من ملفك.",
       "generate_notes": "لخص لي",
       "writing": "يكتب...",
