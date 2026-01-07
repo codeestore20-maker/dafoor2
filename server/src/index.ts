@@ -11,6 +11,10 @@ app.use(cors());
 app.use(express.json());
 
 // Basic health check
+app.get('/', (req, res) => {
+  res.send('Server is running via Railway!');
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
