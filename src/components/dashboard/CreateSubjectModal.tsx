@@ -87,14 +87,14 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
           initial={{ opacity: 0, scale: 0.95, rotate: -1 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
           exit={{ opacity: 0, scale: 0.95, rotate: 1 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border-4 border-stone-800 relative"
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] border-4 border-stone-800 relative flex flex-col"
         >
           <Tape className="-top-3 left-1/2 -translate-x-1/2 bg-red-300 w-40 rotate-2" />
 
           {/* Header */}
-          <div className="bg-[#fffbf0] px-6 py-6 border-b-2 border-stone-800 flex items-center justify-between relative">
+          <div className="bg-[#fffbf0] px-4 py-4 md:px-6 md:py-6 border-b-2 border-stone-800 flex items-center justify-between relative shrink-0">
              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#444cf7 0.5px, transparent 0.5px)', backgroundSize: '10px 10px' }}></div>
-            <h2 className="font-hand text-3xl font-bold text-stone-800 relative z-10 transform -rotate-1">
+            <h2 className="font-hand text-2xl md:text-3xl font-bold text-stone-800 relative z-10 transform -rotate-1">
               {t('create_new_subject')}
             </h2>
             <button onClick={onClose} className="p-2 hover:bg-stone-200 rounded-full text-stone-500 transition-colors relative z-10 border-2 border-transparent hover:border-stone-800">
@@ -102,13 +102,13 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
             </button>
           </div>
 
-          <div className="p-8 bg-white relative">
+          <div className="p-4 md:p-8 bg-white relative overflow-y-auto custom-scrollbar flex-1">
              <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
 
             {/* Step 1: Basic Info */}
-            <div className="space-y-8 relative z-10">
+            <div className="space-y-6 md:space-y-8 relative z-10">
               <div>
-                <label className="block text-xl font-bold font-hand text-stone-800 mb-2 transform rotate-1 inline-block">
+                <label className="block text-lg md:text-xl font-bold font-hand text-stone-800 mb-2 transform rotate-1 inline-block">
                   {t('subject_name')}
                 </label>
                 <input
@@ -116,19 +116,19 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('subject_name_placeholder')}
-                  className="w-full px-4 py-3 bg-[#fffbf0] border-2 border-stone-800 rounded-xl focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] focus:-translate-y-1 transition-all font-hand text-xl placeholder:text-stone-400"
+                  className="w-full px-4 py-3 bg-[#fffbf0] border-2 border-stone-800 rounded-xl focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] focus:-translate-y-1 transition-all font-hand text-lg md:text-xl placeholder:text-stone-400"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-xl font-bold font-hand text-stone-800 mb-4 transform -rotate-1 inline-block">
+                <label className="block text-lg md:text-xl font-bold font-hand text-stone-800 mb-4 transform -rotate-1 inline-block">
                   {t('choose_color')} & {t('subject_icon')}
                 </label>
-                <div className="flex gap-6">
+                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                    {/* Preview */}
                    <div 
-                      className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-stone-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] shrink-0 transition-colors transform rotate-3"
+                      className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-stone-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] shrink-0 transition-colors transform rotate-3 mx-auto md:mx-0"
                       style={{ backgroundColor: selectedColor }}
                    >
                       <selectedIcon.icon size={40} className="text-white drop-shadow-md" />
@@ -166,7 +166,7 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
               </div>
 
               <div className="pt-6 border-t-2 border-dashed border-stone-300">
-                <label className="block text-xl font-bold font-hand text-stone-800 mb-3 flex justify-between items-center">
+                <label className="block text-lg md:text-xl font-bold font-hand text-stone-800 mb-3 flex justify-between items-center">
                   <span>{t('upload_syllabus')}</span>
                   {file && <span className="text-green-600 text-sm font-sans font-bold flex items-center gap-1 bg-green-100 px-2 py-1 rounded-md border border-green-200"><Check size={14}/> {t('attached', {defaultValue: 'Attached'})}</span>}
                 </label>
@@ -191,7 +191,7 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
           </div>
 
           {/* Footer */}
-          <div className="p-6 pt-0 flex justify-end gap-3 bg-white rounded-b-2xl relative">
+          <div className="p-4 pt-0 md:p-6 md:pt-0 flex justify-end gap-3 bg-white rounded-b-2xl relative shrink-0">
              <button 
                 onClick={onClose}
                 className="px-6 py-2 rounded-xl font-bold font-hand text-stone-500 hover:bg-stone-100 transition-colors text-lg"
