@@ -99,7 +99,7 @@ export function QuizMode() {
           <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
             {t('quiz_empty')}
           </h2>
-          <p className="font-serif text-stone-600 mb-8">
+          <p className="font-hand text-stone-600 mb-8">
             {t('quiz_desc')}
           </p>
           
@@ -221,19 +221,19 @@ export function QuizMode() {
         }} animate={{
           opacity: 1,
           y: 0
-        }} className={`p-4 rounded-lg border flex items-center justify-between gap-3 ${isCorrect ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+        }} className={`p-4 rounded-lg border flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 ${isCorrect ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
               <div className="flex items-center gap-3">
-                {isCorrect ? <ChalkStar className="text-yellow-500 w-8 h-8" /> : <AlertCircle className="w-8 h-8" />}
+                {isCorrect ? <ChalkStar className="text-yellow-500 w-8 h-8 flex-shrink-0" /> : <AlertCircle className="w-8 h-8 flex-shrink-0" />}
                 <div className="flex flex-col">
                     <span className="font-hand text-xl font-bold">
                     {isCorrect ? t('correct_msg') : t('incorrect_msg')}
                     </span>
                     {!isCorrect && currentQuestion.explanation && (
-                        <span className="text-sm mt-1">{currentQuestion.explanation}</span>
+                        <span className="text-sm mt-1 break-words">{currentQuestion.explanation}</span>
                     )}
                 </div>
               </div>
-              <button onClick={handleNext} className={`flex items-center gap-2 px-6 py-2 rounded-lg font-hand font-bold text-lg shadow-sm transition-colors ${isCorrect ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'}`}>
+              <button onClick={handleNext} className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg font-hand font-bold text-lg shadow-sm transition-colors mt-2 md:mt-0 ${isCorrect ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'}`}>
                 {currentQIndex < localQuestions.length - 1 ? t('next_question') : t('finish_quiz')}
                 <ArrowRight size={18} className="flip-rtl" />
               </button>

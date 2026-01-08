@@ -111,10 +111,10 @@ export function FocusReview() {
                 
                 <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
-                    <h4 className="font-hand text-2xl font-bold text-stone-800 mb-2">
+                    <h4 className="font-hand text-xl md:text-2xl font-bold text-stone-800 mb-2 break-words">
                       {item.concept}
                     </h4>
-                    <div className="flex items-center gap-3 text-sm text-stone-500 font-hand">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-stone-500 font-hand">
                       <span className="flex items-center gap-1 text-red-500 font-bold bg-red-50 px-2 py-1 rounded">
                         <Eraser size={14} />
                         {item.mistakeCount} {t('mistakes')}
@@ -156,12 +156,12 @@ export function FocusReview() {
                   <button 
                     key={item.id} 
                     onClick={() => setSelectedConcept(item.concept)}
-                    className="bg-stone-50 border border-stone-200 rounded-lg p-4 flex items-center justify-between hover:bg-white hover:border-school-board hover:shadow-md transition-all group cursor-pointer"
+                    className="bg-stone-50 border border-stone-200 rounded-lg p-4 flex flex-col md:flex-row md:items-center justify-between gap-2 hover:bg-white hover:border-school-board hover:shadow-md transition-all group cursor-pointer text-start"
                   >
-                    <span className="font-hand text-xl text-stone-600 line-through decoration-stone-400 decoration-2 group-hover:no-underline group-hover:text-school-board transition-all">
+                    <span className="font-hand text-lg md:text-xl text-stone-600 line-through decoration-stone-400 decoration-2 group-hover:no-underline group-hover:text-school-board transition-all break-words">
                       {item.concept}
                     </span>
-                    <span className="text-green-600 font-bold text-sm bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                    <span className="text-green-600 font-bold text-sm bg-green-100 px-3 py-1 rounded-full border border-green-200 self-start md:self-auto flex-shrink-0">
                       {t('mastered_review')}
                     </span>
                   </button>

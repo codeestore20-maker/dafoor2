@@ -45,19 +45,7 @@ export function LearningApp() {
         {/* Main Content Area */}
         <div className={`flex-1 transition-all duration-300 relative z-0 flex flex-col ${focusMode && isStudyMode ? 'w-full' : 'w-auto'}`}>
            
-           {/* Mobile Header / Toggle Button */}
-           {!focusMode && !isStudyMode && (
-             <div className="md:hidden p-4 flex items-center justify-between bg-[#F5F5F0] border-b border-stone-200 z-30 sticky top-0">
-               <button 
-                 onClick={() => setIsSidebarOpen(true)}
-                 className="p-2 text-stone-600 hover:text-stone-800 hover:bg-stone-200 rounded-lg transition-colors"
-               >
-                 <Menu size={24} />
-               </button>
-               <span className="font-hand font-bold text-xl text-stone-800">Studdy</span>
-               <div className="w-10"></div> {/* Spacer for balance */}
-             </div>
-           )}
+           {/* Mobile Header removed */}
 
            {/* Focus Mode Toggle (Top Right of Content) */}
            {isStudyMode && (

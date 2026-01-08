@@ -281,7 +281,7 @@ export function AITeacher({
                 <div className={`absolute -top-3 ${message.sender === 'user' ? 'right-4 bg-blue-200/50' : 'left-4 bg-yellow-200/50'} w-8 h-4 rotate-3 backdrop-blur-sm z-10`}></div>
 
                 <div className={`
-                   p-4 text-sm leading-relaxed relative
+                   p-4 text-sm leading-relaxed relative break-words
                    ${message.sender === 'user' 
                      ? 'bg-white border border-stone-300 text-stone-800 rotate-1 rounded-sm shadow-[2px_2px_0px_rgba(0,0,0,0.1)]' 
                      : 'bg-[#fff9c4] border border-yellow-300 text-stone-900 -rotate-1 rounded-sm shadow-[2px_2px_0px_rgba(234,179,8,0.2)]'}

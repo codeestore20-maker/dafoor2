@@ -59,7 +59,7 @@ export function SmartNotes() {
           <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
             {t('smart_notes_empty')}
           </h2>
-          <p className="text-stone-600 mb-8">
+          <p className="font-hand text-stone-600 mb-8">
             {t('smart_notes_desc')}
           </p>
           
@@ -98,7 +98,7 @@ export function SmartNotes() {
         <NotebookPaper title={t('smart_notes')} className="min-h-[600px] max-w-3xl mx-auto transform rotate-1">
           <div className="space-y-8">
             <div className="space-y-4">
-              {localNotes.map((note, idx) => <p key={idx} className="relative" dir="auto">
+              {localNotes.map((note, idx) => <p key={idx} className="relative break-words" dir="auto">
                   <span className="font-bold text-school-board mr-2 rtl:mr-0 rtl:ml-2">•</span>
                   {note}
                   {idx === 0 && <span className="absolute -bottom-1 left-0 rtl:left-auto rtl:right-0 w-32 text-school-pencil opacity-70">
@@ -111,14 +111,14 @@ export function SmartNotes() {
             <div className="my-8 p-5 bg-school-paper border-2 border-school-board/20 rounded-lg relative overflow-hidden group hover:border-school-board/40 transition-colors">
               <div className="absolute top-0 left-0 rtl:left-auto rtl:right-0 w-1 h-full bg-school-board"></div>
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-school-board/10 rounded-full text-school-board mt-1">
+                <div className="p-2 bg-school-board/10 rounded-full text-school-board mt-1 flex-shrink-0">
                   <GitMerge size={20} />
                 </div>
                 <div>
-                  <h4 className="font-hand text-lg font-bold text-school-board mb-2">
+                  <h4 className="font-hand text-lg font-bold text-school-board mb-2 break-words">
                     {t('key_concept')}
                   </h4>
-                  <p className="text-stone-700 leading-relaxed">
+                  <p className="text-stone-700 leading-relaxed break-words">
                     {t('notes_cover_desc')}
                   </p>
                 </div>

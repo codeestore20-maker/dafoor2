@@ -114,7 +114,7 @@ export function LiveGlossary() {
         <NotebookPaper title={t('live_glossary')} className="max-w-5xl mx-auto relative min-h-[800px]">
           
           {/* Header Controls */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 sticky top-0 z-20 bg-[#fdfbf6]/95 backdrop-blur-sm py-2 border-b-2 border-stone-200">
+          <div className="flex flex-col-reverse md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 sticky top-0 z-20 bg-[#fdfbf6]/95 backdrop-blur-sm py-2 border-b-2 border-stone-200">
              <div className="flex items-center gap-4 w-full md:w-auto">
                <div className="relative flex-1 md:w-64">
                  <input 
@@ -128,7 +128,7 @@ export function LiveGlossary() {
                </div>
              </div>
 
-             <div className="flex items-center gap-3">
+             <div className="flex items-center gap-3 justify-end">
                <button 
                  onClick={() => setStudyMode(!studyMode)}
                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 font-hand text-sm transition-all shadow-[2px_2px_0px_rgba(41,37,36,1)] active:translate-y-[2px] active:shadow-none ${studyMode ? 'bg-school-board text-white border-stone-800' : 'bg-white text-stone-800 border-stone-800 hover:bg-stone-50'}`}
@@ -141,7 +141,7 @@ export function LiveGlossary() {
 
           <div className="flex relative">
             {/* Main Content */}
-            <div className="flex-1 pr-12 rtl:pr-0 rtl:pl-12">
+            <div className="flex-1 pr-0 md:pr-12 rtl:pr-0 rtl:pl-0 rtl:md:pl-12">
               <div className="space-y-12">
                 {sortedKeys.map(letter => (
                   <div key={letter} id={`letter-${letter}`} className="relative scroll-mt-32">
@@ -158,12 +158,12 @@ export function LiveGlossary() {
                         <div key={term.id} className="group relative">
                           <div className={`p-4 rounded-xl border-2 transition-all ${highlightedTerms.has(term.id) ? 'bg-yellow-50 border-yellow-400' : 'bg-transparent border-transparent hover:bg-white/50 hover:border-stone-200'}`}>
                             <div className="flex justify-between items-start gap-4 mb-2">
-                              <h3 className={`font-hand text-2xl font-bold text-stone-800 relative inline-block ${highlightedTerms.has(term.id) ? 'highlight-yellow' : ''}`}>
+                              <h3 className={`font-hand text-xl md:text-2xl font-bold text-stone-800 relative inline-block break-words ${highlightedTerms.has(term.id) ? 'highlight-yellow' : ''}`}>
                                 {term.term}
                               </h3>
                               <button 
                                 onClick={() => toggleHighlight(term.id)}
-                                className={`p-1.5 rounded-full border-2 transition-all ${highlightedTerms.has(term.id) ? 'bg-yellow-400 text-stone-900 border-stone-900 shadow-[2px_2px_0px_rgba(41,37,36,1)]' : 'bg-white text-stone-400 border-stone-200 opacity-0 group-hover:opacity-100 hover:border-stone-400 hover:text-stone-600'}`}
+                                className={`p-1.5 rounded-full border-2 transition-all flex-shrink-0 ${highlightedTerms.has(term.id) ? 'bg-yellow-400 text-stone-900 border-stone-900 shadow-[2px_2px_0px_rgba(41,37,36,1)]' : 'bg-white text-stone-400 border-stone-200 opacity-0 group-hover:opacity-100 hover:border-stone-400 hover:text-stone-600'}`}
                                 title="Mark as important"
                               >
                                 <Highlighter size={14} />
@@ -171,12 +171,12 @@ export function LiveGlossary() {
                             </div>
                             
                             <div className={`transition-all duration-300 ${studyMode ? 'blur-md hover:blur-none cursor-help select-none' : ''}`}>
-                              <p className="font-serif text-lg text-stone-700 leading-relaxed mb-3">
+                              <p className="font-serif text-lg text-stone-700 leading-relaxed mb-3 break-words">
                                 {term.definition}
                               </p>
 
                               {term.context && (
-                                <div className="text-sm text-stone-500 italic border-l-2 rtl:border-l-0 rtl:border-r-2 border-stone-300 pl-3 rtl:pl-0 rtl:pr-3 mb-3 font-serif">
+                                <div className="text-sm text-stone-500 italic border-l-2 rtl:border-l-0 rtl:border-r-2 border-stone-300 pl-3 rtl:pl-0 rtl:pr-3 mb-3 font-serif break-words">
                                   "{term.context}"
                                 </div>
                               )}

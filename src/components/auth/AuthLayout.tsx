@@ -40,7 +40,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         
         {/* Marketing Section (Left in LTR, Right in RTL) */}
         <div className={`
-          w-full md:w-5/12 bg-school-board text-white p-12 flex flex-col justify-between relative overflow-hidden
+          w-full md:w-5/12 bg-school-board text-white p-6 md:p-12 flex flex-col justify-between relative overflow-hidden
           ${isRtl ? 'order-last md:order-last' : 'order-first md:order-first'}
         `}>
            {/* Pattern Overlay */}

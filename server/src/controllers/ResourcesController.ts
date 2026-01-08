@@ -63,6 +63,9 @@ export const ResourcesController = {
                 subject: {
                     userId: req.user.id
                 }
+            },
+            include: {
+                subject: true
             }
         });
         
@@ -74,7 +77,8 @@ export const ResourcesController = {
             type: resource.type,
             size: resource.size || 'Unknown',
             date: resource.createdAt.toISOString().split('T')[0],
-            subjectId: resource.subjectId // Add this to help navigation
+            subjectId: resource.subjectId, // Add this to help navigation
+            subjectName: resource.subject.name
         });
     } catch (error) {
         console.error("Get Resource Error:", error);

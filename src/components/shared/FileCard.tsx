@@ -14,10 +14,11 @@ interface FileCardProps {
   };
   index: number;
   viewMode?: 'grid' | 'list';
+  compact?: boolean; // New prop for compact mode
   onClick: (id: string, name: string) => void;
 }
 
-export function FileCard({ file, index, viewMode = 'grid', onClick }: FileCardProps) {
+export function FileCard({ file, index, viewMode = 'grid', compact = false, onClick }: FileCardProps) {
   const fileName = file.name || file.title || 'Untitled';
   const fileSize = file.size ? (parseInt(file.size) / 1024).toFixed(1) + ' KB' : '';
 
@@ -98,92 +99,81 @@ export function FileCard({ file, index, viewMode = 'grid', onClick }: FileCardPr
           <h3 className="font-bold text-stone-800 font-hand text-lg truncate">
             {fileName}
           </h3>
-          <div className="flex items-center gap-2 text-xs font-serif text-stone-500">
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${theme.wrapper} ${theme.text}`}>{file.type}</span>
-            {fileSize && <span>• {fileSize}</span>}
+          <div className="flex items-center gap-2 text-xs text-stone-500">
+            <span className="uppercase">{file.type}</span>
+            <span>•</span>
+            <span>{file.time}</span>
           </div>
+        </div>
+
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+           <ExternalLink size={16} className="text-stone-400" />
         </div>
       </motion.div>
     );
   }
 
-  // Grid View (Note/Memo Style)
+  // Grid Mode (Supports Compact)
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
-      animate={{ opacity: 1, scale: 1, rotate: Math.random() * 2 - 1 }}
-      whileHover={{ scale: 1.02, rotate: 0, y: -5 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      whileHover={{ scale: 1.05, rotate: 0, zIndex: 10 }}
       onClick={() => onClick(file.id, fileName)}
       className={`
-        group relative cursor-pointer
+        relative group cursor-pointer 
         flex flex-col
-        min-h-[220px] // Increased height as requested
-        ${theme.wrapper}
-        shadow-md hover:shadow-xl
+        bg-white
+        ${compact ? 'p-2 h-32 md:p-3 md:h-40' : 'p-3 h-48 md:p-4 md:h-60'}
+        shadow-[2px_2px_0px_rgba(0,0,0,0.05)] hover:shadow-[4px_4px_0px_rgba(0,0,0,0.1)] hover:-translate-y-1
         transition-all duration-300
+        border-2 border-stone-100 hover:border-stone-200
+        rounded-xl overflow-hidden
       `}
       style={{
-        clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', // Clean rectangle
-        // Alternatively for a torn look: polygon(0 0, 100% 0, 100% 98%, 98% 100%, 0 100%)
+        transform: `rotate(${Math.random() * 2 - 1}deg)`,
       }}
     >
-      {/* Top Tape/Header Strip */}
-      <div className={`h-8 w-full ${theme.header} opacity-90 relative flex items-center justify-center`}>
-        {/* Tape Effect */}
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 bg-white/20 backdrop-blur-sm rotate-1 shadow-sm"></div>
-        <div className="text-white font-serif text-[10px] font-bold tracking-[0.2em] uppercase">
-          {file.type} MEMO
-        </div>
+      {/* Tape Effect at top center */}
+      <div className={`
+        absolute -top-3 left-1/2 -translate-x-1/2 
+        w-24 h-6 
+        bg-yellow-200/80 backdrop-blur-sm shadow-sm 
+        rotate-1 z-20 pointer-events-none
+        mix-blend-multiply
+      `} style={{ clipPath: 'polygon(5% 0%, 95% 2%, 100% 90%, 0% 100%)' }}></div>
+
+      {/* Polaroid Image Area Placeholder */}
+      <div className={`
+        w-full flex-1 mb-2 bg-stone-100 relative overflow-hidden
+        ${theme.pattern ? '' : 'bg-stone-50'}
+        flex items-center justify-center border border-stone-100
+      `} style={{ backgroundImage: theme.pattern }}>
+         <FileText size={compact ? 32 : 48} className={`${theme.icon} opacity-80 drop-shadow-sm`} />
+         
+         {/* Type Badge */}
+         <div className={`
+            absolute top-2 right-2 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm rounded-sm
+            ${theme.header}
+         `}>
+            {file.type}
+         </div>
       </div>
 
-      {/* Background Pattern */}
-      <div className="absolute inset-0 top-8 opacity-20 pointer-events-none" 
-           style={{ backgroundImage: theme.pattern, backgroundSize: '24px 24px' }}></div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-5 flex flex-col relative z-10">
-        
-        {/* Date/Time Stamp */}
-        <div className="flex justify-end mb-2">
-          <span className={`text-[10px] font-serif italic ${theme.text} opacity-60`}>
-            {file.time || 'Just now'}
-          </span>
-        </div>
-
-        {/* Title */}
-        <div className="mb-auto">
-          <h3 className={`font-hand text-2xl font-bold leading-tight ${theme.text} line-clamp-3`}>
-            {fileName}
-          </h3>
-          <div className={`h-0.5 w-12 mt-2 ${theme.header} opacity-30 rounded-full`}></div>
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-4 flex items-center justify-between">
-           <div className="flex items-center gap-2">
-             <div className={`p-1.5 rounded-full bg-white/60 shadow-sm ${theme.icon}`}>
-               <FileText size={16} />
-             </div>
-             <span className={`text-xs font-bold font-hand ${theme.text} opacity-70`}>
-               {fileSize}
-             </span>
-           </div>
-
-           <div className={`
-             w-8 h-8 rounded-full flex items-center justify-center 
-             bg-white shadow-sm opacity-0 group-hover:opacity-100 
-             transform translate-y-2 group-hover:translate-y-0 
-             transition-all duration-300 ${theme.icon}
-           `}>
-             <ExternalLink size={16} />
-           </div>
+      {/* Caption Area */}
+      <div className="text-center px-1 relative">
+        <h3 className={`
+          font-bold text-stone-800 font-hand leading-tight line-clamp-2
+          ${compact ? 'text-sm' : 'text-lg'}
+        `}>
+          {fileName}
+        </h3>
+        <div className="mt-1 text-[10px] text-stone-400 font-mono">
+           {file.time}
         </div>
       </div>
-
-      {/* Bottom Edge Shadow/Curl */}
-      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/5 to-transparent pointer-events-none"></div>
     </motion.div>
   );
 }

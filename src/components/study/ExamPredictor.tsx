@@ -54,7 +54,7 @@ export function ExamPredictor({
           <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
             {t('exam_strategist')}
           </h2>
-          <p className="text-stone-600 mb-8">
+          <p className="font-hand text-stone-600 mb-8">
             {t('exam_strategist_desc')}
           </p>
           
@@ -117,13 +117,13 @@ export function ExamPredictor({
 
                 <div className="bg-white border-2 border-stone-200 rounded-xl p-6 shadow-[4px_4px_0px_rgba(231,229,228,1)] hover:shadow-[6px_6px_0px_rgba(231,229,228,1)] hover:-translate-y-1 transition-all">
                   <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4 gap-2">
-                    <h3 className="font-hand text-2xl font-bold text-stone-800">
+                    <h3 className="font-hand text-xl md:text-2xl font-bold text-stone-800 break-words">
                       {item.topic}
                     </h3>
                     
                     {/* Stamp-like Probability Badge */}
                     <div className={`
-                      transform rotate-[-2deg] px-3 py-1 border-2 rounded text-xs font-bold uppercase tracking-wider shadow-sm self-start md:self-auto
+                      transform rotate-[-2deg] px-3 py-1 border-2 rounded text-xs font-bold uppercase tracking-wider shadow-sm self-start md:self-auto flex-shrink-0
                       ${item.probability > 80 ? 'bg-red-50 text-red-600 border-red-600' : 
                         item.probability > 60 ? 'bg-orange-50 text-orange-600 border-orange-600' : 
                         'bg-blue-50 text-blue-600 border-blue-600'}
@@ -132,7 +132,7 @@ export function ExamPredictor({
                     </div>
                   </div>
 
-                  <p className="text-stone-700 mb-4 leading-relaxed">
+                  <p className="text-stone-700 mb-4 leading-relaxed break-words">
                     <span className="font-bold text-stone-900 bg-yellow-100 px-1 rounded">{t('insight')}:</span> {item.reasoning || item.context || "Focus on key concepts related to this topic."}
                   </p>
 

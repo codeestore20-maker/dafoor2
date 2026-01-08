@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StudySidebar, ViewMode } from './StudySidebar';
 import { SmartNotes } from './SmartNotes';
 import { DeepSummary } from './DeepSummary';
@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { useQuery } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
+import { recentFilesService } from '../../lib/recentFiles';
 
 export function StudyInterface() {
   const { fileId } = useParams();
@@ -36,12 +37,25 @@ export function StudyInterface() {
     enabled: !!fileId
   });
 
+  // Add to recent files when resource is loaded
+  useEffect(() => {
+    if (resource && resource.id) {
+      recentFilesService.addFile({
+        id: resource.id,
+        name: resource.name,
+        subject: resource.subjectName || 'Subject',
+        type: resource.type,
+        size: resource.size
+      });
+    }
+  }, [resource]);
+
   const rawFileName = resource?.name || t('loading_files');
   const fileName = rawFileName.replace(/\.[^/.]+$/, ""); // Strip extension
 
   const onBack = () => {
       if (resource?.subjectId) {
-          navigate(`/app?subjectId=${resource.subjectId}`);
+          navigate(`/app/subject/${resource.subjectId}`);
       } else {
           navigate('/app');
       }

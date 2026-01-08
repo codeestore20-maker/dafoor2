@@ -50,7 +50,7 @@ export function DeepSummary() {
           <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
             {t('deep_summary_empty')}
           </h2>
-          <p className="text-stone-600 mb-8">
+          <p className="font-hand text-stone-600 mb-8">
             {t('ai_not_analyzed')}
           </p>
           
@@ -77,7 +77,7 @@ export function DeepSummary() {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4 md:p-8 custom-scrollbar">
+    <div className="h-full overflow-y-auto p-2 sm:p-4 md:p-8 custom-scrollbar">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -99,21 +99,27 @@ export function DeepSummary() {
             {/* Markdown Content */}
             <ReactMarkdown
               components={{
-                p: ({node, ...props}) => <p className="font-hand mb-4" {...props} />,
-                h1: ({node, ...props}) => <h1 className="font-hand text-4xl font-bold text-school-board mb-6 mt-4" {...props} />,
+                p: ({node, ...props}) => <p className="font-hand mb-4 break-words" {...props} />,
+                h1: ({node, ...props}) => <h1 className="font-hand text-3xl md:text-4xl font-bold text-school-board mb-6 mt-4 break-words" {...props} />,
                 h2: ({node, ...props}) => (
-                  <h2 className="font-hand text-2xl font-bold text-school-blue mb-4 mt-8 flex items-center gap-2" {...props}>
+                  <h2 className="font-hand text-2xl font-bold text-school-blue mb-4 mt-8 flex flex-wrap items-center gap-2 break-words" {...props}>
                     {props.children}
                     <HandUnderline className="w-16 h-2 text-school-blue opacity-30 inline-block ml-2" />
                   </h2>
                 ),
-                h3: ({node, ...props}) => <h3 className="font-hand text-xl font-bold text-stone-700 mb-3 mt-6" {...props} />,
+                h3: ({node, ...props}) => <h3 className="font-hand text-xl font-bold text-stone-700 mb-3 mt-6 break-words" {...props} />,
                 ul: ({node, ...props}) => <ul className="font-hand list-disc pl-6 space-y-2 marker:text-school-red mb-4" {...props} />,
-                li: ({node, ...props}) => <li className="font-hand pl-1" {...props} />,
+                li: ({node, ...props}) => <li className="font-hand pl-1 break-words" {...props} />,
                 strong: ({node, ...props}) => <span className="font-hand font-bold bg-yellow-100/80 px-1 rounded mx-0.5 box-decoration-clone" {...props} />,
+                code: ({node, ...props}) => <code className="bg-stone-100 px-1.5 py-0.5 rounded font-mono text-sm text-pink-600 break-all" {...props} />,
+                pre: ({node, ...props}) => (
+                  <div className="bg-stone-800 p-4 rounded-lg my-6 overflow-x-auto custom-scrollbar">
+                     <pre className="font-mono text-sm text-stone-200" {...props} />
+                  </div>
+                ),
                 blockquote: ({node, ...props}) => (
-                  <div className="bg-stone-100 p-6 rounded-lg border-l-4 border-school-pencil my-6">
-                    <div className="italic text-stone-700 m-0">{props.children}</div>
+                  <div className="bg-stone-100 p-4 md:p-6 rounded-lg border-l-4 border-school-pencil my-6">
+                    <div className="italic text-stone-700 m-0 break-words">{props.children}</div>
                   </div>
                 ),
               }}

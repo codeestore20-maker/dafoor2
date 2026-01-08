@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, FileText, Check, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const { t } = useTranslation();
+  const { currentStep } = useOnboarding();
 
   const languages = ["English", "Arabic", "Spanish", "French", "German"];
 
@@ -34,12 +36,12 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
     // Check file type
     const validTypes = ['application/pdf', 'text/plain'];
     if (!validTypes.includes(file.type)) {
-      setError('Please upload a PDF or Text file');
+      setError(t('error_file_type'));
       return false;
     }
     // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      setError('File size must be less than 10MB');
+      setError(t('error_file_size'));
       return false;
     }
     return true;
@@ -124,7 +126,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                       <button
                         key={lang}
                         onClick={() => setSelectedLanguage(lang)}
-                        className={`px-4 py-2 rounded-lg font-bold border-2 transition-all ${
+                        className={`px-4 py-2 rounded-lg font-bold font-hand border-2 transition-all ${
                           selectedLanguage === lang 
                             ? 'bg-school-board text-white border-school-board shadow-md' 
                             : 'bg-white text-stone-600 border-stone-200 hover:border-school-board'

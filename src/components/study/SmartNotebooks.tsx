@@ -80,8 +80,8 @@ export function SmartNotebooks() {
         <div className="max-w-4xl mx-auto relative">
           
           {/* Floating Toolbar (Sticky) */}
-          <div className="sticky top-4 z-30 mb-6 mx-4">
-             <div className="bg-white/90 backdrop-blur-sm border-2 border-stone-200 rounded-xl shadow-xl p-2 flex items-center gap-2 max-w-fit mx-auto transform -rotate-1 transition-all hover:rotate-0">
+          <div className="sticky top-4 z-30 mb-6 mx-0 md:mx-4">
+             <div className="bg-white/90 backdrop-blur-sm border-2 border-stone-200 rounded-xl shadow-xl p-2 flex flex-wrap justify-center items-center gap-2 max-w-fit mx-auto transform -rotate-1 transition-all hover:rotate-0">
                 <div className="flex items-center gap-1 border-r rtl:border-r-0 rtl:border-l border-stone-300 pr-2 mr-2 rtl:pr-0 rtl:pl-2 rtl:mr-0 rtl:ml-2">
                     <button className="p-2 hover:bg-stone-100 rounded-lg text-stone-600 transition-colors" title="Bold">
                       <Bold size={18} />

@@ -58,12 +58,12 @@ export function RepositoryView({ subjectId, subjectName }: RepositoryViewProps) 
            style={{ backgroundImage: 'radial-gradient(#A8A29E 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
 
       {/* Header - Minimalist with Tape */}
-      <div className="z-10 px-6 py-5 flex items-end justify-between gap-6 relative">
+      <div className="z-10 px-4 md:px-6 py-5 flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
         <div className="relative">
            {/* Tape Effect */}
            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-white/40 backdrop-blur-sm rotate-1 shadow-sm border border-white/50 z-0"></div>
            
-           <h1 className="font-hand text-3xl font-bold text-stone-800 relative z-10 px-4 py-1 bg-white/80 transform -rotate-1 shadow-sm border border-stone-200 rounded-sm">
+           <h1 className="font-hand text-2xl md:text-3xl font-bold text-stone-800 relative z-10 px-4 py-1 bg-white/80 transform -rotate-1 shadow-sm border border-stone-200 rounded-sm inline-block">
              {subjectName}
            </h1>
            <p className="text-stone-500 font-serif italic mt-1 ml-2 text-xs">
@@ -72,29 +72,31 @@ export function RepositoryView({ subjectId, subjectName }: RepositoryViewProps) 
         </div>
 
         {/* Search Bar & Actions */}
-        <div className="flex items-center gap-3">
-            <div className="relative hidden md:block w-56">
+        <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center gap-3">
+            <div className="relative w-full md:w-56">
                <input 
                  type="text" 
                  placeholder={t('search_in_subject', { subject: subjectName })} 
-                 className="w-full pl-3 pr-8 py-1.5 bg-white/50 border-b-2 border-stone-300 focus:border-stone-500 focus:outline-none font-hand text-stone-700 placeholder-stone-400 transition-colors text-sm" 
+                 className="w-full pl-3 pr-8 rtl:pl-8 rtl:pr-3 py-1.5 bg-white/50 border-b-2 border-stone-300 focus:border-stone-500 focus:outline-none font-hand text-stone-700 placeholder-stone-400 transition-colors text-sm" 
                />
-               <Search className="absolute right-0 top-1/2 -translate-x-1/2 text-stone-400" size={16} />
+               <Search className="absolute right-0 rtl:right-auto rtl:left-0 top-1/2 -translate-x-1/2 rtl:translate-x-1/2 text-stone-400" size={16} />
             </div>
 
-            <div className="bg-white p-1 rounded-lg border border-stone-200 shadow-sm flex">
-              <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-stone-100 text-stone-800' : 'text-stone-400 hover:text-stone-600'}`}>
-                <Grid size={16} />
-              </button>
-              <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-stone-100 text-stone-800' : 'text-stone-400 hover:text-stone-600'}`}>
-                <ListIcon size={16} />
-              </button>
-            </div>
+            <div className="flex items-center gap-3 justify-between md:justify-start">
+                <div className="bg-white p-1 rounded-lg border border-stone-200 shadow-sm flex">
+                  <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-stone-100 text-stone-800' : 'text-stone-400 hover:text-stone-600'}`}>
+                    <Grid size={16} />
+                  </button>
+                  <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-stone-100 text-stone-800' : 'text-stone-400 hover:text-stone-600'}`}>
+                    <ListIcon size={16} />
+                  </button>
+                </div>
 
-            <button onClick={() => setIsUploadOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-stone-800 text-white rounded-lg font-hand font-bold shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all text-sm active:translate-y-0 active:shadow-md">
-              <Upload size={16} className="flip-rtl" />
-              <span className="hidden sm:inline">{t('upload_file')}</span>
-            </button>
+                <button onClick={() => setIsUploadOpen(true)} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-stone-800 text-white rounded-lg font-hand font-bold shadow-md hover:-translate-y-0.5 hover:shadow-lg transition-all text-sm active:translate-y-0 active:shadow-md whitespace-nowrap">
+                  <Upload size={16} className="flip-rtl" />
+                  <span>{t('upload_file')}</span>
+                </button>
+            </div>
         </div>
       </div>
 

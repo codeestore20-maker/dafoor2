@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, Check, Calculator, FlaskConical, Globe, Book, Languages, Palette, Layout, Music, Laptop } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { useOnboarding } from '../../context/OnboardingContext';
 
 interface CreateSubjectModalProps {
   isOpen: boolean;
@@ -30,7 +32,16 @@ const COLORS = [
   '#607D8B', // Blue Grey
 ];
 
+// --- Decorative Elements ---
+const Tape = ({ className, color = 'bg-yellow-200' }: { className?: string, color?: string }) => (
+  <div className={`absolute h-8 w-32 ${color} opacity-90 transform -rotate-2 shadow-sm z-20 pointer-events-none mix-blend-multiply ${className}`} 
+       style={{ clipPath: 'polygon(2% 0%, 98% 2%, 100% 98%, 0% 100%)' }}></div>
+);
+
 export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectModalProps) {
+  const { t, i18n } = useTranslation();
+  const { currentStep, completeStep, skipTour } = useOnboarding();
+  const isRtl = i18n.language === 'ar';
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState(ICONS[0]);
@@ -50,6 +61,11 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
       file: file
     };
     onCreate(newSubject);
+    
+    if (currentStep === 1) {
+        completeStep();
+    }
+    
     resetForm();
     onClose();
   };
@@ -68,60 +84,66 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border-2 border-stone-200"
+          initial={{ opacity: 0, scale: 0.95, rotate: -1 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, scale: 0.95, rotate: 1 }}
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border-4 border-stone-800 relative"
         >
+          <Tape className="-top-3 left-1/2 -translate-x-1/2 bg-red-300 w-40 rotate-2" />
+
           {/* Header */}
-          <div className="bg-stone-50 px-6 py-4 border-b border-stone-200 flex items-center justify-between">
-            <h2 className="font-hand text-2xl font-bold text-stone-800">
-              Create New Subject
+          <div className="bg-[#fffbf0] px-6 py-6 border-b-2 border-stone-800 flex items-center justify-between relative">
+             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#444cf7 0.5px, transparent 0.5px)', backgroundSize: '10px 10px' }}></div>
+            <h2 className="font-hand text-3xl font-bold text-stone-800 relative z-10 transform -rotate-1">
+              {t('create_new_subject')}
             </h2>
-            <button onClick={onClose} className="p-2 hover:bg-stone-200 rounded-full text-stone-500 transition-colors">
-              <X size={20} />
+            <button onClick={onClose} className="p-2 hover:bg-stone-200 rounded-full text-stone-500 transition-colors relative z-10 border-2 border-transparent hover:border-stone-800">
+              <X size={24} />
             </button>
           </div>
 
-          <div className="p-6">
+          <div className="p-8 bg-white relative">
+             <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
+
             {/* Step 1: Basic Info */}
-            <div className="space-y-6">
+            <div className="space-y-8 relative z-10">
               <div>
-                <label className="block text-sm font-bold text-stone-600 mb-2 uppercase tracking-wide">
-                  Subject Name
+                <label className="block text-xl font-bold font-hand text-stone-800 mb-2 transform rotate-1 inline-block">
+                  {t('subject_name')}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g., Advanced Physics"
-                  className="w-full px-4 py-3 bg-stone-50 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-school-board focus:bg-white font-serif text-lg transition-all"
+                  placeholder={t('subject_name_placeholder')}
+                  className="w-full px-4 py-3 bg-[#fffbf0] border-2 border-stone-800 rounded-xl focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] focus:-translate-y-1 transition-all font-hand text-xl placeholder:text-stone-400"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-stone-600 mb-2 uppercase tracking-wide">
-                  Choose Icon & Color
+                <label className="block text-xl font-bold font-hand text-stone-800 mb-4 transform -rotate-1 inline-block">
+                  {t('choose_color')} & {t('subject_icon')}
                 </label>
-                <div className="flex gap-4">
+                <div className="flex gap-6">
                    {/* Preview */}
                    <div 
-                      className="w-16 h-16 rounded-full flex items-center justify-center border-2 border-stone-800 shadow-md shrink-0 transition-colors"
+                      className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-stone-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] shrink-0 transition-colors transform rotate-3"
                       style={{ backgroundColor: selectedColor }}
                    >
-                      <selectedIcon.icon size={32} className="text-white" />
+                      <selectedIcon.icon size={40} className="text-white drop-shadow-md" />
                    </div>
                    
-                   <div className="flex-1 space-y-3">
-                      {/* Color Picker */}
-                      <div className="flex flex-wrap gap-2">
+                   <div className="flex-1 space-y-4">
+                      {/* Color Picker (Paint Blobs) */}
+                      <div className="flex flex-wrap gap-3">
                         {COLORS.map(color => (
                           <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
-                            className={`w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 ${selectedColor === color ? 'border-stone-800 scale-110' : 'border-transparent'}`}
-                            style={{ backgroundColor: color }}
+                            className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${selectedColor === color ? 'border-stone-800 scale-125 shadow-sm' : 'border-transparent opacity-80 hover:opacity-100'}`}
+                            style={{ backgroundColor: color, borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%' }}
+                            title="Color"
                           />
                         ))}
                       </div>
@@ -132,7 +154,7 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                           <button
                             key={item.id}
                             onClick={() => setSelectedIcon(item)}
-                            className={`p-2 rounded-lg border-2 transition-all ${selectedIcon.id === item.id ? 'bg-stone-100 border-stone-400 text-stone-800' : 'border-transparent hover:bg-stone-50 text-stone-400'}`}
+                            className={`p-2 rounded-lg border-2 transition-all ${selectedIcon.id === item.id ? 'bg-stone-100 border-stone-800 text-stone-800 shadow-sm' : 'border-transparent hover:bg-stone-50 text-stone-400'}`}
                             title={item.label}
                           >
                             <item.icon size={20} />
@@ -143,10 +165,10 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-stone-100">
-                <label className="block text-sm font-bold text-stone-600 mb-2 uppercase tracking-wide flex justify-between">
-                  <span>Initial Upload (Optional)</span>
-                  {file && <span className="text-green-600 text-xs flex items-center gap-1"><Check size={12}/> Attached</span>}
+              <div className="pt-6 border-t-2 border-dashed border-stone-300">
+                <label className="block text-xl font-bold font-hand text-stone-800 mb-3 flex justify-between items-center">
+                  <span>{t('upload_syllabus')}</span>
+                  {file && <span className="text-green-600 text-sm font-sans font-bold flex items-center gap-1 bg-green-100 px-2 py-1 rounded-md border border-green-200"><Check size={14}/> {t('attached', {defaultValue: 'Attached'})}</span>}
                 </label>
                 <div className="relative group cursor-pointer">
                   <input 
@@ -156,11 +178,11 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                   />
                   <div className={`
                     border-2 border-dashed rounded-xl p-4 flex items-center justify-center gap-3 transition-all
-                    ${file ? 'border-green-400 bg-green-50' : 'border-stone-300 bg-stone-50 group-hover:border-school-board/50 group-hover:bg-white'}
+                    ${file ? 'border-green-500 bg-green-50' : 'border-stone-400 bg-stone-50 group-hover:border-stone-800 group-hover:bg-white'}
                   `}>
-                    <Upload size={20} className={file ? 'text-green-600' : 'text-stone-400'} />
-                    <span className={`font-serif text-sm ${file ? 'text-green-700 font-bold' : 'text-stone-500'}`}>
-                      {file ? file.name : 'Drop a file or click to browse'}
+                    <Upload size={24} className={file ? 'text-green-600' : 'text-stone-400'} />
+                    <span className={`font-hand text-lg ${file ? 'text-green-700 font-bold' : 'text-stone-500'}`}>
+                      {file ? file.name : t('drop_file_here')}
                     </span>
                   </div>
                 </div>
@@ -169,20 +191,22 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
           </div>
 
           {/* Footer */}
-          <div className="p-6 pt-0 flex justify-end gap-3">
+          <div className="p-6 pt-0 flex justify-end gap-3 bg-white rounded-b-2xl relative">
              <button 
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl font-bold text-stone-500 hover:bg-stone-100 transition-colors"
+                className="px-6 py-2 rounded-xl font-bold font-hand text-stone-500 hover:bg-stone-100 transition-colors text-lg"
              >
-               Cancel
+               {t('cancel')}
              </button>
-             <button 
-                onClick={handleSubmit}
-                disabled={!name.trim()}
-                className="px-8 py-2.5 bg-school-board text-white rounded-xl font-hand font-bold text-lg shadow-[3px_3px_0px_rgba(41,37,36,1)] border-2 border-stone-800 hover:translate-y-[1px] hover:shadow-[2px_2px_0px_rgba(41,37,36,1)] transition-all active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
-             >
-               Create Subject
-             </button>
+             <div className="relative">
+                <button 
+                    onClick={handleSubmit}
+                    disabled={!name.trim()}
+                    className="px-8 py-2 bg-school-board text-white rounded-xl font-hand font-bold text-xl shadow-[3px_3px_0px_rgba(41,37,36,1)] border-2 border-stone-800 hover:translate-y-[1px] hover:shadow-[2px_2px_0px_rgba(41,37,36,1)] transition-all active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                {t('create')}
+                </button>
+             </div>
           </div>
         </motion.div>
       </div>

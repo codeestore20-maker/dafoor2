@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IndexCard } from '../shared/IndexCard';
 import { RefreshCw, Check, RotateCcw, Shuffle, Sparkles, Layers, ChevronRight, ChevronLeft } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { useTranslation } from 'react-i18next';
@@ -86,7 +85,7 @@ export function Flashcards() {
          <div className="animate-spin mb-4">
             <RefreshCw size={32} />
          </div>
-         <p className="font-hand text-xl">{t('loading_flashcards')}</p>
+         <p className="font-hand text-xl font-bold">{t('loading_flashcards')}</p>
       </div>
     );
   }
@@ -94,30 +93,33 @@ export function Flashcards() {
   if (isError || !deck || !localCards.length) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8">
-        <div className="max-w-md text-center">
-          <div className="bg-school-board/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-school-board">
-            <Layers size={40} />
+        <div className="max-w-md text-center relative">
+          {/* Background Doodle */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-school-board/5 rounded-full blur-3xl -z-10"></div>
+          
+          <div className="bg-white border-2 border-stone-200 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 text-school-board shadow-[4px_4px_0px_rgba(0,0,0,0.1)] rotate-3">
+            <Layers size={48} />
           </div>
-          <h2 className="font-hand text-3xl font-bold text-stone-800 mb-4">
+          <h2 className="font-hand text-4xl font-bold text-stone-800 mb-4">
             {t('flashcards_empty')}
           </h2>
-          <p className="text-stone-600 mb-8">
+          <p className="font-hand text-stone-500 mb-8 text-lg leading-relaxed">
             {t('flashcards_desc')}
           </p>
           
           <button
             onClick={() => generateMutation.mutate()}
             disabled={generateMutation.isPending}
-            className="px-8 py-3 bg-school-board text-white rounded-xl font-hand font-bold text-xl shadow-[4px_4px_0px_rgba(41,37,36,1)] border-2 border-stone-800 hover:translate-y-[2px] hover:shadow-[2px_2px_0px_rgba(41,37,36,1)] transition-all active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
+            className="px-8 py-4 bg-school-board text-white rounded-xl font-hand font-bold text-xl shadow-[4px_4px_0px_rgba(41,37,36,1)] border-2 border-stone-800 hover:translate-y-[2px] hover:shadow-[2px_2px_0px_rgba(41,37,36,1)] transition-all active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
           >
             {generateMutation.isPending ? (
               <>
-                <RefreshCw size={20} className="animate-spin" />
+                <RefreshCw size={24} className="animate-spin" />
                 {t('generating')}
               </>
             ) : (
               <>
-                <Sparkles size={20} />
+                <Sparkles size={24} />
                 {t('generate_flashcards')}
               </>
             )}
@@ -131,187 +133,183 @@ export function Flashcards() {
   const currentCard = localCards[currentIndex];
 
   return (
-    <div className="h-full flex flex-col items-center p-4 md:p-8 relative overflow-y-auto custom-scrollbar">
+    <div className="h-full flex flex-col items-center relative overflow-hidden bg-transparent">
       
-      {/* Top Header Area - Compact & Centered */}
-      <div className="w-full max-w-4xl mx-auto flex items-center justify-between mb-4 md:mb-8 px-4">
-         {/* Mastered Counter */}
-         <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-sm border border-stone-100 text-sm font-bold text-green-600">
-            <Check size={16} className="text-green-500" />
-            <span>{t('mastered_count', { count: masteredCount })}</span>
+      {/* Top Header Area */}
+      <div className="w-full max-w-5xl mx-auto flex items-center justify-between p-4 md:p-8 z-20">
+         {/* Mastered Counter - Sticker Style */}
+         <div className="flex items-center gap-2 bg-[#e6f4ea] border-2 border-[#1e8e3e] text-[#1e8e3e] px-4 py-2 rounded-lg shadow-sm transform -rotate-2">
+            <Check size={20} strokeWidth={3} />
+            <span className="font-hand font-bold text-lg pt-1">{t('mastered_count', { count: masteredCount })}</span>
          </div>
          
-         {/* Central Progress Pill */}
-         <div className="flex-1 mx-4 md:mx-12 max-w-sm">
-            <div className="relative h-4 bg-stone-100 rounded-full overflow-hidden shadow-inner border border-stone-200/50">
+         {/* Central Progress Ruler */}
+         <div className="flex-1 mx-4 md:mx-16 max-w-md hidden md:block">
+            <div className="relative h-4 bg-[#f0ebd8] rounded-sm border border-stone-300 shadow-inner overflow-hidden">
+                {/* Ruler markings */}
+                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(90deg, transparent 95%, #a8a29e 95%)', backgroundSize: '10px 100%' }}></div>
+                
                 <motion.div 
-                    className="h-full bg-gradient-to-r from-school-board to-school-board/80 rounded-full" 
+                    className="h-full bg-school-board/80 relative" 
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
                     transition={{ type: "spring", stiffness: 50, damping: 15 }}
-                />
+                >
+                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-school-board shadow-[0_0_10px_rgba(0,0,0,0.2)]"></div>
+                </motion.div>
             </div>
             <div className="flex justify-between mt-1 px-1">
-                <span className="text-[10px] font-bold text-stone-400 tracking-wider">{t('start')}</span>
-                <span className="text-[10px] font-bold text-stone-400 tracking-wider">{t('finish')}</span>
+                <span className="font-hand text-xs font-bold text-stone-400">{currentIndex + 1}</span>
+                <span className="font-hand text-xs font-bold text-stone-400">{localCards.length}</span>
             </div>
          </div>
 
          {/* Shuffle Button */}
          <button 
             onClick={handleShuffle} 
-            className="p-3 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-stone-100 text-stone-400 hover:text-school-board hover:border-school-board hover:scale-105 transition-all active:scale-95" 
+            className="p-3 bg-white border-2 border-stone-200 text-stone-400 rounded-xl hover:text-school-board hover:border-school-board hover:rotate-6 transition-all shadow-sm active:scale-95" 
             title="Shuffle Deck"
          >
-            <Shuffle size={18} />
+            <Shuffle size={20} />
          </button>
       </div>
 
-      {/* Main Study Area - Lifted Up */}
-      <div className="w-full max-w-6xl flex items-start md:items-center justify-center gap-4 md:gap-16 flex-1 min-h-[500px] pt-8 md:pt-0">
+      {/* Main Study Area */}
+      <div className="w-full max-w-7xl flex items-center justify-center gap-4 md:gap-8 flex-1 relative z-10 px-4">
         
-        {/* Left Button (Prev in LTR, Next in RTL) */}
+        {/* Navigation Arrows */}
         <button 
             onClick={isRtl ? handleNext : handlePrev}
-            className="hidden md:flex flex-col items-center gap-2 group transition-all transform hover:-translate-x-1 active:scale-95 z-10"
+            className="hidden md:flex p-4 text-stone-300 hover:text-school-board hover:scale-110 transition-all absolute left-4 xl:left-0 z-20"
         >
-             <div className="p-4 rounded-2xl bg-white border-2 border-stone-100 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] text-stone-600 group-hover:text-school-board group-hover:border-school-board group-hover:shadow-[4px_4px_0px_rgba(75,85,99,0.1)] transition-all">
-                {isRtl ? <ChevronRight size={32} /> : <ChevronLeft size={32} />}
-             </div>
-             <span className="text-xs font-bold text-stone-500 uppercase tracking-widest group-hover:text-school-board transition-colors">
-                {isRtl ? t('next') : t('previous')}
-             </span>
+             <ChevronLeft size={48} strokeWidth={2.5} />
+        </button>
+
+        <button 
+            onClick={isRtl ? handlePrev : handleNext}
+            className="hidden md:flex p-4 text-stone-300 hover:text-school-board hover:scale-110 transition-all absolute right-4 xl:right-0 z-20"
+        >
+             <ChevronRight size={48} strokeWidth={2.5} />
         </button>
 
         {/* Card Container */}
-        <div className="w-full max-w-2xl perspective-1000 relative -mt-12 md:-mt-24">
-            <div className="relative h-[28rem] md:h-[32rem] w-full cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
+        <div className="w-full max-w-2xl perspective-1000 relative -mt-8 md:-mt-16">
+            <div className="relative aspect-[1.5/1] md:aspect-[1.6/1] w-full cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
             <motion.div 
                 className="w-full h-full absolute preserve-3d" 
                 initial={false} 
                 animate={{ rotateY: isFlipped ? 180 : 0 }} 
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             >
-                {/* Front of Card - Question */}
+                {/* Front of Card - White Paper */}
                 <div className="absolute inset-0 backface-hidden">
-                    <IndexCard className="h-full flex flex-col items-center justify-between text-center bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-shadow duration-300 ease-out relative overflow-hidden border border-stone-100 rounded-[2rem]">
+                    <div className="h-full w-full bg-white rounded-2xl md:rounded-[2rem] shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-stone-200 overflow-hidden flex flex-col relative">
+                        {/* Paper Texture & Lines */}
+                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")` }}></div>
+                        <div className="absolute inset-0" style={{ 
+                            backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, #e5e7eb 31px, #e5e7eb 32px)',
+                            backgroundAttachment: 'local'
+                        }}></div>
                         
-                        {/* Top Accent - Minimalist Yellow */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-school-pencil/80 w-full z-10" />
+                        {/* Red Margin Line */}
+                        <div className="absolute top-0 bottom-0 left-12 rtl:right-12 rtl:left-auto w-0.5 bg-red-400/20 z-0"></div>
                         
-                        {/* Subtle Noise Texture */}
-                        <div className="absolute inset-0 bg-paper-pattern opacity-[0.03] pointer-events-none" />
-
                         {/* Content Area */}
-                        <div className="flex-1 flex items-center justify-center w-full px-8 md:px-12 pt-10 pb-4 z-10">
-                            <h3 className="font-hand text-3xl md:text-4xl text-stone-800 font-bold leading-relaxed tracking-wide antialiased" dir="auto">
+                        <div className="flex-1 flex items-center justify-center w-full px-16 md:px-24 z-10">
+                            <h3 className="font-hand text-2xl md:text-4xl text-stone-800 font-bold leading-relaxed text-center" dir="auto">
                                 {currentCard.front}
                             </h3>
                         </div>
 
-                        {/* Bottom Action Area - Integrated */}
-                        <div className="w-full pb-8 z-10 flex justify-center">
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-full text-stone-300 text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-school-pencil transition-colors duration-300">
+                        {/* Bottom Hint */}
+                        <div className="w-full pb-6 z-10 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-stone-100/80 text-stone-400 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
                                 <span>{t('tap_to_flip')}</span>
-                                <RotateCcw size={12} className="group-hover:rotate-180 transition-transform duration-500" />
+                                <RotateCcw size={12} />
                             </div>
                         </div>
-                    </IndexCard>
+                    </div>
                 </div>
 
-                {/* Back of Card - Answer */}
+                {/* Back of Card - Yellow Paper */}
                 <div className="absolute inset-0 backface-hidden" style={{ transform: 'rotateY(180deg)' }}>
-                    <IndexCard className="h-full flex flex-col items-center justify-between text-center bg-[#f8faf9] shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative overflow-hidden border border-stone-100 rounded-[2rem]">
+                    <div className="h-full w-full bg-[#fefce8] rounded-2xl md:rounded-[2rem] shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-yellow-300/50 overflow-hidden flex flex-col relative">
+                        {/* Paper Texture & Lines */}
+                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")` }}></div>
+                        <div className="absolute inset-0" style={{ 
+                            backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, #fef08a 31px, #fef08a 32px)',
+                            backgroundAttachment: 'local'
+                        }}></div>
                         
-                        {/* Top Accent - Minimalist Green */}
-                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-school-board/80 w-full z-10" />
-
-                        {/* Subtle Texture & Gradient */}
-                        <div className="absolute inset-0 bg-paper-pattern opacity-[0.03] pointer-events-none" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-green-50/30 to-transparent pointer-events-none" />
-
                         {/* Content Area */}
-                        <div className="flex-1 flex items-center justify-center w-full px-8 md:px-12 pt-10 pb-4 z-10">
+                        <div className="flex-1 flex items-center justify-center w-full px-12 md:px-20 z-10">
                             <div className="w-full relative">
-                                <h3 className="font-hand text-2xl md:text-3xl text-stone-800 font-bold leading-loose tracking-wide whitespace-pre-wrap antialiased" dir="auto">
+                                <h3 className="font-hand text-xl md:text-3xl text-stone-800 font-bold leading-loose text-center whitespace-pre-wrap" dir="auto">
                                     {currentCard.back}
                                 </h3>
                             </div>
                         </div>
 
-                        {/* Bottom Action Area */}
-                        <div className="w-full pb-8 z-10 flex justify-center">
-                             <div className="flex items-center gap-2 px-4 py-2 rounded-full text-stone-300 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-school-board transition-colors duration-300">
+                        {/* Bottom Hint */}
+                        <div className="w-full pb-6 z-10 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-yellow-200/50 text-yellow-700/50 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
                                 <span>{t('tap_to_flip')}</span>
                                 <RotateCcw size={12} />
                             </div>
                         </div>
-                    </IndexCard>
+                    </div>
                 </div>
             </motion.div>
             </div>
 
-            {/* Action Buttons - Outside, Below & Floating */}
+            {/* Action Buttons - Appearing when flipped */}
             <AnimatePresence>
                 {isFlipped && (
                     <motion.div 
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className="absolute -bottom-28 left-0 right-0 flex items-center justify-center gap-4 md:gap-8 z-20"
+                        className="absolute -bottom-32 left-0 right-0 flex items-center justify-center gap-8 md:gap-16 z-20"
                     >
                         <button 
                             onClick={handleMistake} 
-                            className="group flex flex-col items-center gap-2"
+                            className="group flex flex-col items-center gap-3"
                         >
-                            <div className="w-16 h-16 rounded-2xl bg-white border-2 border-red-100 text-red-400 shadow-sm flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-200 group-hover:-translate-y-1 group-hover:shadow-md transition-all">
-                                <RotateCcw size={24} strokeWidth={2.5} />
+                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border-4 border-red-100 text-red-400 shadow-sm flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-300 group-hover:-translate-y-2 group-hover:shadow-md transition-all transform hover:rotate-[-6deg]">
+                                <RotateCcw size={28} strokeWidth={3} />
                             </div>
-                            <span className="text-sm font-bold text-stone-500 group-hover:text-red-500 transition-colors">{t('review_again')}</span>
+                            <span className="font-hand text-sm md:text-lg font-bold text-stone-400 group-hover:text-red-500 transition-colors">{t('review_again')}</span>
                         </button>
 
                         <button 
                             onClick={handleMastered} 
-                            className="group flex flex-col items-center gap-2"
+                            className="group flex flex-col items-center gap-3"
                         >
-                            <div className="w-16 h-16 rounded-2xl bg-white border-2 border-green-100 text-green-500 shadow-sm flex items-center justify-center group-hover:bg-green-50 group-hover:border-green-200 group-hover:-translate-y-1 group-hover:shadow-md transition-all">
-                                <Check size={28} strokeWidth={3} />
+                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border-4 border-green-100 text-green-500 shadow-sm flex items-center justify-center group-hover:bg-green-50 group-hover:border-green-300 group-hover:-translate-y-2 group-hover:shadow-md transition-all transform hover:rotate-[6deg]">
+                                <Check size={36} strokeWidth={4} />
                             </div>
-                            <span className="text-sm font-bold text-stone-500 group-hover:text-green-600 transition-colors">{t('mastered')}</span>
+                            <span className="font-hand text-sm md:text-lg font-bold text-stone-400 group-hover:text-green-600 transition-colors">{t('mastered')}</span>
                         </button>
                     </motion.div>
                 )}
             </AnimatePresence>
         </div>
 
-        {/* Right Button (Next in LTR, Prev in RTL) */}
-        <button 
-            onClick={isRtl ? handlePrev : handleNext}
-            className="hidden md:flex flex-col items-center gap-2 group transition-all transform hover:translate-x-1 active:scale-95 z-10"
-        >
-             <div className="p-4 rounded-2xl bg-white border-2 border-stone-100 shadow-[4px_4px_0px_rgba(0,0,0,0.05)] text-stone-600 group-hover:text-school-board group-hover:border-school-board group-hover:shadow-[4px_4px_0px_rgba(75,85,99,0.1)] transition-all">
-                {isRtl ? <ChevronLeft size={32} /> : <ChevronRight size={32} />}
-             </div>
-             <span className="text-xs font-bold text-stone-500 uppercase tracking-widest group-hover:text-school-board transition-colors">
-                {isRtl ? t('previous') : t('next')}
-             </span>
-        </button>
-
       </div>
 
       {/* Mobile Navigation - Fixed Bottom */}
-      <div className="flex md:hidden items-center justify-between w-full px-6 fixed bottom-8 left-0 right-0 z-50 pointer-events-none">
+      <div className="flex md:hidden items-center justify-between w-full px-6 fixed bottom-6 left-0 right-0 z-50 pointer-events-none">
          <button onClick={isRtl ? handleNext : handlePrev} className="pointer-events-auto p-4 bg-white/90 backdrop-blur rounded-full shadow-lg border border-stone-200 text-stone-500 active:scale-90 transition-transform">
-            {isRtl ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+            <ChevronLeft size={24} />
          </button>
          
-         <div className="pointer-events-auto bg-stone-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg opacity-80">
+         <div className="pointer-events-auto bg-stone-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg opacity-80 font-hand">
             {currentIndex + 1} / {localCards.length}
          </div>
 
          <button onClick={isRtl ? handlePrev : handleNext} className="pointer-events-auto p-4 bg-white/90 backdrop-blur rounded-full shadow-lg border border-stone-200 text-stone-500 active:scale-90 transition-transform">
-            {isRtl ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+            <ChevronRight size={24} />
          </button>
       </div>
 

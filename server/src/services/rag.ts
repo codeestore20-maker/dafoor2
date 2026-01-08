@@ -178,10 +178,16 @@ export const ragService = {
             IMPORTANT: The flashcards MUST be in ${language}.
             CRITICAL: You must keep key technical terms, specific terminology, and important concepts in their original language (usually English). Do not translate these specific terms, but explain them in ${language}.
             
-            Example:
-            Front: "What is [English Term]?"
-            Back: "Explanation in ${language}..."` 
-          },
+            Do NOT include prefixes like "Question:", "Answer:", "Front:", or "Back:" in the content.
+            
+            JSON Example:
+            [
+              {
+                "front": "What is [Term]?",
+                "back": "Definition of [Term]..."
+              }
+            ]` 
+          }, 
           { role: "user", content: `Generate flashcards from this text: ${text}` }
         ],
         model: "deepseek-chat",
