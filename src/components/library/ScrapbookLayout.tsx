@@ -127,9 +127,9 @@ function ScrapbookLayoutContent() {
             {/* Mobile Menu Button */}
             <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden w-10 h-10 bg-stone-100 rounded-lg flex items-center justify-center border border-stone-200 text-stone-600 active:scale-95 transition-all"
+                className="md:hidden w-9 h-9 -mt-1 bg-stone-100 rounded-lg flex items-center justify-center border border-stone-200 text-stone-600 active:scale-95 transition-all"
             >
-                <Menu size={20} />
+                <Menu size={18} />
             </button>
 
             <div className="w-10 h-10 bg-school-board text-white rounded-lg flex items-center justify-center transform -rotate-3 shadow-md border-2 border-stone-800 hidden md:flex">

@@ -49,7 +49,7 @@ export function StudySidebar({
   return <div className="h-full bg-stone-100 border-r rtl:border-r-0 rtl:border-l border-stone-200 flex flex-col w-full">
       {/* Header */}
       <div className="p-4 border-b border-stone-200 bg-stone-100">
-        <button onClick={onBack} className="flex items-center gap-1 text-xs font-bold text-stone-500 uppercase tracking-wider mb-3 hover:text-school-board transition-colors">
+        <button onClick={onBack} className={`flex items-center gap-1 font-bold text-stone-500 uppercase tracking-wider mb-3 hover:text-school-board transition-colors ${i18n.language === 'ar' ? 'text-sm' : 'text-xs'}`}>
           <ChevronLeft size={14} className="flip-rtl" />
           {t('back_to_library')}
         </button>

@@ -6,6 +6,9 @@ import fs from 'fs';
 import path from 'path';
 
 // Initialize DeepSeek Client
+// Strategy: We leverage DeepSeek's Context Caching by sending the full, cleaned document text as a prefix.
+// This allows us to support large files (up to ~150k chars) with minimal cost for subsequent requests (chat, quiz, etc.)
+// because the input tokens are cached.
 const deepseek = new OpenAI({
   baseURL: 'https://api.deepseek.com',
   apiKey: process.env.DEEPSEEK_API_KEY
@@ -113,14 +116,22 @@ export const ragService = {
     throw new Error("Resource content not found");
   },
 
+  // Helper to clean context and reduce token usage
+  cleanContext: (text: string): string => {
+    return text
+        .replace(/[\r\n]+/g, '\n') // Compress multiple newlines aggressively
+        .replace(/[ \t]+/g, ' ')   // Compress spaces
+        .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/g, '') // Remove control characters
+        .trim();
+  },
+
   summarize: async (resourceId: string) => {
     try {
       // 1. Fetch resource content
       const { content: contentText, language } = await ragService.ensureContent(resourceId);
       
-      // 2. Truncate if too long (DeepSeek has large context, but let's be safe/economical)
-      // Taking first 15000 chars ~ 3000-4000 tokens
-      const text = contentText.substring(0, 15000); 
+      // Clean and limit text - Optimized to 80k chars to prevent context overflow
+      const text = ragService.cleanContext(contentText).substring(0, 80000); 
 
       // 3. Call DeepSeek
       const completion = await deepseek.chat.completions.create({
@@ -167,7 +178,7 @@ export const ragService = {
     try {
       const { content: contentText, language } = await ragService.ensureContent(resourceId);
 
-      const text = contentText.substring(0, 10000);
+      const text = ragService.cleanContext(contentText).substring(0, 150000);
 
       const completion = await deepseek.chat.completions.create({
         messages: [
@@ -247,7 +258,7 @@ export const ragService = {
     try {
       const { content: contentText, language } = await ragService.ensureContent(resourceId);
 
-      const text = contentText.substring(0, 10000);
+      const text = ragService.cleanContext(contentText).substring(0, 150000);
 
       const completion = await deepseek.chat.completions.create({
           messages: [
@@ -312,7 +323,7 @@ export const ragService = {
     try {
       const { content: contentText, language } = await ragService.ensureContent(resourceId);
 
-      const text = contentText.substring(0, 15000);
+      const text = ragService.cleanContext(contentText).substring(0, 150000);
 
       const completion = await deepseek.chat.completions.create({
         messages: [
@@ -370,7 +381,7 @@ export const ragService = {
   generateGlossary: async (resourceId: string) => {
     try {
       const { content: contentText, language } = await ragService.ensureContent(resourceId);
-      const text = contentText.substring(0, 15000);
+      const text = ragService.cleanContext(contentText).substring(0, 150000);
 
       const completion = await deepseek.chat.completions.create({
         messages: [
@@ -425,7 +436,7 @@ export const ragService = {
   generateExamPrediction: async (resourceId: string) => {
     try {
         const { content: contentText, language } = await ragService.ensureContent(resourceId);
-        const text = contentText.substring(0, 15000);
+        const text = ragService.cleanContext(contentText).substring(0, 150000);
   
         const completion = await deepseek.chat.completions.create({
           messages: [
@@ -480,7 +491,7 @@ export const ragService = {
         
         // Find relevant context from the text (simple substring or vector search if I had it set up fully, 
         // but for now let's just use the concept + full text context limit)
-        const text = contentText.substring(0, 10000); 
+        const text = ragService.cleanContext(contentText).substring(0, 150000); 
 
         const completion = await deepseek.chat.completions.create({
             messages: [
@@ -541,7 +552,7 @@ export const ragService = {
   identifyComplexTopics: async (resourceId: string) => {
     try {
         const { content: contentText, language } = await ragService.ensureContent(resourceId);
-        const text = contentText.substring(0, 15000);
+        const text = ragService.cleanContext(contentText).substring(0, 80000);
 
         const completion = await deepseek.chat.completions.create({
             messages: [
@@ -579,30 +590,34 @@ export const ragService = {
   chat: async (resourceId: string, query: string, history: { role: 'user' | 'assistant', content: string }[]) => {
     try {
         const { content: contentText, language } = await ragService.ensureContent(resourceId);
-        // Simple context window management: use first 10k chars of content + last 5 messages
-        const context = contentText.substring(0, 10000);
+        // Optimized context window to ~80k chars (approx 25k tokens)
+        const context = ragService.cleanContext(contentText).substring(0, 80000);
         
-        const recentHistory = history.slice(-5).map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'assistant' as const, // Ensure type safety
+        // Keep only last 6 messages
+        const recentHistory = history.slice(-6).map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'assistant' as const, 
             content: msg.content
         }));
 
         const messages: any[] = [
             {
                 role: "system",
-                content: `You are Professor Owl, a wise, encouraging, and academic AI tutor. 
-                You help students understand their study material.
+                content: `You are Professor Owl, a wise and academic AI tutor.
                 
-                Guidelines:
-                1. Answer based ONLY on the provided context. If the answer isn't in the context, say "I don't see that in your notes, but generally..." and provide general knowledge, explicitly stating it's outside the notes.
-                2. Be concise but helpful.
-                3. Use a friendly, scholarly tone (e.g., "Hoot!", "Excellent question!", "Let's dive in.").
-                4. Use Markdown for formatting (bold key terms, lists).
-
-                IMPORTANT: Unless the user speaks to you in a different language, use ${language} for your explanation.
-                CRITICAL: You must keep key technical terms, specific terminology, and important concepts in their original language (usually English). Do not translate these specific terms, but explain them in ${language}.`
+                CORE INSTRUCTIONS:
+                1. **SOURCE OF TRUTH**: Use the provided "Study Material" as your knowledge base. Do NOT invent facts.
+                2. **TEACHING STYLE**: Do NOT just copy-paste. Digest the information and explain it in your own words. Use analogies and simple examples to make it stick.
+                3. **ADAPTABILITY**: 
+                   - If the user asks a simple question (e.g., "What is X?"), give a concise, direct answer.
+                   - If the user asks for an explanation (e.g., "Explain X"), provide a detailed breakdown with examples.
+                4. **ENGAGEMENT**: Always end your response with a short, relevant follow-up question to guide the student (e.g., "Does that make sense?", "Shall we look at an example?", "Ready for the next part?").
+                5. **LANGUAGE**: Explain in ${language}. Keep technical English terms in brackets if helpful.
+                6. **NO EMOTIONS**: Do NOT write actions like (laughs), *smiles*, or (thinks). Express friendliness through words only.
+                
+                Tone: Professional yet friendly. Use "White Saudi/Modern Standard Arabic" mix (e.g., use "حياك", "تفضل", "ممتاز" but keep sentences grammatically correct). Avoid heavy slang.`
             },
-            { role: "system", content: `Context from Study Material: ${context}` },
+            { role: "user", content: `Here is the Study Material you must base your answers on:\n\n---\n${context}\n---\n\nI am ready for your questions.` },
+            { role: "assistant", content: "Understood! I have read the material and I am ready to help you understand it using only the facts provided, while explaining them simply." },
             ...recentHistory,
             { role: "user", content: query }
         ];
@@ -610,6 +625,7 @@ export const ragService = {
         const completion = await deepseek.chat.completions.create({
             messages: messages,
             model: "deepseek-chat",
+            temperature: 0.3, 
         });
 
         return completion.choices[0].message.content || "Hoot! I'm having trouble thinking right now.";
@@ -618,52 +634,53 @@ export const ragService = {
         console.error("Chat Error:", error);
         throw error;
     }
+  },
+
+  // Streaming Chat Function
+  chatStream: async (resourceId: string, query: string, history: { role: 'user' | 'assistant', content: string }[]) => {
+    try {
+        const { content: contentText, language } = await ragService.ensureContent(resourceId);
+        const context = ragService.cleanContext(contentText).substring(0, 80000);
+        
+        const recentHistory = history.slice(-6).map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'assistant' as const, 
+            content: msg.content
+        }));
+
+        const messages: any[] = [
+            {
+                role: "system",
+                content: `You are Professor Owl, a wise and academic AI tutor.
+                
+                CORE INSTRUCTIONS:
+                1. **SOURCE OF TRUTH**: Use the provided "Study Material" as your knowledge base. Do NOT invent facts.
+                2. **TEACHING STYLE**: Do NOT just copy-paste. Digest the information and explain it in your own words. Use analogies and simple examples to make it stick.
+                3. **ADAPTABILITY**: 
+                   - If the user asks a simple question (e.g., "What is X?"), give a concise, direct answer.
+                   - If the user asks for an explanation (e.g., "Explain X"), provide a detailed breakdown with examples.
+                4. **ENGAGEMENT**: Always end your response with a short, relevant follow-up question to guide the student (e.g., "Does that make sense?", "Shall we look at an example?", "Ready for the next part?").
+                5. **LANGUAGE**: Explain in ${language}. Keep technical English terms in brackets if helpful.
+                
+                Tone: Encouraging, scholarly, but accessible. Like a friendly professor chatting in office hours.`
+            },
+            { role: "user", content: `Here is the Study Material you must base your answers on:\n\n---\n${context}\n---\n\nI am ready for your questions.` },
+            { role: "assistant", content: "Understood! I have read the material and I am ready to help you understand it using only the facts provided, while explaining them simply." },
+            ...recentHistory,
+            { role: "user", content: query }
+        ];
+
+        // Return the stream directly
+        return await deepseek.chat.completions.create({
+            messages: messages,
+            model: "deepseek-chat",
+            temperature: 0.3,
+            stream: true, // Enable Streaming
+        });
+
+    } catch (error) {
+        console.error("Chat Stream Error:", error);
+        throw error;
+    }
   }
 };
 
-export const llmService = {
-    summarize: async (text: string) => {
-        try {
-            // Limit text to avoid token limits (DeepSeek context window)
-            const truncatedText = text.substring(0, 10000); 
-            
-            const completion = await deepseek.chat.completions.create({
-                messages: [
-                    { role: "system", content: "You are an expert academic tutor. Summarize the following text in detailed Markdown format with sections, bullet points, and highlight key terms using <mark class='yellow'>term</mark> syntax." },
-                    { role: "user", content: truncatedText }
-                ],
-                model: "deepseek-chat",
-            });
-            
-            return completion.choices[0].message.content || "No summary generated.";
-        } catch (error) {
-            console.error("DeepSeek Summarize Error:", error);
-            return "Failed to generate summary.";
-        }
-    },
-    
-    generateQuiz: async (text: string) => {
-        try {
-            const truncatedText = text.substring(0, 10000);
-             const completion = await deepseek.chat.completions.create({
-                messages: [
-                    { role: "system", content: "Generate a JSON array of 5 multiple choice questions based on the text. Format: [{ question: '', options: [], correctAnswer: 0 (index), explanation: '' }]" },
-                    { role: "user", content: truncatedText }
-                ],
-                model: "deepseek-chat",
-                response_format: { type: "json_object" }
-            });
-            
-             // Handle potential JSON parsing issues
-             const content = completion.choices[0].message.content;
-             if (!content) return [];
-             
-             // DeepSeek might return { "questions": [...] } or just [...]
-             const parsed = JSON.parse(content);
-             return Array.isArray(parsed) ? parsed : parsed.questions || [];
-        } catch (error) {
-            console.error("DeepSeek Quiz Error:", error);
-            return [];
-        }
-    }
-}

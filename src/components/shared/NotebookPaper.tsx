@@ -11,6 +11,8 @@ export function NotebookPaper({
   className = '',
   title
 }: NotebookPaperProps) {
+  // Fix for Safari overflow: remove max-w-full from container to restore desktop layout.
+  // Content overflow is handled by break-words on children wrapper.
   return <div className={`relative bg-white shadow-md ${className}`}>
       {/* Paper Texture Overlay */}
       <div className="absolute inset-0 bg-paper-pattern opacity-30 pointer-events-none z-10 h-full w-full"></div>
@@ -32,7 +34,7 @@ export function NotebookPaper({
               {title}
             </h2>
           </div>}
-        <div className="font-hand text-base md:text-xl leading-relaxed md:leading-[32px] text-school-graphite min-h-[500px]">
+        <div className="font-hand text-base md:text-xl leading-relaxed md:leading-[32px] text-school-graphite min-h-[500px] break-words whitespace-normal">
           {children}
         </div>
       </div>

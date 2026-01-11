@@ -24,6 +24,8 @@ export function RepairLessonModal({
 }: RepairLessonModalProps) {
   const { fileId } = useParams();
   const { t } = useTranslation();
+  const [selectedAnswer, setSelectedAnswer] = React.useState<number | null>(null);
+  const [isAnswered, setIsAnswered] = React.useState(false);
 
   const { data: lesson, isLoading, isError } = useQuery({
     queryKey: ['repairLesson', fileId, concept],
@@ -31,6 +33,14 @@ export function RepairLessonModal({
     enabled: isOpen && !!concept && !!fileId,
     staleTime: Infinity // Keep the lesson once generated
   });
+
+  // Reset quiz state when lesson changes or modal re-opens
+  React.useEffect(() => {
+    if (isOpen) {
+      setSelectedAnswer(null);
+      setIsAnswered(false);
+    }
+  }, [isOpen, lesson]);
 
   if (!isOpen) return null;
 
@@ -106,19 +116,44 @@ export function RepairLessonModal({
                     </h4>
                     <p className="font-hand text-stone-800 mb-4 font-bold">{lesson.practiceQuestion.text}</p>
                     <div className="space-y-3">
-                      {lesson.practiceQuestion.options.map((option: string, idx: number) => (
-                        <button
-                          key={idx}
-                          className="w-full text-left rtl:text-right p-4 rounded-lg border-2 border-stone-200 hover:border-school-board hover:bg-school-board/5 transition-all group"
-                        >
-                          <div className="flex items-center justify-between rtl:flex-row-reverse">
-                            <span className="font-hand text-stone-700">
-                              {option}
-                            </span>
-                            <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 text-school-board transition-opacity rtl:rotate-180" />
-                          </div>
-                        </button>
-                      ))}
+                      {lesson.practiceQuestion.options.map((option: string, idx: number) => {
+                        const isCorrect = idx === lesson.practiceQuestion.correctAnswerIndex;
+                        const isSelected = selectedAnswer === idx;
+                        
+                        let borderClass = "border-stone-200 hover:border-school-board hover:bg-school-board/5";
+                        if (isAnswered) {
+                          if (isCorrect) borderClass = "border-green-500 bg-green-50";
+                          else if (isSelected) borderClass = "border-red-500 bg-red-50";
+                          else borderClass = "border-stone-200 opacity-50";
+                        }
+
+                        return (
+                          <button
+                            key={idx}
+                            disabled={isAnswered}
+                            onClick={() => {
+                              setSelectedAnswer(idx);
+                              setIsAnswered(true);
+                            }}
+                            className={`w-full text-left rtl:text-right p-4 rounded-lg border-2 transition-all group ${borderClass}`}
+                          >
+                            <div className="flex items-center justify-between rtl:flex-row-reverse">
+                              <span className="font-hand text-stone-700">
+                                {option}
+                              </span>
+                              {isAnswered && isCorrect && (
+                                <span className="text-green-600 font-bold">✓</span>
+                              )}
+                              {isAnswered && isSelected && !isCorrect && (
+                                <span className="text-red-600 font-bold">✗</span>
+                              )}
+                              {!isAnswered && (
+                                <ArrowRight size={16} className="opacity-0 group-hover:opacity-100 text-school-board transition-opacity rtl:rotate-180" />
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 

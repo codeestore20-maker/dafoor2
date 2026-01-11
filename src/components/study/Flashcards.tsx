@@ -202,8 +202,8 @@ export function Flashcards() {
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             >
                 {/* Front of Card - White Paper */}
-                <div className="absolute inset-0 backface-hidden">
-                    <div className="h-full w-full bg-white rounded-2xl md:rounded-[2rem] shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-stone-200 overflow-hidden flex flex-col relative">
+                <div className="absolute inset-0 backface-hidden rounded-2xl md:rounded-[2rem] bg-white overflow-hidden shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-stone-200" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateX(0deg)' }}>
+                    <div className="h-full w-full flex flex-col relative">
                         {/* Paper Texture & Lines */}
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")` }}></div>
                         <div className="absolute inset-0" style={{ 
@@ -232,8 +232,8 @@ export function Flashcards() {
                 </div>
 
                 {/* Back of Card - Yellow Paper */}
-                <div className="absolute inset-0 backface-hidden" style={{ transform: 'rotateY(180deg)' }}>
-                    <div className="h-full w-full bg-[#fefce8] rounded-2xl md:rounded-[2rem] shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-yellow-300/50 overflow-hidden flex flex-col relative">
+                <div className="absolute inset-0 backface-hidden rounded-2xl md:rounded-[2rem] bg-[#fefce8] overflow-hidden shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-yellow-300/50" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                    <div className="h-full w-full flex flex-col relative">
                         {/* Paper Texture & Lines */}
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")` }}></div>
                         <div className="absolute inset-0" style={{ 

@@ -74,15 +74,15 @@ export function AITeacher({
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll Logic
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Only auto-scroll on new message added (length change), not every character update
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages.length, isTyping]); // Changed dependency from 'messages' to 'messages.length'
 
   // Load session or start new one
   useEffect(() => {
@@ -117,28 +117,35 @@ export function AITeacher({
     setInputValue('');
     setIsTyping(true);
 
+    const aiMessageId = (Date.now() + 1).toString();
+    const aiMessage: Message = {
+        id: aiMessageId,
+        text: '', 
+        sender: 'ai',
+        timestamp: new Date()
+    };
+    setMessages(prev => [...prev, aiMessage]);
+
     try {
         const history = messages.map(m => ({
             role: m.sender === 'user' ? 'user' as const : 'assistant' as const,
             content: m.text
         }));
 
-        const response = await resourceService.chat(fileId, newMessage.text, history);
-
-        const aiResponse: Message = {
-            id: (Date.now() + 1).toString(),
-            text: response.response, 
-            sender: 'ai',
-            timestamp: new Date()
-        };
+        await resourceService.chatStream(fileId, newMessage.text, history, (chunk) => {
+            setMessages(prev => prev.map(msg => {
+                if (msg.id === aiMessageId) {
+                    return { ...msg, text: msg.text + chunk };
+                }
+                return msg;
+            }));
+        });
         
         setMessages(prev => {
-            const updatedMessages = [...prev, aiResponse];
-            
             if (currentSessionId) {
               setSessions(prevSessions => prevSessions.map(s => 
                 s.id === currentSessionId 
-                  ? { ...s, messages: updatedMessages }
+                  ? { ...s, messages: prev }
                   : s
               ));
             } else {
@@ -147,23 +154,22 @@ export function AITeacher({
                 id: newSessionId,
                 title: newMessage.text.slice(0, 30) + "...",
                 date: new Date(),
-                messages: updatedMessages
+                messages: prev
               };
               setSessions(prevSessions => [newSession, ...prevSessions]);
               setCurrentSessionId(newSessionId);
             }
-            
-            return updatedMessages;
+            return prev;
         });
 
     } catch (error) {
         console.error("Chat Error:", error);
-        setMessages(prev => [...prev, {
-            id: Date.now().toString(),
-            text: t('ai_connection_error'),
-            sender: 'ai',
-            timestamp: new Date()
-        }]);
+        setMessages(prev => prev.map(msg => {
+            if (msg.id === aiMessageId) {
+                return { ...msg, text: t('ai_connection_error') };
+            }
+            return msg;
+        }));
     } finally {
         setIsTyping(false);
     }
@@ -274,14 +280,14 @@ export function AITeacher({
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div className={`
-                max-w-[85%] relative shadow-sm
+                max-w-[85%] min-w-0 relative shadow-sm
                 ${message.sender === 'user' ? 'mr-2' : 'ml-2'}
               `}>
                 {/* Visual "Pin" or "Tape" */}
                 <div className={`absolute -top-3 ${message.sender === 'user' ? 'right-4 bg-blue-200/50' : 'left-4 bg-yellow-200/50'} w-8 h-4 rotate-3 backdrop-blur-sm z-10`}></div>
 
                 <div className={`
-                   p-4 text-sm leading-relaxed relative break-words
+                   p-4 text-sm leading-relaxed relative break-words whitespace-pre-wrap
                    ${message.sender === 'user' 
                      ? 'bg-white border border-stone-300 text-stone-800 rotate-1 rounded-sm shadow-[2px_2px_0px_rgba(0,0,0,0.1)]' 
                      : 'bg-[#fff9c4] border border-yellow-300 text-stone-900 -rotate-1 rounded-sm shadow-[2px_2px_0px_rgba(234,179,8,0.2)]'}
@@ -299,6 +305,13 @@ export function AITeacher({
                      >
                         {message.text}
                      </Markdown>
+                     {!message.text && message.sender === 'ai' && isTyping && (
+                        <div className="flex gap-1 items-center h-6 px-1">
+                            <span className="w-1.5 h-1.5 bg-stone-600 rounded-full animate-bounce"></span>
+                            <span className="w-1.5 h-1.5 bg-stone-600 rounded-full animate-bounce delay-75"></span>
+                            <span className="w-1.5 h-1.5 bg-stone-600 rounded-full animate-bounce delay-150"></span>
+                        </div>
+                     )}
                   </div>
                   <span className="text-[10px] font-mono text-stone-400 block text-right mt-2">
                     {message.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -308,15 +321,6 @@ export function AITeacher({
             </motion.div>
           ))}
           
-          {isTyping && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start ml-2">
-              <div className="bg-[#fff9c4] border border-yellow-300 p-4 rounded-sm shadow-sm flex gap-2 items-center -rotate-1">
-                 <div className="w-2 h-2 bg-stone-800 rounded-full animate-bounce"></div>
-                 <div className="w-2 h-2 bg-stone-800 rounded-full animate-bounce delay-75"></div>
-                 <div className="w-2 h-2 bg-stone-800 rounded-full animate-bounce delay-150"></div>
-              </div>
-            </motion.div>
-          )}
           <div ref={messagesEndRef} />
         </div>
       </div>

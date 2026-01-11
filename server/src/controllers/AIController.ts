@@ -300,16 +300,51 @@ export const AIController = {
   // Chat
   chat: async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
-        const { message, history } = req.body;
-        
-        if (!message) return res.status(400).json({ error: "Message is required" });
+        const { query, history } = req.body;
+        // Get resourceId from params OR body
+        const resourceId = req.params.id || req.body.resourceId;
 
-        const response = await ragService.chat(id, message, history || []);
-        res.json({ response });
+        console.log(`[Chat Stream] Request for Resource: ${resourceId}, Query: ${query}`);
+
+        if (!resourceId) {
+            return res.status(400).json({ error: "Resource ID is required" });
+        }
+        if (!query) {
+            return res.status(400).json({ error: "Query message is required" });
+        }
+        
+        // Set headers for SSE (Server-Sent Events)
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        // Important: Flush headers immediately
+        res.flushHeaders();
+
+        const stream = await ragService.chatStream(resourceId, query, history || []);
+
+        for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || "";
+            if (content) {
+                // Send data chunk
+                res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                // Flush if needed (Node usually handles this for streams)
+            }
+        }
+
+        // End stream
+        res.write('data: [DONE]\n\n');
+        res.end();
+
     } catch (error) {
-        console.error("Chat Error:", error);
-        res.status(500).json({ error: "Failed to chat" });
+        console.error("Chat Stream Error:", error);
+        // If headers haven't been sent, send JSON error
+        if (!res.headersSent) {
+            res.status(500).json({ error: "Failed to chat" });
+        } else {
+            // If stream started, send error event
+            res.write(`data: ${JSON.stringify({ error: "Stream failed" })}\n\n`);
+            res.end();
+        }
     }
-  }
+  },
 };

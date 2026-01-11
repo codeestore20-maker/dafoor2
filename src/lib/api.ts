@@ -144,8 +144,55 @@ export const resourceService = {
     const response = await api.post(`/resources/${resourceId}/weak-points/${weakPointId}/resolve`);
     return response.data;
   },
-  chat: async (resourceId: string, message: string, history: { role: 'user' | 'assistant', content: string }[]) => {
-    const response = await api.post(`/resources/${resourceId}/chat`, { message, history });
+  chat: async (resourceId: string, query: string, history: any[]) => {
+    const response = await api.post(`/resources/${resourceId}/chat`, { resourceId, query, history });
     return response.data;
-  }
+  },
+
+  // Streaming Chat
+  chatStream: async (
+    resourceId: string, 
+    query: string, 
+    history: any[], 
+    onChunk: (chunk: string) => void
+  ) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/resources/${resourceId}/chat`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ resourceId, query, history })
+    });
+
+    if (!response.body) throw new Error("No response body");
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n\n');
+        
+        for (const line of lines) {
+            if (line.startsWith('data: ')) {
+                const dataStr = line.replace('data: ', '');
+                if (dataStr === '[DONE]') return;
+                
+                try {
+                    const data = JSON.parse(dataStr);
+                    if (data.content) {
+                        onChunk(data.content);
+                    }
+                } catch (e) {
+                    console.error("Parse error", e);
+                }
+            }
+        }
+    }
+  },
 };
