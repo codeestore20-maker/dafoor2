@@ -151,8 +151,8 @@ export function QuizMode() {
         </motion.div>
       </div>;
   }
-  return <div className="h-full p-4 md:p-8 flex justify-center items-start overflow-y-auto">
-      <motion.div key={currentQIndex} className="bg-white max-w-2xl w-full shadow-lg p-6 md:p-12 relative min-h-[400px] md:min-h-[500px]" initial={{
+  return <div className="h-full p-2 md:p-8 flex justify-center items-start overflow-y-auto">
+      <motion.div key={currentQIndex} className="bg-white max-w-2xl w-full shadow-lg p-4 md:p-12 relative min-h-[300px] md:min-h-[500px]" initial={{
       x: 20,
       opacity: 0
     }} animate={{
@@ -166,31 +166,31 @@ export function QuizMode() {
         <div className="absolute inset-0 bg-paper-pattern opacity-30 pointer-events-none"></div>
 
         {/* Header */}
-        <div className="border-b-2 border-black pb-4 mb-6 md:mb-8 flex justify-between items-end">
+        <div className="border-b-2 border-black pb-3 md:pb-4 mb-4 md:mb-8 flex justify-between items-end">
           <div>
-            <h2 className="font-serif text-xl md:text-2xl font-bold uppercase tracking-widest">
+            <h2 className="font-serif text-lg md:text-2xl font-bold uppercase tracking-widest">
               {t('pop_quiz')}
             </h2>
-            <p className="font-hand text-base md:text-lg text-stone-500">
+            <p className="font-hand text-sm md:text-lg text-stone-500">
               {t('question_progress', { current: currentQIndex + 1, total: localQuestions.length })}
             </p>
           </div>
-          <div className="border-2 border-school-board w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center opacity-80 bg-stone-50">
-            <span className="text-school-board font-hand text-lg md:text-xl font-bold">
+          <div className="border-2 border-school-board w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center opacity-80 bg-stone-50">
+            <span className="text-school-board font-hand text-base md:text-xl font-bold">
               {score}/{localQuestions.length}
             </span>
           </div>
         </div>
 
         {/* Question */}
-        <div className="mb-6 md:mb-8">
-          <p className="font-serif text-lg md:text-xl font-medium mb-4 md:mb-6 leading-relaxed" dir="auto">
+        <div className="mb-4 md:mb-8">
+          <p className="font-serif text-base md:text-xl font-medium mb-3 md:mb-6 leading-relaxed" dir="auto">
             {currentQuestion.text}
           </p>
 
-          <div className="space-y-3 md:space-y-4">
+          <div className="space-y-2 md:space-y-4">
             {currentQuestion.options.map((opt: string, idx: number) => <button key={idx} onClick={() => !submitted && setSelected(idx)} disabled={submitted} className={`
-                  w-full text-start flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg transition-all border-2 group
+                  w-full text-start flex items-center gap-2 md:gap-4 p-2 md:p-4 rounded-lg transition-all border-2 group
                   ${selected === idx ? 'border-school-board bg-school-pencil/10' : 'border-transparent hover:bg-stone-50'}
                   ${submitted && idx === currentQuestion.correctAnswer ? '!border-green-500 !bg-green-50' : ''}
                   ${submitted && selected === idx && !isCorrect ? '!border-red-500 !bg-red-50' : ''}
@@ -203,16 +203,16 @@ export function QuizMode() {
                 `}>
                   <div className="w-2.5 h-2.5 bg-current rounded-full" />
                 </div>
-                <span className="font-hand text-xl pt-1" dir="auto">{opt}</span>
+                <span className="font-hand text-base md:text-xl pt-1" dir="auto">{opt}</span>
                 {submitted && idx === currentQuestion.correctAnswer && <CheckMark className="text-green-600 w-6 h-6 ml-auto rtl:mr-auto rtl:ml-0" />}
               </button>)}
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-8 min-h-[80px]">
+        <div className="mt-4 md:mt-8 min-h-[60px] md:min-h-[80px]">
           {!submitted ? <div className="flex justify-end">
-              <button onClick={handleSubmit} disabled={selected === null} className="px-8 py-3 bg-school-board text-white font-hand text-xl rounded-lg shadow-md hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">
+              <button onClick={handleSubmit} disabled={selected === null} className="px-6 py-2 md:px-8 md:py-3 bg-school-board text-white font-hand text-lg md:text-xl rounded-lg shadow-md hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-105">
                 {t('submit_answer')}
               </button>
             </div> : <motion.div initial={{
@@ -222,14 +222,14 @@ export function QuizMode() {
           opacity: 1,
           y: 0
         }} className={`p-4 rounded-lg border flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 ${isCorrect ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
                 {isCorrect ? <ChalkStar className="text-yellow-500 w-8 h-8 flex-shrink-0" /> : <AlertCircle className="w-8 h-8 flex-shrink-0" />}
-                <div className="flex flex-col">
-                    <span className="font-hand text-xl font-bold">
+                <div className="flex flex-col min-w-0">
+                    <span className="font-hand text-lg md:text-xl font-bold">
                     {isCorrect ? t('correct_msg') : t('incorrect_msg')}
                     </span>
                     {!isCorrect && currentQuestion.explanation && (
-                        <span className="text-sm mt-1 break-words">{currentQuestion.explanation}</span>
+                        <span className="text-xs md:text-sm mt-1 break-all whitespace-pre-wrap">{currentQuestion.explanation}</span>
                     )}
                 </div>
               </div>
