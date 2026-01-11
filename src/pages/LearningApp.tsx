@@ -98,12 +98,12 @@ export function LearningApp() {
             </div>
 
             {/* Mobile Chat FAB */}
-            <div className="xl:hidden fixed bottom-6 right-6 rtl:left-6 rtl:right-auto z-50">
+            <div className="xl:hidden fixed bottom-4 right-6 rtl:left-6 rtl:right-auto z-40">
                <button
                  onClick={() => setIsMobileChatOpen(true)}
-                 className="w-14 h-14 bg-school-board text-white rounded-full shadow-xl flex items-center justify-center border-2 border-stone-800 hover:scale-110 transition-transform"
+                 className="w-12 h-12 bg-school-board text-white rounded-2xl shadow-xl flex items-center justify-center border-2 border-stone-800 hover:scale-110 transition-transform active:scale-95"
                >
-                 <MessageSquare size={24} />
+                 <MessageSquare size={22} />
                </button>
             </div>
 

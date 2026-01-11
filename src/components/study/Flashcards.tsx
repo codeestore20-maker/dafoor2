@@ -51,14 +51,14 @@ export function Flashcards() {
     setIsFlipped(false);
   };
 
-  const handleMastered = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleMastered = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setMasteredCount(prev => prev + 1);
     handleNext();
   };
 
-  const handleMistake = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleMistake = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     if (currentCard?.front) {
       mistakeMutation.mutate(currentCard.front);
     }
@@ -175,26 +175,11 @@ export function Flashcards() {
       </div>
 
       {/* Main Study Area */}
-      <div className="w-full max-w-7xl flex items-center justify-center gap-4 md:gap-8 flex-1 relative z-10 px-4">
+      <div className="w-full max-w-7xl flex flex-col items-center justify-center gap-4 md:gap-8 flex-1 relative z-10 px-4 pt-16 md:pt-0">
         
-        {/* Navigation Arrows */}
-        <button 
-            onClick={isRtl ? handleNext : handlePrev}
-            className="hidden md:flex p-4 text-stone-300 hover:text-school-board hover:scale-110 transition-all absolute left-4 xl:left-0 z-20"
-        >
-             <ChevronLeft size={48} strokeWidth={2.5} />
-        </button>
-
-        <button 
-            onClick={isRtl ? handlePrev : handleNext}
-            className="hidden md:flex p-4 text-stone-300 hover:text-school-board hover:scale-110 transition-all absolute right-4 xl:right-0 z-20"
-        >
-             <ChevronRight size={48} strokeWidth={2.5} />
-        </button>
-
         {/* Card Container */}
-        <div className="w-full max-w-2xl perspective-1000 relative -mt-8 md:-mt-16">
-            <div className="relative aspect-[1.5/1] md:aspect-[1.6/1] w-full cursor-pointer group" onClick={() => setIsFlipped(!isFlipped)}>
+        <div className="w-full max-w-2xl perspective-1000 relative -mt-16 md:-mt-16">
+            <div className="relative aspect-[1.3/1] md:aspect-[1.6/1] w-full cursor-pointer group mb-8" onClick={() => setIsFlipped(!isFlipped)}>
             <motion.div 
                 className="w-full h-full absolute preserve-3d" 
                 initial={false} 
@@ -262,55 +247,81 @@ export function Flashcards() {
             </motion.div>
             </div>
 
-            {/* Action Buttons - Appearing when flipped */}
-            <AnimatePresence>
-                {isFlipped && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className="absolute -bottom-32 left-0 right-0 flex items-center justify-center gap-8 md:gap-16 z-20"
-                    >
-                        <button 
-                            onClick={handleMistake} 
-                            className="group flex flex-col items-center gap-3"
-                        >
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border-4 border-red-100 text-red-400 shadow-sm flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-300 group-hover:-translate-y-2 group-hover:shadow-md transition-all transform hover:rotate-[-6deg]">
-                                <RotateCcw size={28} strokeWidth={3} />
-                            </div>
-                            <span className="font-hand text-sm md:text-lg font-bold text-stone-400 group-hover:text-red-500 transition-colors">{t('review_again')}</span>
-                        </button>
+            {/* Smart Control Bar - Optimized Performance */}
+            <div 
+                className="flex items-center justify-between gap-4 bg-white p-2 rounded-2xl border-2 border-stone-200 shadow-lg mx-auto w-full max-w-md mt-6 h-16 relative overflow-hidden" 
+                dir="ltr"
+            >
+                {/* Prev */}
+                <button 
+                    onClick={handlePrev}
+                    className="p-3 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-school-board transition-colors active:scale-95 flex-shrink-0 z-10"
+                    title={t('prev')}
+                >
+                    <ChevronLeft size={24} strokeWidth={2.5} />
+                </button>
 
-                        <button 
-                            onClick={handleMastered} 
-                            className="group flex flex-col items-center gap-3"
-                        >
-                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white border-4 border-green-100 text-green-500 shadow-sm flex items-center justify-center group-hover:bg-green-50 group-hover:border-green-300 group-hover:-translate-y-2 group-hover:shadow-md transition-all transform hover:rotate-[6deg]">
-                                <Check size={36} strokeWidth={4} />
-                            </div>
-                            <span className="font-hand text-sm md:text-lg font-bold text-stone-400 group-hover:text-green-600 transition-colors">{t('mastered')}</span>
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                {/* Center Content: Counter OR Actions */}
+                <div className="flex-1 relative h-full flex items-center justify-center">
+                    <AnimatePresence mode="wait" initial={false}>
+                        {!isFlipped ? (
+                            <motion.div
+                                key="counter"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="px-4 py-2 bg-stone-100 rounded-lg font-hand font-bold text-lg md:text-xl text-stone-700 text-center select-none w-full"
+                            >
+                                {currentIndex + 1} <span className="text-stone-400 text-base md:text-lg">/</span> {localCards.length}
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="actions"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex items-center justify-center gap-2 w-full"
+                            >
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMistake();
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-2 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100 transition-colors active:scale-95"
+                                    title={t('review_again')}
+                                >
+                                    <RotateCcw size={18} strokeWidth={2.5} />
+                                    <span className="font-hand font-bold text-xs md:text-sm whitespace-nowrap">{t('review_again')}</span>
+                                </button>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMastered();
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-2 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 border border-green-100 transition-colors active:scale-95"
+                                    title={t('mastered')}
+                                >
+                                    <Check size={18} strokeWidth={3} />
+                                    <span className="font-hand font-bold text-xs md:text-sm whitespace-nowrap">{t('mastered')}</span>
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Next */}
+                <button 
+                    onClick={handleNext}
+                    className="p-3 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-school-board transition-colors active:scale-95 flex-shrink-0 z-10"
+                    title={t('next')}
+                >
+                    <ChevronRight size={24} strokeWidth={2.5} />
+                </button>
+            </div>
         </div>
-
-      </div>
-
-      {/* Mobile Navigation - Fixed Bottom */}
-      <div className="flex md:hidden items-center justify-between w-full px-6 fixed bottom-6 left-0 right-0 z-50 pointer-events-none">
-         <button onClick={isRtl ? handleNext : handlePrev} className="pointer-events-auto p-4 bg-white/90 backdrop-blur rounded-full shadow-lg border border-stone-200 text-stone-500 active:scale-90 transition-transform">
-            <ChevronLeft size={24} />
-         </button>
-         
-         <div className="pointer-events-auto bg-stone-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg opacity-80 font-hand">
-            {currentIndex + 1} / {localCards.length}
-         </div>
-
-         <button onClick={isRtl ? handlePrev : handleNext} className="pointer-events-auto p-4 bg-white/90 backdrop-blur rounded-full shadow-lg border border-stone-200 text-stone-500 active:scale-90 transition-transform">
-            <ChevronRight size={24} />
-         </button>
       </div>
 
     </div>

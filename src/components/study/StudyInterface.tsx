@@ -97,10 +97,10 @@ export function StudyInterface() {
     }}></div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden absolute top-4 left-4 rtl:right-4 rtl:left-auto z-40">
+      <div className="md:hidden absolute top-3 left-3 rtl:right-3 rtl:left-auto z-40">
         <button 
           onClick={() => setIsMobileMenuOpen(true)}
-          className="p-3 bg-school-board text-white rounded-full shadow-lg hover:bg-school-board/90 transition-all border-2 border-stone-800"
+          className="p-2 bg-school-board text-white rounded-xl shadow-lg hover:bg-school-board/90 transition-all border-2 border-stone-800 active:scale-95"
         >
           <Menu size={20} />
         </button>

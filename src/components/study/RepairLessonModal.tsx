@@ -57,7 +57,7 @@ export function RepairLessonModal({
           initial={{ scale: 0.9, y: 20, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.9, y: 20, opacity: 0 }}
-          className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+          className="w-full max-w-2xl max-h-[85dvh] md:max-h-[90vh] overflow-y-auto"
           onClick={e => e.stopPropagation()}
         >
           <div className="relative">
@@ -68,7 +68,7 @@ export function RepairLessonModal({
               <X size={24} />
             </button>
 
-            <NotebookPaper title={t('mini_lesson_title', { concept })} className="min-h-[500px]">
+            <NotebookPaper title={t('mini_lesson_title', { concept })} className="min-h-[500px] p-4 md:p-8">
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center h-64 text-stone-500">
                   <RefreshCw size={32} className="animate-spin mb-4" />
@@ -79,17 +79,17 @@ export function RepairLessonModal({
                   {t('lesson_load_error')}
                 </div>
               ) : (
-                <div className="space-y-8">
+                <div className="space-y-6 md:space-y-8">
                   {/* Introduction */}
-                  <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 flex gap-4">
-                    <div className="p-3 bg-yellow-100 rounded-full h-fit text-yellow-700">
+                  <div className="bg-yellow-50 p-4 md:p-6 rounded-lg border border-yellow-200 flex flex-col md:flex-row gap-4">
+                    <div className="p-3 bg-yellow-100 rounded-full h-fit w-fit text-yellow-700">
                       <Lightbulb size={24} />
                     </div>
                     <div>
                       <h3 className="font-hand text-xl font-bold text-yellow-800 mb-2">
                         {t('concept_breakdown')}
                       </h3>
-                      <p className="text-stone-700 leading-relaxed">
+                      <p className="text-stone-700 leading-relaxed whitespace-normal break-words">
                         {lesson.breakdown}
                       </p>
                     </div>
@@ -101,10 +101,10 @@ export function RepairLessonModal({
                       <BookOpen size={20} />
                       {t('key_explanation')}
                     </h4>
-                    <p>
+                    <p className="whitespace-normal break-words">
                       {t('common_misconception')} <span className="italic">{lesson.misconception}</span>
                     </p>
-                    <blockquote className="border-l-4 rtl:border-l-0 rtl:border-r-4 border-school-pencil pl-4 rtl:pl-0 rtl:pr-4 italic bg-stone-50 py-2 my-4">
+                    <blockquote className="border-l-4 rtl:border-l-0 rtl:border-r-4 border-school-pencil pl-4 rtl:pl-0 rtl:pr-4 italic bg-stone-50 py-2 my-4 whitespace-normal break-words">
                       {t('mnemonic')} "{lesson.mnemonic}"
                     </blockquote>
                   </div>
@@ -114,7 +114,7 @@ export function RepairLessonModal({
                     <h4 className="font-hand text-xl font-bold text-stone-800 mb-4">
                       {t('quick_check')}
                     </h4>
-                    <p className="font-hand text-stone-800 mb-4 font-bold">{lesson.practiceQuestion.text}</p>
+                    <p className="font-hand text-stone-800 mb-4 font-bold whitespace-normal break-words">{lesson.practiceQuestion.text}</p>
                     <div className="space-y-3">
                       {lesson.practiceQuestion.options.map((option: string, idx: number) => {
                         const isCorrect = idx === lesson.practiceQuestion.correctAnswerIndex;
@@ -138,7 +138,7 @@ export function RepairLessonModal({
                             className={`w-full text-left rtl:text-right p-4 rounded-lg border-2 transition-all group ${borderClass}`}
                           >
                             <div className="flex items-center justify-between rtl:flex-row-reverse">
-                              <span className="font-hand text-stone-700">
+                              <span className="font-hand text-stone-700 whitespace-normal break-words flex-1">
                                 {option}
                               </span>
                               {isAnswered && isCorrect && (
