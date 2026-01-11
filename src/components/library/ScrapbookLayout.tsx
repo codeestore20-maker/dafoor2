@@ -110,7 +110,7 @@ function ScrapbookLayoutContent() {
   };
 
   return (
-    <div className={`h-screen w-full overflow-hidden flex flex-col relative font-hand text-stone-800 ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'} style={bgStyle}>
+    <div className={`h-screen supports-[height:100dvh]:h-[100dvh] w-full overflow-hidden flex flex-col relative font-hand text-stone-800 ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'} style={bgStyle}>
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-1.5 bg-[url('https://www.transparenttextures.com/patterns/washi.png')] bg-repeat-x opacity-50 z-50"></div>
       

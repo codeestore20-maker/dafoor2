@@ -83,6 +83,29 @@ body {
   background-color: #FFF8E7;
   color: #4A4A4A;
   font-family: 'Georgia', serif;
+  /* Fix Safari Font Rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent automatic text resizing on iOS */
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+/* Safe Area Utilities for iOS */
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-safe {
+    bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* English Fonts */
