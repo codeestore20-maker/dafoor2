@@ -153,39 +153,45 @@ export function LiveGlossary() {
                       <div className="h-0.5 flex-1 bg-stone-200 border-t border-dashed border-stone-300"></div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {groupedTerms[letter].map((term: any) => (
-                        <div key={term.id} className="group relative">
-                          <div className={`p-4 rounded-xl border-2 transition-all ${highlightedTerms.has(term.id) ? 'bg-yellow-50 border-yellow-400' : 'bg-transparent border-transparent hover:bg-white/50 hover:border-stone-200'}`}>
-                            <div className="flex justify-between items-start gap-4 mb-2">
-                              <h3 className={`font-hand text-xl md:text-2xl font-bold text-stone-800 relative inline-block break-words ${highlightedTerms.has(term.id) ? 'highlight-yellow' : ''}`}>
+                        <div key={term.id} className="group relative h-full">
+                          <div className={`rounded-xl border-2 transition-all h-full flex flex-col relative overflow-hidden group ${highlightedTerms.has(term.id) ? 'bg-yellow-50 border-yellow-400 shadow-md' : 'bg-white border-stone-200 shadow-sm hover:shadow-md hover:border-stone-300'}`}>
+                            {/* Header Section - Green/Colored Top */}
+                            <div className={`px-4 py-3 border-b-2 border-dashed ${highlightedTerms.has(term.id) ? 'bg-yellow-100 border-yellow-300' : 'bg-[#e8f5e9] border-stone-200'} flex justify-between items-start gap-3`}>
+                              <h3 className={`font-hand text-lg md:text-xl font-bold text-stone-800 relative inline-block break-all leading-tight ${highlightedTerms.has(term.id) ? 'text-yellow-900' : 'text-green-900'}`}>
                                 {term.term}
                               </h3>
                               <button 
                                 onClick={() => toggleHighlight(term.id)}
-                                className={`p-1.5 rounded-full border-2 transition-all flex-shrink-0 ${highlightedTerms.has(term.id) ? 'bg-yellow-400 text-stone-900 border-stone-900 shadow-[2px_2px_0px_rgba(41,37,36,1)]' : 'bg-white text-stone-400 border-stone-200 opacity-0 group-hover:opacity-100 hover:border-stone-400 hover:text-stone-600'}`}
+                                className={`p-1.5 rounded-lg border-2 transition-all flex-shrink-0 ${highlightedTerms.has(term.id) ? 'bg-yellow-400 text-stone-900 border-yellow-600 shadow-sm' : 'bg-white text-stone-400 border-stone-200 hover:border-stone-400 hover:text-stone-600'}`}
                                 title="Mark as important"
                               >
                                 <Highlighter size={14} />
                               </button>
                             </div>
                             
-                            <div className={`transition-all duration-300 ${studyMode ? 'blur-md hover:blur-none cursor-help select-none' : ''}`}>
-                              <p className="font-serif text-lg text-stone-700 leading-relaxed mb-3 break-words">
-                                {term.definition}
-                              </p>
+                            <div className={`p-4 flex-1 flex flex-col relative z-10 ${studyMode ? 'blur-md hover:blur-none cursor-help select-none' : ''}`}>
+                              <div className="mb-3 flex-1">
+                                <span className="text-xs font-bold text-school-board uppercase tracking-wider bg-school-board/10 px-1.5 py-0.5 rounded mr-2 rtl:mr-0 rtl:ml-2 inline-block mb-1">
+                                  {t('definition')}:
+                                </span>
+                                <p className="font-hand text-base text-stone-700 leading-relaxed break-words whitespace-pre-wrap inline">
+                                  {term.definition}
+                                </p>
+                              </div>
 
                               {term.context && (
-                                <div className="text-sm text-stone-500 italic border-l-2 rtl:border-l-0 rtl:border-r-2 border-stone-300 pl-3 rtl:pl-0 rtl:pr-3 mb-3 font-serif break-words">
+                                <div className="text-xs text-stone-500 italic border-l-2 rtl:border-l-0 rtl:border-r-2 border-stone-300 pl-3 rtl:pl-0 rtl:pr-3 mb-3 font-hand break-words whitespace-pre-wrap bg-stone-50 p-2 rounded-r mt-2">
                                   "{term.context}"
                                 </div>
                               )}
 
                               {term.relatedTerms && term.relatedTerms.length > 0 && (
-                                <div className="flex flex-wrap gap-2 items-center mt-2">
+                                <div className="flex flex-wrap gap-1.5 items-center mt-auto pt-3 border-t border-stone-100">
                                   <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider font-hand">{t('see_also')}</span>
                                   {term.relatedTerms.map((rt: string, idx: number) => (
-                                    <span key={idx} className="px-1.5 py-0.5 bg-stone-100 text-stone-500 rounded text-xs font-hand border border-stone-200">
+                                    <span key={idx} className="px-2 py-0.5 bg-stone-100 text-stone-600 rounded-md text-[10px] font-hand border border-stone-200 hover:bg-stone-200 transition-colors cursor-default">
                                       {rt}
                                     </span>
                                   ))}

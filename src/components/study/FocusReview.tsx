@@ -110,7 +110,7 @@ export function FocusReview() {
                 <div className="absolute inset-0 bg-paper-pattern opacity-10 pointer-events-none rounded-xl"></div>
                 
                 <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h4 className="font-hand text-xl md:text-2xl font-bold text-stone-800 mb-2 break-words">
                       {item.concept}
                     </h4>

@@ -136,15 +136,15 @@ export function Flashcards() {
     <div className="h-full flex flex-col items-center relative overflow-hidden bg-transparent">
       
       {/* Top Header Area */}
-      <div className="w-full max-w-5xl mx-auto flex items-center justify-between p-4 md:p-8 z-20">
+      <div className="w-full max-w-5xl mx-auto flex items-center justify-between p-4 md:p-8 z-20 pb-0 md:pb-8">
          {/* Mastered Counter - Sticker Style */}
-         <div className="flex items-center gap-2 bg-[#e6f4ea] border-2 border-[#1e8e3e] text-[#1e8e3e] px-4 py-2 rounded-lg shadow-sm transform -rotate-2">
-            <Check size={20} strokeWidth={3} />
-            <span className="font-hand font-bold text-lg pt-1">{t('mastered_count', { count: masteredCount })}</span>
+         <div className="flex items-center gap-2 bg-[#e6f4ea] border-2 border-[#1e8e3e] text-[#1e8e3e] px-3 py-1 md:px-4 md:py-2 rounded-lg shadow-sm transform -rotate-2 scale-90 md:scale-100">
+            <Check size={18} strokeWidth={3} className="md:w-5 md:h-5" />
+            <span className="font-hand font-bold text-base md:text-lg pt-1">{t('mastered_count', { count: masteredCount })}</span>
          </div>
          
          {/* Central Progress Ruler */}
-         <div className="flex-1 mx-4 md:mx-16 max-w-md hidden md:block">
+         <div className="flex-1 mx-2 md:mx-16 max-w-md hidden md:block">
             <div className="relative h-4 bg-[#f0ebd8] rounded-sm border border-stone-300 shadow-inner overflow-hidden">
                 {/* Ruler markings */}
                 <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(90deg, transparent 95%, #a8a29e 95%)', backgroundSize: '10px 100%' }}></div>
@@ -167,19 +167,19 @@ export function Flashcards() {
          {/* Shuffle Button */}
          <button 
             onClick={handleShuffle} 
-            className="p-3 bg-white border-2 border-stone-200 text-stone-400 rounded-xl hover:text-school-board hover:border-school-board hover:rotate-6 transition-all shadow-sm active:scale-95" 
+            className="p-2 md:p-3 bg-white border-2 border-stone-200 text-stone-400 rounded-xl hover:text-school-board hover:border-school-board hover:rotate-6 transition-all shadow-sm active:scale-95" 
             title="Shuffle Deck"
          >
-            <Shuffle size={20} />
+            <Shuffle size={18} className="md:w-5 md:h-5" />
          </button>
       </div>
 
       {/* Main Study Area */}
-      <div className="w-full max-w-7xl flex flex-col items-center justify-center gap-4 md:gap-8 flex-1 relative z-10 px-4 pt-16 md:pt-0">
+      <div className="w-full max-w-7xl flex flex-col items-center justify-center gap-2 md:gap-8 flex-1 relative z-10 px-4 pt-0 md:pt-0">
         
         {/* Card Container */}
         <div className="w-full max-w-2xl perspective-1000 relative -mt-16 md:-mt-16">
-            <div className="relative aspect-[1.3/1] md:aspect-[1.6/1] w-full cursor-pointer group mb-8" onClick={() => setIsFlipped(!isFlipped)}>
+            <div className="relative aspect-[1.3/1] md:aspect-[1.6/1] w-full cursor-pointer group mb-4 md:mb-8" onClick={() => setIsFlipped(!isFlipped)}>
             <motion.div 
                 className="w-full h-full absolute preserve-3d" 
                 initial={false} 
@@ -200,8 +200,8 @@ export function Flashcards() {
                         <div className="absolute top-0 bottom-0 left-12 rtl:right-12 rtl:left-auto w-0.5 bg-red-400/20 z-0"></div>
                         
                         {/* Content Area */}
-                        <div className="flex-1 flex items-center justify-center w-full px-16 md:px-24 z-10">
-                            <h3 className="font-hand text-2xl md:text-4xl text-stone-800 font-bold leading-relaxed text-center" dir="auto">
+                        <div className="flex-1 flex items-center justify-center w-full px-6 md:px-24 z-10 overflow-y-auto my-4 custom-scrollbar-hide">
+                            <h3 className="font-hand text-xl sm:text-2xl md:text-4xl text-stone-800 font-bold leading-relaxed text-center w-full break-words" dir="auto">
                                 {currentCard.front}
                             </h3>
                         </div>
@@ -216,28 +216,29 @@ export function Flashcards() {
                     </div>
                 </div>
 
-                {/* Back of Card - Yellow Paper */}
-                <div className="absolute inset-0 backface-hidden rounded-2xl md:rounded-[2rem] bg-[#fefce8] overflow-hidden shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-yellow-300/50" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                {/* Back of Card - Green Chalkboard Style */}
+                <div className="absolute inset-0 backface-hidden rounded-2xl md:rounded-[2rem] bg-school-board overflow-hidden shadow-[2px_8px_30px_rgba(0,0,0,0.25)] border-4 border-stone-800" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                     <div className="h-full w-full flex flex-col relative">
-                        {/* Paper Texture & Lines */}
-                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")` }}></div>
-                        <div className="absolute inset-0" style={{ 
-                            backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, #fef08a 31px, #fef08a 32px)',
-                            backgroundAttachment: 'local'
+                        {/* Chalk Texture */}
+                        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+                            backgroundImage: `url("https://www.transparenttextures.com/patterns/black-scales.png")`
+                        }}></div>
+                        <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay" style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
                         }}></div>
                         
                         {/* Content Area */}
-                        <div className="flex-1 flex items-center justify-center w-full px-12 md:px-20 z-10">
+                        <div className="flex-1 flex items-center justify-center w-full px-4 md:px-20 z-10 pt-2 md:pt-8 overflow-y-auto my-2 custom-scrollbar-hide">
                             <div className="w-full relative">
-                                <h3 className="font-hand text-xl md:text-3xl text-stone-800 font-bold leading-loose text-center whitespace-pre-wrap" dir="auto">
+                                <h3 className="font-hand text-lg sm:text-xl md:text-3xl text-white font-bold leading-relaxed text-center whitespace-pre-wrap drop-shadow-md break-words" dir="auto">
                                     {currentCard.back}
                                 </h3>
                             </div>
                         </div>
 
                         {/* Bottom Hint */}
-                        <div className="w-full pb-6 z-10 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                             <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-yellow-200/50 text-yellow-700/50 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
+                        <div className="w-full pb-4 md:pb-6 z-10 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors">
                                 <span>{t('tap_to_flip')}</span>
                                 <RotateCcw size={12} />
                             </div>

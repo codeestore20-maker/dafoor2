@@ -98,10 +98,10 @@ export function SmartNotes() {
         <NotebookPaper title={t('smart_notes')} className="min-h-[600px] max-w-3xl mx-auto transform rotate-1">
           <div className="space-y-8">
             <div className="space-y-4">
-              {localNotes.map((note, idx) => <p key={idx} className="relative break-words" dir="auto">
-                  <span className="font-bold text-school-board mr-2 rtl:mr-0 rtl:ml-2">•</span>
-                  {note}
-                  {idx === 0 && <span className="absolute -bottom-1 left-0 rtl:left-auto rtl:right-0 w-32 text-school-pencil opacity-70">
+                {localNotes.map((note, idx) => <p key={idx} className="relative break-words whitespace-pre-wrap" dir="auto">
+                    <span className="font-bold text-school-board mr-2 rtl:mr-0 rtl:ml-2">•</span>
+                    {note}
+                    {idx === 0 && <span className="absolute -bottom-1 left-0 rtl:left-auto rtl:right-0 w-32 text-school-pencil opacity-70">
                       <HandUnderline />
                     </span>}
                 </p>)}
@@ -118,7 +118,7 @@ export function SmartNotes() {
                   <h4 className="font-hand text-lg font-bold text-school-board mb-2 break-words">
                     {t('key_concept')}
                   </h4>
-                  <p className="text-stone-700 leading-relaxed break-words">
+                  <p className="text-stone-700 leading-relaxed break-words whitespace-pre-wrap">
                     {t('notes_cover_desc')}
                   </p>
                 </div>

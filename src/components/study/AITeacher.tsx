@@ -292,15 +292,17 @@ export function AITeacher({
                      ? 'bg-white border border-stone-300 text-stone-800 rotate-1 rounded-sm shadow-[2px_2px_0px_rgba(0,0,0,0.1)]' 
                      : 'bg-[#fff9c4] border border-yellow-300 text-stone-900 -rotate-1 rounded-sm shadow-[2px_2px_0px_rgba(234,179,8,0.2)]'}
                 `}>
-                  <div className="font-hand text-lg">
+                  <div className="font-hand text-lg break-words">
                      <Markdown
                         components={{
-                            p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                            p: ({node, ...props}) => <p className="mb-2 last:mb-0 break-words" {...props} />,
                             ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2" {...props} />,
                             ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2" {...props} />,
-                            li: ({node, ...props}) => <li className="ml-2" {...props} />,
+                            li: ({node, ...props}) => <li className="ml-2 break-words" {...props} />,
                             strong: ({node, ...props}) => <strong className="font-bold text-stone-900" {...props} />,
                             em: ({node, ...props}) => <em className="italic" {...props} />,
+                            code: ({node, ...props}) => <code className="bg-stone-100 px-1 py-0.5 rounded font-mono text-sm break-all" {...props} />,
+                            pre: ({node, ...props}) => <div className="bg-stone-800 text-white p-2 rounded my-2 overflow-x-auto custom-scrollbar"><pre {...props} /></div>
                         }}
                      >
                         {message.text}

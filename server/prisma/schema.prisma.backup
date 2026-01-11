@@ -73,8 +73,7 @@ model Summary {
   id         String   @id @default(uuid())
   resourceId String   @unique
   resource   Resource @relation(fields: [resourceId], references: [id])
-  content    String   @db.Text // Legacy content or Full Summary
-  chapters   Json?    // New: Array of { title: string, content: string }
+  content    String   @db.Text // Markdown content with formatting
   keyTakeaways String[] 
   readingTime Int     // in minutes
   createdAt  DateTime @default(now())
