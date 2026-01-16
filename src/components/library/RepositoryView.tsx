@@ -37,15 +37,14 @@ export function RepositoryView({ subjectId, subjectName }: RepositoryViewProps) 
     }
   });
 
-  const handleUpload = (file: File, language: string) => {
+  const handleUpload = (fileData: any, language: string) => {
     if (!subjectId) return;
     
-    const formData = new FormData();
-    formData.append('subjectId', subjectId);
-    formData.append('language', language);
-    formData.append('file', file);
-    
-    uploadMutation.mutate(formData);
+    uploadMutation.mutate({
+      ...fileData,
+      subjectId,
+      language
+    });
   };
 
   const onFileSelect = (fileId: string, fileName: string) => {

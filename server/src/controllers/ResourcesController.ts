@@ -33,7 +33,15 @@ export const ResourcesController = {
         
         const resources = await prisma.resource.findMany({
             where,
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                title: true,
+                type: true,
+                size: true,
+                createdAt: true,
+                subjectId: true
+            }
         });
         
         // Transform for frontend
@@ -90,66 +98,49 @@ export const ResourcesController = {
     try {
         if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
-        if (!req.file) {
-            return res.status(400).json({ error: "No file uploaded" });
-        }
+        const { subjectId, language, name, url, key, size, type } = req.body;
         
-        const { subjectId, language } = req.body;
         if (!subjectId) {
             return res.status(400).json({ error: "Subject ID required" });
         }
 
-        // Verify Subject Ownership
-        const subject = await prisma.subject.findFirst({
-            where: {
-                id: subjectId,
-                userId: req.user.id
-            }
-        });
-
-        if (!subject) {
-            return res.status(403).json({ error: "Invalid subject or permission denied" });
+        if (!url || !key) {
+             return res.status(400).json({ error: "File data (url/key) missing" });
         }
 
-        // Fix encoding issue for originalname here as well
-        const originalName = fixEncoding(req.file.originalname);
+        const fixedTitle = fixEncoding(name || "Untitled");
+        const formattedSize = formatBytes(size || 0);
+        
+        // Simple type inference if not provided
+        let fileType = 'PDF';
+        if (type?.includes('text') || name?.endsWith('.txt')) fileType = 'TXT';
+        else if (type?.includes('pdf') || name?.endsWith('.pdf')) fileType = 'PDF';
 
-        console.log(`File uploaded: ${req.file.path}, Subject: ${subjectId}, Language: ${language}`);
-
-        // 1. Create Resource Entry in DB
+        // 1. Create Resource in DB
         const resource = await prisma.resource.create({
             data: {
-                title: originalName,
-                type: path.extname(originalName).replace('.', '').toUpperCase() || 'FILE',
-                url: req.file.path, // In local dev, store path. In prod, store S3 URL.
-                size: formatBytes(req.file.size),
-                subjectId: subjectId,
+                title: fixedTitle,
+                type: fileType,
+                url: url, // Store UploadThing URL
+                size: formattedSize,
+                subjectId,
                 language: language || 'English',
-                content: '' // Will be filled by RAG service
+                content: '' // Will be filled by RAG
             }
         });
 
-        // 2. Trigger RAG Processing
-        // Only process PDF and Text files for now
-        const supportedTypes = ['application/pdf', 'text/plain'];
-        if (supportedTypes.includes(req.file.mimetype)) {
-            // Process asynchronously in background so we don't block response too long? 
-            // For now, keep it sync to ensure it works before returning.
-            console.log("Starting RAG processing for", req.file.mimetype);
-            try {
-                await ragService.processFile(req.file.path, resource.id, req.file.mimetype);
-                console.log("RAG processing complete");
-            } catch (ragError) {
-                console.error("RAG processing failed (non-fatal):", ragError);
-                // We don't fail the upload if RAG fails, but we log it.
-            }
-        }
+        // 2. Trigger RAG Processing (Async)
+        // Since the file is on URL now, we pass the URL to processFile
+        // Note: processFile needs to be updated to handle URLs download
+        ragService.processFile(url, resource.id, type || 'application/pdf').catch(err => {
+            console.error(`[Background] RAG failed for ${resource.id}:`, err);
+        });
 
-        res.json(resource);
+        res.status(201).json(resource);
 
     } catch (error) {
         console.error("Upload Error:", error);
-        res.status(500).json({ error: "File upload failed" });
+        res.status(500).json({ error: "Upload failed" });
     }
   }
 };

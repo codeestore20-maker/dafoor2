@@ -5,10 +5,13 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import fs from 'fs';
 import path from 'path';
 
+// Constants
+const SINGLE_PASS_LIMIT = 15000;
+const SINGLE_PASS_CHARS = 80000;
+const CHUNK_SIZE = 25000;
+const MAX_CHUNKS_PARALLEL = 5;
+
 // Initialize DeepSeek Client
-// Strategy: We leverage DeepSeek's Context Caching by sending the full, cleaned document text as a prefix.
-// This allows us to support large files (up to ~150k chars) with minimal cost for subsequent requests (chat, quiz, etc.)
-// because the input tokens are cached.
 const deepseek = new OpenAI({
   baseURL: 'https://api.deepseek.com',
   apiKey: process.env.DEEPSEEK_API_KEY
@@ -19,34 +22,39 @@ export const ragService = {
     try {
       console.log(`[RAG] Processing file: ${filePath} (${mimeType}) for resource ${resourceId}`);
       
-      // Ensure absolute path
-      const absolutePath = path.resolve(filePath);
-      console.log(`[RAG] Absolute path: ${absolutePath}`);
-
-      if (!fs.existsSync(absolutePath)) {
-          console.error(`[RAG] File not found at path: ${absolutePath}`);
-          throw new Error(`File not found: ${absolutePath}`);
-      }
-
       let docs;
-      
-      // 1. Load File based on Type
-      if (mimeType === 'application/pdf') {
-        console.log("[RAG] Loading PDF...");
-        const loader = new PDFLoader(absolutePath, {
-            splitPages: false,
-        });
-        docs = await loader.load();
-        console.log(`[RAG] PDF loaded. Pages: ${docs.length}`);
-      } else if (mimeType === 'text/plain') {
-        console.log("[RAG] Loading Text file...");
-        const text = fs.readFileSync(absolutePath, 'utf-8');
-        // Create a mock document structure
-        docs = [{ pageContent: text, metadata: { source: filePath } }];
-        console.log(`[RAG] Text loaded. Length: ${text.length}`);
-      } else {
-        console.warn(`[RAG] Unsupported MIME type: ${mimeType}`);
-        return 0;
+
+      // Handle Remote URL (UploadThing)
+      if (filePath.startsWith('http')) {
+          console.log("[RAG] Downloading file from URL...");
+          const response = await fetch(filePath);
+          const blob = await response.blob();
+          
+          if (mimeType === 'application/pdf') {
+              const loader = new PDFLoader(blob, { splitPages: false });
+              docs = await loader.load();
+          } else {
+              const text = await blob.text();
+              docs = [{ pageContent: text, metadata: { source: filePath } }];
+          }
+      } 
+      // Handle Local File (Legacy/Fallback)
+      else {
+          const absolutePath = path.resolve(filePath);
+          console.log(`[RAG] Absolute path: ${absolutePath}`);
+
+          if (!fs.existsSync(absolutePath)) {
+              console.error(`[RAG] File not found at path: ${absolutePath}`);
+              throw new Error(`File not found: ${absolutePath}`);
+          }
+
+          if (mimeType === 'application/pdf') {
+            const loader = new PDFLoader(absolutePath, { splitPages: false });
+            docs = await loader.load();
+          } else {
+            const text = fs.readFileSync(absolutePath, 'utf-8');
+            docs = [{ pageContent: text, metadata: { source: filePath } }];
+          }
       }
 
       if (!docs || docs.length === 0) {
@@ -126,7 +134,7 @@ export const ragService = {
   },
 
   // Helper to split text into manageable chunks
-  splitTextIntoChunks: async (text: string, chunkSize: number = 25000): Promise<string[]> => {
+  splitTextIntoChunks: async (text: string, chunkSize: number = CHUNK_SIZE): Promise<string[]> => {
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: chunkSize,
       chunkOverlap: 1000,
@@ -142,27 +150,29 @@ export const ragService = {
       const { content: contentText, language } = await ragService.ensureContent(resourceId);
       const cleanText = ragService.cleanContext(contentText);
       
-      // Decision Logic: Short vs Long
-      // Lowered threshold to 15000 chars (~5 pages) to trigger multi-chapter mode more often
-      const isLongFile = cleanText.length > 15000; 
+      const isLongFile = cleanText.length > SINGLE_PASS_LIMIT; 
       
       console.log(`[RAG] Text Length: ${cleanText.length} chars. Mode: ${isLongFile ? 'Multi-Chapter' : 'Single-Pass'}`);
 
       if (!isLongFile) {
         // --- Strategy A: Short File (Legacy Mode) ---
         console.log(`[RAG] Short file detected (${cleanText.length} chars). Using single-pass summary.`);
-        const text = cleanText.substring(0, 80000); 
+        const text = cleanText.substring(0, SINGLE_PASS_CHARS); 
 
+        // Optimizing for Cache: Content first (System), Instructions second (User)
         const completion = await deepseek.chat.completions.create({
             messages: [
             { 
                 role: "system", 
-                content: `You are an expert academic tutor. Summarize the following text in a structured, engaging Markdown format. Include a title, key concepts, and a 'Key Takeaways' section. Use clear headings.
+                content: `Here is the study material:\n\n---\n${text}\n---`
+            },
+            { 
+                role: "user", 
+                content: `You are an expert academic tutor. Summarize the provided text in a structured, engaging Markdown format. Include a title, key concepts, and a 'Key Takeaways' section. Use clear headings.
                 
                 IMPORTANT: The summary MUST be in ${language}.
                 CRITICAL: You must keep key technical terms, specific terminology, and important concepts in their original language (usually English). Do not translate these specific terms, but explain them in ${language}.` 
-            },
-            { role: "user", content: text }
+            }
             ],
             model: "deepseek-chat", 
         });
@@ -186,7 +196,7 @@ export const ragService = {
         console.log(`[RAG] Long file detected (${cleanText.length} chars). Using multi-chapter strategy.`);
         
         // 1. Split into chunks
-        const chunks = await ragService.splitTextIntoChunks(cleanText, 25000); // ~7-10 pages per chunk
+        const chunks = await ragService.splitTextIntoChunks(cleanText, CHUNK_SIZE); // ~7-10 pages per chunk
         console.log(`[RAG] Split into ${chunks.length} chunks.`);
 
         const chapters = [];
@@ -201,7 +211,11 @@ export const ragService = {
                 messages: [
                     {
                         role: "system",
-                        content: `You are an expert academic tutor. Summarize this section of a larger document as a self-contained "Chapter".
+                        content: `Here is a section of a larger document:\n\n---\n${chunk}\n---`
+                    },
+                    { 
+                        role: "user", 
+                        content: `You are an expert academic tutor. Summarize this section as a self-contained "Chapter".
                         
                         Output JSON format:
                         {
@@ -211,8 +225,7 @@ export const ragService = {
 
                         IMPORTANT: The content MUST be in ${language}.
                         CRITICAL: Keep technical terms in original language.`
-                    },
-                    { role: "user", content: `Summarize this part (Part ${i+1}/${chunks.length}):\n\n${chunk}` }
+                    }
                 ],
                 model: "deepseek-chat",
                 response_format: { type: "json_object" }
@@ -267,14 +280,17 @@ export const ragService = {
             messages: [
               { 
                 role: "system", 
+                content: `Here is the study material:\n\n---\n${text}\n---` 
+              }, 
+              { 
+                role: "user", 
                 content: `You are a teacher creating flashcards. Output valid JSON array of objects with 'front' and 'back' keys. Create 10-15 cards based on the text.
                 
                 IMPORTANT: The flashcards MUST be in ${language}.
                 CRITICAL: You must keep key technical terms in their original language.
                 
                 Do NOT include prefixes like "Question:", "Answer:", "Front:", or "Back:" in the content.` 
-              }, 
-              { role: "user", content: `Generate flashcards from this text: ${text}` }
+              }
             ],
             model: "deepseek-chat",
             response_format: { type: "json_object" } 
@@ -286,10 +302,8 @@ export const ragService = {
 
       } else {
         // --- Multi-Pass (Long File) ---
-        // Limit to first 4 chunks to avoid excessive API costs/time (covering ~100k chars / 40 pages)
-        // If file is larger, we prioritize the first 40 pages or sample.
         const chunks = await ragService.splitTextIntoChunks(cleanText, 30000);
-        const processingChunks = chunks.slice(0, 5); // Max 5 chunks (approx 150k chars)
+        const processingChunks = chunks.slice(0, MAX_CHUNKS_PARALLEL); 
         
         console.log(`[Flashcards] Processing ${processingChunks.length} chunks...`);
 
@@ -298,10 +312,13 @@ export const ragService = {
                 messages: [
                   { 
                     role: "system", 
-                    content: `Create 5-8 flashcards from this specific section. Output JSON array of objects with 'front' and 'back'.
-                    IMPORTANT: In ${language}. Keep technical terms original.` 
+                    content: `Here is the section text:\n\n---\n${chunk}\n---` 
                   }, 
-                  { role: "user", content: `Section text: ${chunk}` }
+                  { 
+                    role: "user", 
+                    content: `You are a teacher creating flashcards. Create 5-8 flashcards from this specific section. Output JSON array of objects with 'front' and 'back'.
+                    IMPORTANT: In ${language}. Keep technical terms original.` 
+                  }
                 ],
                 model: "deepseek-chat",
                 response_format: { type: "json_object" } 
@@ -378,6 +395,10 @@ export const ragService = {
             messages: [
               { 
                 role: "system", 
+                content: `Here is the material to test:\n\n---\n${text}\n---` 
+              },
+              { 
+                role: "user", 
                 content: `You are an expert professor designing a high-quality exam. Your goal is to test UNDERSTANDING and APPLICATION, not just memory.
 
                 RULES:
@@ -395,8 +416,7 @@ export const ragService = {
                    }
                 6. **Language**: Questions must be in ${language}.
                 ` 
-              },
-              { role: "user", content: `Material to test: ${text}` }
+              }
             ],
             model: "deepseek-chat",
             response_format: { type: "json_object" } 
@@ -409,7 +429,7 @@ export const ragService = {
       } else {
          // --- Multi-Pass (Long File) ---
          const chunks = await ragService.splitTextIntoChunks(cleanText, 30000);
-         const processingChunks = chunks.slice(0, 5); // Max 5 chunks
+         const processingChunks = chunks.slice(0, MAX_CHUNKS_PARALLEL); 
          
          console.log(`[Quiz] Processing ${processingChunks.length} chunks in PARALLEL...`);
 
@@ -420,14 +440,17 @@ export const ragService = {
                     messages: [
                       { 
                         role: "system", 
-                        content: `Create 3-5 multiple choice questions based on this section.
+                        content: `Here is the section text:\n\n---\n${chunk}\n---` 
+                      }, 
+                      { 
+                        role: "user", 
+                        content: `You are an expert professor. Create 3-5 multiple choice questions based on this section.
                         RULES:
                         1. **No Meta-Talk**: Do NOT say "According to text". Be direct.
                         2. **Concise**: Questions must be SHORT (5-20 words).
                         3. **Format**: JSON array { text, options, correctAnswer, explanation, concept }.
                         4. **Language**: ${language}.` 
-                      }, 
-                      { role: "user", content: `Section: ${chunk}` }
+                      }
                     ],
                     model: "deepseek-chat",
                     response_format: { type: "json_object" } 
@@ -532,12 +555,15 @@ export const ragService = {
         messages: [
           { 
             role: "system", 
+            content: `Here is the text:\n\n---\n${text}\n---` 
+          },
+          { 
+            role: "user", 
             content: `You are a top student taking notes. Output valid JSON array of strings, where each string is a key concept, formula, or important fact from the text. Keep them concise.
             
             IMPORTANT: The notes MUST be in ${language}.
             CRITICAL: You must keep key technical terms, specific terminology, and important concepts in their original language (usually English). Do not translate these specific terms, but explain them in ${language}.` 
-          },
-          { role: "user", content: `Take notes from this text: ${text}` }
+          }
         ],
         model: "deepseek-chat",
         response_format: { type: "json_object" } 
@@ -553,14 +579,6 @@ export const ragService = {
       } catch (e) {
           throw new Error("Failed to parse notes JSON");
       }
-
-      // Store notes. We can store them as individual Note entries or one big Note. 
-      // The current Note model has 'content' (String). 
-      // Let's store each point as a separate Note for now, or maybe grouped.
-      // Actually, SmartNotes UI expects a list of strings. 
-      // Let's create one Note entry per generated point to allow granular management later? 
-      // Or just one Note entry with JSON stringified content? 
-      // The Note model is simple. Let's create multiple notes.
       
       const createdNotes = [];
       for (const noteText of notesData) {
@@ -590,7 +608,11 @@ export const ragService = {
         messages: [
           { 
             role: "system", 
-            content: `Extract key terms and definitions from the text. Return a JSON array of objects with keys: 'term', 'definition'. Limit to 10-15 terms.
+            content: `Here is the text:\n\n---\n${text}\n---` 
+          },
+          { 
+            role: "user", 
+            content: `You are a helpful assistant. Extract key terms and definitions from the text. Return a JSON array of objects with keys: 'term', 'definition'. Limit to 10-15 terms.
             
             IMPORTANT: The definitions MUST be in ${language}.
             CRITICAL: The 'term' itself MUST remain in its original language (usually English). Do NOT translate the term name.
@@ -599,8 +621,7 @@ export const ragService = {
             [
               { "term": "Photosynthesis", "definition": "العملية التي تستخدمها النباتات..." }
             ]` 
-          },
-          { role: "user", content: `Text: ${text}` }
+          }
         ],
         model: "deepseek-chat",
         response_format: { type: "json_object" }
@@ -645,12 +666,15 @@ export const ragService = {
           messages: [
             { 
               role: "system", 
-              content: `Predict potential exam topics/questions based on the text. Return a JSON array of objects with keys: 'topic' (string), 'probability' (number 0-100), 'reasoning' (string), 'keyConcepts' (array of strings), 'frequency' (string: 'High', 'Medium', 'Low').
+              content: `Here is the text:\n\n---\n${text}\n---` 
+            },
+            { 
+              role: "user", 
+              content: `You are an exam expert. Predict potential exam topics/questions based on the text. Return a JSON array of objects with keys: 'topic' (string), 'probability' (number 0-100), 'reasoning' (string), 'keyConcepts' (array of strings), 'frequency' (string: 'High', 'Medium', 'Low').
               
               IMPORTANT: The reasoning and topics MUST be in ${language}.
               CRITICAL: Keep 'keyConcepts' and technical terms in their original language (usually English).` 
-            },
-            { role: "user", content: `Analyze this text for exam predictions: ${text}` }
+            }
           ],
           model: "deepseek-chat",
           response_format: { type: "json_object" }
@@ -700,6 +724,10 @@ export const ragService = {
             messages: [
                 { 
                     role: "system", 
+                    content: `Here is the context text:\n\n---\n${text}\n---` 
+                },
+                { 
+                    role: "user", 
                     content: `You are an expert tutor. Create a mini-lesson for the concept: "${concept}". 
                     Return a JSON object with:
                     - 'breakdown': A clear explanation of the concept in ${language}.
@@ -708,8 +736,7 @@ export const ragService = {
                     - 'practiceQuestion': A multiple choice question object { text, options: [], correctAnswerIndex } in ${language}.
                     
                     CRITICAL: Keep key technical terms in their original language (usually English) throughout the lesson. Do not translate the concept name itself if it is a technical term.`
-                },
-                { role: "user", content: `Context text: ${text}` }
+                }
             ],
             model: "deepseek-chat",
             response_format: { type: "json_object" }
@@ -733,14 +760,18 @@ export const ragService = {
         messages: [
           { 
             role: "system", 
-            content: `You are a helpful study assistant completing the user's notes. 
-            Based on the context provided, complete the user's sentence or add a relevant fact.
+            content: `Here is the context:\n\n---\n${context}\n---` 
+          },
+          { 
+            role: "user", 
+            content: `You are a helpful study assistant. Complete the user's notes.
+            User's current notes: "${currentText}"
+            
             Keep it concise (1-2 sentences). Do not repeat the user's text, just append to it.
             
             IMPORTANT: Complete the text in ${language}, unless the user is writing in a different language.
             CRITICAL: If adding technical terms, keep them in their original language (usually English).` 
-          },
-          { role: "user", content: `Context: ${context}\n\nUser's current notes: "${currentText}"\n\nComplete this:` }
+          }
         ],
         model: "deepseek-chat",
       });
@@ -761,11 +792,14 @@ export const ragService = {
             messages: [
                 {
                     role: "system",
-                    content: `Identify complex or advanced topics in the text that students might struggle with. Return a JSON array of objects with keys: 'concept', 'reason' (why it's hard). Limit to 5-8 topics.
+                    content: `Here is the text:\n\n---\n${text}\n---`
+                },
+                { 
+                    role: "user", 
+                    content: `You are an expert tutor. Identify complex or advanced topics in the text that students might struggle with. Return a JSON array of objects with keys: 'concept', 'reason' (why it's hard). Limit to 5-8 topics.
                     IMPORTANT: The 'reason' MUST be in ${language}.
                     CRITICAL: The 'concept' MUST remain in its original language.`
-                },
-                { role: "user", content: `Analyze: ${text}` }
+                }
             ],
             model: "deepseek-chat",
             response_format: { type: "json_object" }
@@ -805,6 +839,10 @@ export const ragService = {
         const messages: any[] = [
             {
                 role: "system",
+                content: `Here is the Study Material you must base your answers on:\n\n---\n${context}\n---`
+            },
+            { 
+                role: "user", 
                 content: `You are Professor Owl, a wise and academic AI tutor.
                 
                 CORE INSTRUCTIONS:
@@ -817,9 +855,10 @@ export const ragService = {
                 5. **LANGUAGE**: Explain in ${language}. Keep technical English terms in brackets if helpful.
                 6. **NO EMOTIONS**: Do NOT write actions like (laughs), *smiles*, or (thinks). Express friendliness through words only.
                 
-                Tone: Professional yet friendly. Use "White Saudi/Modern Standard Arabic" mix (e.g., use "حياك", "تفضل", "ممتاز" but keep sentences grammatically correct). Avoid heavy slang.`
+                Tone: Professional yet friendly. Use "White Saudi/Modern Standard Arabic" mix (e.g., use "حياك", "تفضل", "ممتاز" but keep sentences grammatically correct). Avoid heavy slang.
+                
+                I am ready for your questions.` 
             },
-            { role: "user", content: `Here is the Study Material you must base your answers on:\n\n---\n${context}\n---\n\nI am ready for your questions.` },
             { role: "assistant", content: "Understood! I have read the material and I am ready to help you understand it using only the facts provided, while explaining them simply." },
             ...recentHistory,
             { role: "user", content: query }
@@ -853,6 +892,10 @@ export const ragService = {
         const messages: any[] = [
             {
                 role: "system",
+                content: `Here is the Study Material you must base your answers on:\n\n---\n${context}\n---`
+            },
+            { 
+                role: "user", 
                 content: `You are Professor Owl, a wise and academic AI tutor.
                 
                 CORE INSTRUCTIONS:
@@ -864,9 +907,8 @@ export const ragService = {
                 4. **ENGAGEMENT**: Always end your response with a short, relevant follow-up question to guide the student (e.g., "Does that make sense?", "Shall we look at an example?", "Ready for the next part?").
                 5. **LANGUAGE**: Explain in ${language}. Keep technical English terms in brackets if helpful.
                 
-                Tone: Encouraging, scholarly, but accessible. Like a friendly professor chatting in office hours.`
+                Tone: Encouraging, scholarly, but accessible. Like a friendly professor chatting in office hours.` 
             },
-            { role: "user", content: `Here is the Study Material you must base your answers on:\n\n---\n${context}\n---\n\nI am ready for your questions.` },
             { role: "assistant", content: "Understood! I have read the material and I am ready to help you understand it using only the facts provided, while explaining them simply." },
             ...recentHistory,
             { role: "user", content: query }
@@ -886,4 +928,3 @@ export const ragService = {
     }
   }
 };
-

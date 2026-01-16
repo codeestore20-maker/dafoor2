@@ -200,13 +200,12 @@ export function ScrapbookSubjectView({ subject, viewMode, setViewMode, onBack }:
             <UploadModal
                 isOpen={isUploadOpen}
                 onClose={() => setIsUploadOpen(false)}
-                onUpload={(file, lang) => {
-                    const formData = new FormData();
-                    formData.append('subjectId', subject.id);
-                    formData.append('language', lang);
-                    formData.append('file', file);
-                    
-                    resourceService.upload(formData).then(() => {
+                onUpload={(fileData, lang) => {
+                    resourceService.upload({
+                        ...fileData,
+                        subjectId: subject.id,
+                        language: lang
+                    }).then(() => {
                         refetch();
                         setIsUploadOpen(false);
                         if (currentStep === 2) completeStep();

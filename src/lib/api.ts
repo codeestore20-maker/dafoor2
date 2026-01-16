@@ -45,12 +45,8 @@ export const subjectService = {
 };
 
 export const resourceService = {
-  upload: async (formData: FormData) => {
-    const response = await api.post('/resources/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  upload: async (data: any) => {
+    const response = await api.post('/resources/upload', data);
     return response.data;
   },
   getAll: async (subjectId?: string) => {

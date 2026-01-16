@@ -3,80 +3,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload, FileText, Check, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { UploadDropzone } from '../../lib/uploadthing';
 
 interface UploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (file: File, language: string) => void;
+  onUpload: (fileData: { name: string, url: string, key: string, size: number, type: string }, language: string) => void;
   isUploading: boolean;
   subjectId: string;
 }
 
 export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId }: UploadModalProps) {
-  const [dragActive, setDragActive] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("English");
   const { t } = useTranslation();
-  const { currentStep } = useOnboarding();
-
+  
   const languages = ["English", "Arabic", "Spanish", "French", "German"];
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const validateFile = (file: File) => {
-    // Check file type
-    const validTypes = ['application/pdf', 'text/plain'];
-    if (!validTypes.includes(file.type)) {
-      setError(t('error_file_type'));
-      return false;
-    }
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError(t('error_file_size'));
-      return false;
-    }
-    return true;
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const droppedFile = e.dataTransfer.files[0];
-      if (validateFile(droppedFile)) {
-        setFile(droppedFile);
-        setError(null);
-      }
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      if (validateFile(selectedFile)) {
-        setFile(selectedFile);
-        setError(null);
-      }
-    }
-  };
-
-  const handleSubmit = () => {
-    if (file) {
-      onUpload(file, selectedLanguage);
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -138,56 +80,34 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                   </div>
                 </div>
 
-                {/* Drop Zone */}
-                <div
-                  className={`relative border-2 border-dashed rounded-xl p-8 transition-all text-center ${
-                    dragActive 
-                      ? 'border-school-board bg-school-board/5 scale-[1.02]' 
-                      : 'border-stone-300 hover:border-school-board hover:bg-stone-50'
-                  } ${file ? 'bg-stone-50 border-solid border-stone-300' : ''}`}
-                  onDragEnter={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDragOver={handleDrag}
-                  onDrop={handleDrop}
-                >
-                  <input
-                    type="file"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleChange}
-                    accept=".pdf,.txt"
-                  />
-                  
-                  {file ? (
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 bg-white rounded-xl shadow-sm border-2 border-stone-200 flex items-center justify-center">
-                        <FileText size={32} className="text-school-board" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-stone-800 text-lg">{file.name}</p>
-                        <p className="text-stone-500 text-sm">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setFile(null);
+                {/* UploadThing Dropzone */}
+                <div className="border-2 border-dashed border-stone-300 rounded-xl p-2 hover:border-school-board transition-colors bg-stone-50/50">
+                    <UploadDropzone
+                        endpoint="pdfUploader"
+                        onClientUploadComplete={(res) => {
+                            if (res && res[0]) {
+                                const file = res[0];
+                                console.log("Files: ", res);
+                                onUpload({
+                                    name: file.name,
+                                    url: file.ufsUrl || file.url,
+                                    key: file.key,
+                                    size: file.size,
+                                    type: file.name.endsWith('.pdf') ? 'application/pdf' : 'text/plain'
+                                }, selectedLanguage);
+                                onClose();
+                            }
                         }}
-                        className="text-red-500 text-sm font-bold hover:underline mt-2"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3 pointer-events-none">
-                      <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center text-stone-400">
-                        <Upload size={32} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-stone-700 text-lg">Click to upload or drag & drop</p>
-                        <p className="text-stone-500 text-sm">PDF or Text files (max 10MB)</p>
-                      </div>
-                    </div>
-                  )}
+                        onUploadError={(error: Error) => {
+                            setError(error.message);
+                        }}
+                        appearance={{
+                            button: "bg-school-board text-white font-hand font-bold rounded-lg px-4 py-2 hover:bg-school-board/90",
+                            container: "flex flex-col items-center justify-center gap-2 text-stone-600 font-hand",
+                            label: "text-stone-500 text-sm hover:text-school-board",
+                            allowedContent: "text-xs text-stone-400"
+                        }}
+                    />
                 </div>
 
                 {/* Error Message */}
@@ -197,37 +117,6 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                     <span className="text-sm font-medium">{error}</span>
                   </div>
                 )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={onClose}
-                    className="flex-1 px-4 py-3 rounded-xl font-bold text-stone-500 hover:bg-stone-100 transition-colors"
-                  >
-                    {t('cancel')}
-                  </button>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={!file || isUploading}
-                    className={`flex-1 px-4 py-3 rounded-xl font-bold text-white shadow-md transition-all flex items-center justify-center gap-2 ${
-                      !file || isUploading
-                        ? 'bg-stone-300 cursor-not-allowed shadow-none'
-                        : 'bg-school-board hover:bg-opacity-90 hover:scale-[1.02] active:scale-[0.98]'
-                    }`}
-                  >
-                    {isUploading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Uploading...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check size={20} />
-                        <span>{t('upload_file')}</span>
-                      </>
-                    )}
-                  </button>
-                </div>
               </div>
             </motion.div>
           </div>

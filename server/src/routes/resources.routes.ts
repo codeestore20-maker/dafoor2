@@ -1,7 +1,6 @@
 import express from 'express';
 import { ResourcesController } from '../controllers/ResourcesController';
 import { AIController } from '../controllers/AIController';
-import { upload } from '../config/multer';
 import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = express.Router();
@@ -11,7 +10,7 @@ router.use(authMiddleware);
 // Resource CRUD
 router.get('/', ResourcesController.getAll);
 router.get('/:id', ResourcesController.getOne);
-router.post('/upload', upload.single('file'), ResourcesController.upload);
+router.post('/upload', ResourcesController.upload);
 
 // AI Features
 
