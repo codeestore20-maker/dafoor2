@@ -11,6 +11,14 @@ import { uploadRouter } from "./utils/uploadthing";
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Debug UploadThing Token
+console.log("UploadThing Config Check:");
+console.log("- Token exists:", !!process.env.UPLOADTHING_TOKEN);
+console.log("- Token length:", process.env.UPLOADTHING_TOKEN?.length);
+if (process.env.UPLOADTHING_TOKEN?.startsWith("'") || process.env.UPLOADTHING_TOKEN?.startsWith('"')) {
+  console.error("!!! WARNING: UPLOADTHING_TOKEN has surrounding quotes. Please remove them in Railway variables. !!!");
+}
+
 app.use(cors());
 app.use(express.json());
 
