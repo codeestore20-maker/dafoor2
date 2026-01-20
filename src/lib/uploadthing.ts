@@ -5,10 +5,21 @@ import { generateUploadButton, generateUploadDropzone } from "@uploadthing/react
 // For now, we define it manually to match the server router
 import type { FileRouter } from "uploadthing/express";
 
-// Get API URL from environment variable or default to relative path
-const apiUrl = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api/uploadthing`
-  : "/api/uploadthing";
+// Smart URL handling to prevent double /api/api
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  // Fallback to relative path if no env var
+  if (!envUrl) return "/api/uploadthing";
+  
+  // Clean the URL: remove trailing slashes and trailing /api
+  // Example 1: "https://app.com/api" -> "https://app.com"
+  // Example 2: "https://app.com/" -> "https://app.com"
+  const baseUrl = envUrl.replace(/\/api\/?$/, "").replace(/\/$/, "");
+  
+  return `${baseUrl}/api/uploadthing`;
+};
+ 
+const apiUrl = getApiUrl();
  
 export const UploadButton = generateUploadButton<any>({
   url: apiUrl,
