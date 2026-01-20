@@ -20,7 +20,7 @@ export const uploadRouter = {
       console.log("file url", file.url);
  
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-      return { uploadedBy: "user", url: file.url, key: file.key, name: file.name };
+      return { uploadedBy: "user", url: file.ufsUrl, key: file.key, name: file.name };
     }),
 } satisfies FileRouter;
  
