@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 // Lazy load components for performance
 const Library = lazy(() => import('./components/library/Library').then(module => ({ default: module.Library })));
 const StudyInterface = lazy(() => import('./components/study/StudyInterface').then(module => ({ default: module.StudyInterface })));
+const CourseMap = lazy(() => import('./components/study/CourseMap').then(module => ({ default: module.CourseMap })));
+const SmartLessonPlayer = lazy(() => import('./components/study/SmartLessonPlayer').then(module => ({ default: module.SmartLessonPlayer })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ default: module.LoginPage })));
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(module => ({ default: module.RegisterPage })));
 
@@ -69,6 +71,8 @@ export function App() {
                       <Route index element={<Library />} />
                       <Route path="subject/:subjectId" element={<Library />} />
                       <Route path="study/:fileId" element={<StudyInterface />} />
+                      <Route path="course-map/:fileId" element={<CourseMap />} />
+                      <Route path="lesson/:topicId" element={<SmartLessonPlayer />} />
                   </Route>
               </Route>
             </Routes>

@@ -43,7 +43,7 @@ export function Sidebar({ subjects, selectedSubjectId, onSelectSubject, onAddSub
       {/* Mobile Close Button */}
       <button 
         onClick={onClose}
-        className="absolute top-4 right-4 rtl:left-4 rtl:right-auto md:hidden p-2 text-stone-500 hover:text-red-500 transition-colors z-50"
+        className="absolute top-4 right-4 rtl:left-4 rtl:right-auto xl:hidden p-2 text-stone-500 hover:text-red-500 transition-colors z-50"
       >
         <X size={24} />
       </button>

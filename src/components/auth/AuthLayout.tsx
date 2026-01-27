@@ -113,7 +113,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
 
         {/* Form Section (Right in LTR, Left in RTL) */}
-        <div className="w-full md:w-7/12 bg-[#fdfbf7] p-8 md:p-16 flex flex-col justify-center relative">
+        <div className="w-full md:w-7/12 bg-[#fdfbf7] p-8 md:p-10 lg:p-16 flex flex-col justify-center relative">
           {/* Paper Texture */}
           <div className="absolute inset-0 opacity-50 pointer-events-none" style={{
             backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")`

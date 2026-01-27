@@ -73,7 +73,8 @@ export const ResourcesController = {
                 }
             },
             include: {
-                subject: true
+                subject: true,
+                summary: true
             }
         });
         
@@ -85,8 +86,10 @@ export const ResourcesController = {
             type: resource.type,
             size: resource.size || 'Unknown',
             date: resource.createdAt.toISOString().split('T')[0],
-            subjectId: resource.subjectId, // Add this to help navigation
-            subjectName: resource.subject.name
+            subjectId: resource.subjectId, 
+            subjectName: resource.subject.name,
+            content: resource.content,
+            summary: resource.summary?.content
         });
     } catch (error) {
         console.error("Get Resource Error:", error);

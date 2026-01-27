@@ -162,7 +162,7 @@ export function ScrapbookSubjectView({ subject, viewMode, setViewMode, onBack }:
                    ) : filteredFiles.length > 0 ? (
                      <div className={`
                        ${viewMode === 'grid' 
-                         ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6' 
+                         ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-3 md:gap-6' 
                          : 'flex flex-col gap-2 md:gap-3'
                        }
                      `}>
@@ -172,7 +172,7 @@ export function ScrapbookSubjectView({ subject, viewMode, setViewMode, onBack }:
                                 file={file} 
                                 index={index} 
                                 viewMode={viewMode}
-                                onClick={(id) => navigate(`/app/study/${id}`)}
+                                onClick={(id) => navigate(`/app/study/${id}?view=course_map`)}
                                 compact={viewMode === 'grid'}
                             />
                          </div>

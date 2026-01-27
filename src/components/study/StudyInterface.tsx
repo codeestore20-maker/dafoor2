@@ -8,6 +8,7 @@ import { Flashcards } from './Flashcards';
 import { QuizMode } from './QuizMode';
 import { SmartNotebooks } from './SmartNotebooks';
 import { FocusReview } from './FocusReview';
+import { CourseMap } from './CourseMap';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, FileText } from 'lucide-react';
@@ -68,6 +69,8 @@ export function StudyInterface() {
 
   const renderContent = () => {
     switch (currentView) {
+      case 'course_map':
+        return <CourseMap />;
       case 'notes':
         return <SmartNotes />;
       case 'summary':
@@ -97,7 +100,7 @@ export function StudyInterface() {
     }}></div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden absolute top-3 left-3 rtl:right-3 rtl:left-auto z-40">
+      <div className="xl:hidden absolute top-3 left-3 rtl:right-3 rtl:left-auto z-40">
         <button 
           onClick={() => setIsMobileMenuOpen(true)}
           className="p-2 bg-school-board text-white rounded-xl shadow-lg hover:bg-school-board/90 transition-all border-2 border-stone-800 active:scale-95"
@@ -108,7 +111,7 @@ export function StudyInterface() {
 
       {/* Left Sidebar (Desktop: Static, Mobile: Drawer) */}
       <div className={`
-        hidden md:block w-1/4 min-w-[250px] max-w-[300px] relative z-20 h-full shadow-xl transition-all duration-300 
+        hidden xl:block w-1/4 min-w-[250px] max-w-[300px] relative z-20 h-full shadow-xl transition-all duration-300 
         ${focusMode ? 'ltr:-ml-[300px] rtl:-mr-[300px] opacity-0' : 'ml-0 rtl:mr-0 opacity-100'}
       `}>
         <StudySidebar currentView={currentView} onViewChange={setCurrentView} fileName={fileName} onBack={onBack} />
@@ -123,14 +126,14 @@ export function StudyInterface() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 md:hidden"
+              className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 xl:hidden"
             />
             <motion.div
               initial={{ x: isRtl ? '100%' : '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: isRtl ? '100%' : '-100%' }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className={`fixed top-0 bottom-0 ${isRtl ? 'right-0' : 'left-0'} w-4/5 max-w-[300px] bg-stone-100 z-50 md:hidden shadow-2xl border-r rtl:border-l border-stone-300`}
+              className={`fixed top-0 bottom-0 ${isRtl ? 'right-0' : 'left-0'} w-4/5 max-w-[300px] bg-stone-100 z-50 xl:hidden shadow-2xl border-r rtl:border-l border-stone-300`}
             >
               <div className="h-full relative">
                 <button 
@@ -148,12 +151,21 @@ export function StudyInterface() {
 
       {/* Center Workspace (Dynamic) */}
       <div className="flex-1 relative z-10 overflow-hidden h-full flex flex-col">
-        {/* Mobile Title Bar */}
-        <div className="md:hidden p-4 pb-2 flex items-center justify-center border-b border-stone-200/50 bg-white/50 backdrop-blur-sm sticky top-0 z-30">
+        {/* Mobile Title Bar & Menu */}
+        <div className="xl:hidden px-4 py-3 flex items-center justify-between border-b border-stone-200/50 bg-white/50 backdrop-blur-sm sticky top-0 z-30">
+           <button 
+             onClick={() => setIsMobileMenuOpen(true)}
+             className="p-2 -ms-2 text-school-board hover:bg-stone-100/50 rounded-lg transition-colors"
+           >
+             <Menu size={20} />
+           </button>
+           
            <div className="flex items-center gap-2 text-school-board opacity-80">
               <FileText size={16} />
               <span className="font-hand font-bold text-sm truncate max-w-[200px]">{fileName}</span>
            </div>
+
+           <div className="w-9"></div> {/* Spacer for center balance */}
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar relative">

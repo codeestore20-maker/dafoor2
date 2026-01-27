@@ -1,8 +1,8 @@
 import React from 'react';
-import { BookOpen, BrainCircuit, GraduationCap, PenTool, FileText, TrendingUp, BookA, AlertTriangle, Plus, ChevronLeft, Languages } from 'lucide-react';
+import { BookOpen, BrainCircuit, GraduationCap, PenTool, FileText, TrendingUp, BookA, AlertTriangle, Plus, ChevronLeft, Languages, Map } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-export type ViewMode = 'notes' | 'summary' | 'predictor' | 'glossary' | 'flashcards' | 'quiz' | 'review' | 'notebooks';
+export type ViewMode = 'course_map' | 'notes' | 'summary' | 'predictor' | 'glossary' | 'flashcards' | 'quiz' | 'review' | 'notebooks';
 interface StudySidebarProps {
   currentView: ViewMode;
   onViewChange: (view: ViewMode) => void;
@@ -68,6 +68,7 @@ export function StudySidebar({
           <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3 px-3 font-hand">
             {t('ai_learning')}
           </h3>
+          <NavItem view="course_map" icon={Map} label={t('course_map')} />
           <NavItem view="summary" icon={BookOpen} label={t('deep_summary')} />
           <NavItem view="notes" icon={PenTool} label={t('smart_notes')} />
           <NavItem view="predictor" icon={TrendingUp} label={t('exam_predictor')} badge={t('new_badge')} />

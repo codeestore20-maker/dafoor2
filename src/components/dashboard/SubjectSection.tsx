@@ -48,7 +48,7 @@ export function SubjectSection({ subjectId, subjectName }: SubjectSectionProps) 
   };
 
   const onFileSelect = (fileId: string, fileName: string) => {
-      navigate(`/app/study/${fileId}`);
+      navigate(`/app/study/${fileId}?view=course_map`);
   };
 
   const filteredFiles = files.filter((f: any) => 

@@ -131,7 +131,7 @@ export function PlannerOverview({ onSelectSubject }: { onSelectSubject: (id: str
                     file={file} 
                     index={i} 
                     viewMode="list" 
-                    onClick={() => navigate(`/app/study/${file.id}`)} 
+                    onClick={() => navigate(`/app/study/${file.id}?view=course_map`)} 
                   />
                 ))
               ) : (

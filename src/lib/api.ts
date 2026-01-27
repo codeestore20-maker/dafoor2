@@ -99,6 +99,16 @@ export const resourceService = {
     const response = await api.get(`/resources/${resourceId}/glossary`);
     return response.data;
   },
+
+  // Course Map
+  getTopics: async (resourceId: string) => {
+    const response = await api.get(`/resources/${resourceId}/topics`);
+    return response.data;
+  },
+  generateTopics: async (resourceId: string) => {
+    const response = await api.post(`/resources/${resourceId}/generate/topics`);
+    return response.data;
+  },
   generateGlossary: async (resourceId: string) => {
     const response = await api.post(`/resources/${resourceId}/generate/glossary`);
     return response.data;
@@ -191,4 +201,15 @@ export const resourceService = {
         }
     }
   },
+};
+
+export const lessonsService = {
+  getStepContent: async (topicId: string, type: 'intro' | 'explanation' | 'question') => {
+    const response = await api.get(`/lessons/${topicId}/step/${type}`);
+    return response.data;
+  },
+  updateStatus: async (topicId: string, status: string) => {
+    const response = await api.put(`/lessons/${topicId}/status`, { status });
+    return response.data;
+  }
 };

@@ -4,6 +4,7 @@ import cors from 'cors';
 import subjectsRouter from './routes/subjects.routes';
 import resourcesRouter from './routes/resources.routes';
 import authRouter from './routes/auth.routes';
+import lessonsRouter from './routes/lessons.routes';
 
 import { createRouteHandler } from "uploadthing/express";
 import { uploadRouter } from "./utils/uploadthing";
@@ -46,6 +47,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api/subjects', subjectsRouter);
 app.use('/api/resources', resourcesRouter);
+app.use('/api/lessons', lessonsRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

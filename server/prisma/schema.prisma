@@ -57,6 +57,30 @@ model Resource {
   examPredictions ExamPrediction[]
   weakPoints      WeakPoint[]
   embeddings      ResourceEmbedding[]
+  topics          Topic[]
+}
+
+model Topic {
+  id          String   @id @default(uuid())
+  resourceId  String
+  resource    Resource @relation(fields: [resourceId], references: [id])
+  title       String
+  difficulty  String   // "Easy", "Medium", "Hard"
+  timeEstimate String  // e.g. "5 mins"
+  status      String   @default("locked") // "locked", "ready", "completed"
+  relevance   Int      @default(0) // 0-100 score for sorting
+  steps       LessonStep[]
+  createdAt   DateTime @default(now())
+}
+
+model LessonStep {
+  id        String   @id @default(uuid())
+  topicId   String
+  topic     Topic    @relation(fields: [topicId], references: [id])
+  type      String   // "intro", "explanation", "question", "summary"
+  content   String   @db.Text // JSON or Markdown content
+  order     Int      // To maintain sequence
+  createdAt DateTime @default(now())
 }
 
 model ResourceEmbedding {

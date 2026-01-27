@@ -83,7 +83,7 @@ export function Dashboard({ onAddSubject }: { onAddSubject?: () => void }) {
   ];
 
   const handleFileClick = (id: string, name: string) => {
-    navigate(`/app/study/${id}`);
+    navigate(`/app/study/${id}?view=course_map`);
   };
 
   return (

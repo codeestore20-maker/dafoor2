@@ -1,6 +1,7 @@
 import express from 'express';
 import { ResourcesController } from '../controllers/ResourcesController';
 import { AIController } from '../controllers/AIController';
+import { LessonsController } from '../controllers/LessonsController';
 import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = express.Router();
@@ -56,5 +57,9 @@ router.post('/:id/generate/autocomplete', AIController.generateAutoComplete);
 
 // Chat
 router.post('/:id/chat', AIController.chat);
+
+// Course Map (Topics)
+router.get('/:id/topics', LessonsController.getTopics);
+router.post('/:id/generate/topics', LessonsController.generateTopics);
 
 export default router;

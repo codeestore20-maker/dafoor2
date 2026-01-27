@@ -124,10 +124,10 @@ function ScrapbookLayoutContent() {
       {/* Top Navigation Bar (Hand-drawn style) */}
       <header className="px-4 py-2 flex justify-between items-center relative z-40 bg-white/80 backdrop-blur-md border-b border-stone-800/5 mx-2 md:mx-4 mt-2 md:mt-4 rounded-xl shadow-sm">
          <div className="flex items-center gap-3">
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Visible until XL */}
             <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden w-9 h-9 -mt-1 bg-stone-100 rounded-lg flex items-center justify-center border border-stone-200 text-stone-600 active:scale-95 transition-all"
+                className="xl:hidden w-9 h-9 -mt-1 bg-stone-100 rounded-lg flex items-center justify-center border border-stone-200 text-stone-600 active:scale-95 transition-all"
             >
                 <Menu size={18} />
             </button>
@@ -166,21 +166,21 @@ function ScrapbookLayoutContent() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 md:hidden"
+                    className="fixed inset-0 bg-stone-900/20 backdrop-blur-sm z-40 xl:hidden"
                 />
             )}
         </AnimatePresence>
 
         {/* Left: Creative Sidebar (Washi Tape Tabs) */}
         <nav className={`
-            fixed md:relative ${isRtl ? 'right-0' : 'left-0'} z-[60] md:z-auto
-            w-[65vw] max-w-[280px] md:w-64 flex flex-col gap-3 shrink-0 
-            ${isRtl ? 'border-l' : 'border-r'} md:border-none
-            bg-[#fffdf5] md:bg-transparent shadow-2xl md:shadow-none
-            p-4 md:p-0 pt-0 md:pt-0
+            fixed xl:relative ${isRtl ? 'right-0' : 'left-0'} z-[60] xl:z-auto
+            w-[65vw] max-w-[280px] xl:w-64 flex flex-col gap-3 shrink-0 
+            ${isRtl ? 'border-l' : 'border-r'} xl:border-none
+            bg-[#fffdf5] xl:bg-transparent shadow-2xl xl:shadow-none
+            p-4 xl:p-0 pt-0 xl:pt-0
             transform transition-transform duration-300 ease-in-out
-            ${isMobileMenuOpen ? 'translate-x-0' : (isRtl ? 'translate-x-full' : '-translate-x-full')} md:translate-x-0
-            top-[64px] md:top-0 h-[calc(100vh-64px)] md:h-auto rounded-none
+            ${isMobileMenuOpen ? 'translate-x-0' : (isRtl ? 'translate-x-full' : '-translate-x-full')} xl:translate-x-0
+            top-[64px] xl:top-0 h-[calc(100vh-64px)] xl:h-auto rounded-none
         `}>
            {/* Close Button for Mobile - Removed as clicking outside or menu button toggles it */}
            

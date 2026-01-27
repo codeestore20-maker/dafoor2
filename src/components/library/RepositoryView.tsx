@@ -48,7 +48,7 @@ export function RepositoryView({ subjectId, subjectName }: RepositoryViewProps) 
   };
 
   const onFileSelect = (fileId: string, fileName: string) => {
-      navigate(`/app/study/${fileId}`);
+      navigate(`/app/study/${fileId}?view=course_map`);
   };
 
   return <div className="h-full flex flex-col relative overflow-hidden bg-stone-50">
