@@ -915,7 +915,7 @@ export function CourseMap() {
                         <MapIcon size={16} className="text-school-board" />
                         خريطة المسار
                     </h3>
-                    <button onClick={() => setIsMapOpen(false)} className="text-stone-400 hover:text-stone-600 lg:hidden">
+                    <button onClick={() => setIsMapOpen(false)} className="text-stone-400 hover:text-stone-600">
                         <X size={18} />
                     </button>
                 </div>
@@ -1018,7 +1018,7 @@ export function CourseMap() {
                             <p className="font-hand text-stone-400">رحلتك التعليمية تبدأ بخطوة واحدة</p>
                         </div>
                     ) : (
-                        <div className={`max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-[500px] ${(currentStep === 'context' || (currentStep === 'challenge' && !quizState.isSubmitted)) ? 'justify-center' : ''}`}>
+                        <div className={`max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-[auto] md:min-h-[500px] ${(currentStep === 'context' || (currentStep === 'challenge' && !quizState.isSubmitted)) ? 'justify-start py-8 md:justify-center md:py-0' : ''}`}>
                             <div className="w-full">
                                 {isStepLoading ? (
                                     <div className="text-center py-20">
