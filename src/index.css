@@ -89,6 +89,11 @@ body {
   /* Prevent automatic text resizing on iOS */
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
+  /* Prevent scrolling on the body to allow app-like layout */
+  overflow: hidden;
+  height: 100dvh;
+  width: 100%;
+  position: fixed; /* Lock body in place */
 }
 
 button {

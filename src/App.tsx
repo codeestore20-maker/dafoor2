@@ -58,7 +58,7 @@ export function App() {
           v7_relativeSplatPath: true,
         }}
       >
-        <div className="min-h-screen bg-[#FFF8E7] text-stone-800 font-hand">
+        <div className="h-[100dvh] bg-[#FFF8E7] text-stone-800 font-hand overflow-hidden flex flex-col">
           <Suspense fallback={<Loading />}>
             <Routes>
               {/* Public Routes */}

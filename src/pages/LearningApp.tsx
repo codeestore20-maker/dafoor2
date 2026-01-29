@@ -40,7 +40,7 @@ export function LearningApp() {
     setIsChatOpen(true);
   };
 
-  return <div className="h-screen w-full bg-stone-100 flex flex-col overflow-hidden font-sans text-stone-800 antialiased">
+  return <div className="h-full w-full bg-stone-100 flex flex-col overflow-hidden font-sans text-stone-800 antialiased">
       <div className="flex-1 flex overflow-hidden relative">
         
         {/* Main Content Area */}
