@@ -98,8 +98,8 @@ const ContextStage = ({ content }: { content: any }) => {
     const textContent = content?.markdown || (typeof content === 'string' ? content : "");
     
     return (
-        <div className="w-full flex justify-center">
-            <PaperCard className="p-6 md:p-10 w-full max-w-3xl min-h-[500px] bg-[#fcfbf9] relative overflow-hidden border-stone-200/80 shadow-sm">
+        <div className="w-full flex justify-center px-1 sm:px-0">
+            <PaperCard className="p-4 sm:p-6 md:p-10 w-full max-w-3xl min-h-[500px] bg-[#fcfbf9] relative overflow-hidden border-stone-200/80 shadow-sm mx-auto">
                 
                 {/* Header */}
                 <div className="relative z-10 flex flex-col items-center text-center mb-8">
@@ -118,7 +118,7 @@ const ContextStage = ({ content }: { content: any }) => {
 
                 {/* Main Content (Intro) - Inside a Card */}
                 <div className="relative z-10 max-w-2xl mx-auto mb-10">
-                    <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-stone-100 text-center relative">
+                    <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-8 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border border-stone-100 text-center relative">
                         {/* Decorative Quote Icon */}
                         <Quote size={32} className="absolute -top-4 right-8 text-stone-100 bg-white px-1" />
                         
@@ -235,10 +235,10 @@ const CoreStage = ({ content }: { content: any }) => {
     
     if (sections.length > 0) {
         return (
-            <div className="w-full flex justify-center">
+            <div className="w-full flex justify-center px-1 sm:px-0">
                 <PaperCard 
                     id="core-summary-card" 
-                    className="p-8 md:p-16 w-full max-w-5xl min-h-[600px] relative overflow-hidden print:shadow-none print:border-none"
+                    className="p-4 sm:p-8 md:p-16 w-full max-w-5xl min-h-[600px] relative overflow-hidden print:shadow-none print:border-none mx-auto"
                     style={{ backgroundColor: '#fcfbf9' }}
                 >
                     
@@ -423,8 +423,8 @@ const ChallengeStage = ({ content, quizState, onSelectAnswer }: { content: any, 
         const totalQuestions = questions.length;
         
         return (
-            <div className="w-full flex justify-center pb-20">
-                <PaperCard id="quiz-results-card" className="p-6 md:p-8 w-full max-w-4xl bg-white relative overflow-hidden">
+            <div className="w-full flex justify-center pb-20 px-1 sm:px-0">
+                <PaperCard id="quiz-results-card" className="p-4 sm:p-6 md:p-8 w-full max-w-4xl bg-white relative overflow-hidden mx-auto">
                     
                     {/* Result Header */}
                     <div className="relative z-10 flex items-center justify-between mb-6 pb-4 border-b border-stone-200">
@@ -523,8 +523,8 @@ const ChallengeStage = ({ content, quizState, onSelectAnswer }: { content: any, 
     const totalQuestions = questions.length;
     
     return (
-        <div className="w-full flex justify-center">
-            <PaperCard className="p-8 md:p-12 w-full max-w-4xl min-h-[500px] bg-white relative overflow-hidden">
+        <div className="w-full flex justify-center px-1 sm:px-0">
+            <PaperCard className="p-4 sm:p-6 md:p-12 w-full max-w-4xl min-h-[500px] bg-white relative overflow-hidden mx-auto">
                 
                 {/* Header */}
                 <div className="relative z-10 flex items-center justify-between mb-8 pb-4 border-b border-stone-200">
@@ -617,8 +617,8 @@ const TakeawayStage = ({ content, onFinish }: { content: any, onFinish: () => vo
     };
 
     return (
-        <div className="w-full flex justify-center">
-            <PaperCard id="cheat-sheet-card" className="p-8 md:p-12 w-full max-w-4xl min-h-[500px] bg-[#fffdfa] relative overflow-hidden">
+        <div className="w-full flex justify-center px-1 sm:px-0">
+            <PaperCard id="cheat-sheet-card" className="p-4 sm:p-8 md:p-12 w-full max-w-4xl min-h-[500px] bg-[#fffdfa] relative overflow-hidden mx-auto">
                 
                 {/* Watermark */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.03] select-none z-0">
@@ -1150,11 +1150,11 @@ export function CourseMap() {
                                 <Menu size={18} />
                             </button>
                         )}
-                        <div className="flex flex-col">
-                            <h1 className="font-hand font-bold text-stone-800 text-sm md:text-base truncate max-w-[200px] sm:max-w-md">
+                        <div className="flex flex-col justify-center">
+                            <h1 className="font-hand font-bold text-stone-800 text-xs min-[400px]:text-sm md:text-base line-clamp-2 leading-tight max-w-[100px] min-[360px]:max-w-[130px] min-[400px]:max-w-[200px] sm:max-w-md" title={activeTopic ? activeTopic.title : ''}>
                                 {activeTopic ? activeTopic.title : 'خريطة المسار'}
                             </h1>
-                            <span className="text-[10px] font-bold text-stone-400">
+                            <span className="text-[9px] min-[400px]:text-[10px] font-bold text-stone-400 leading-none mt-0.5">
                                 {activeTopic ? `الدرس ${topics.findIndex(t => t.id === activeTopicId) + 1} من ${topics.length}` : 'نظرة عامة'}
                             </span>
                         </div>
@@ -1188,9 +1188,9 @@ export function CourseMap() {
                 </header>
 
                 {/* Content Stage */}
-                <main className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 pb-24 w-full flex flex-col">
+                <main className="flex-1 overflow-y-auto custom-scrollbar p-2 sm:p-4 md:p-6 pb-32 w-full flex flex-col items-center max-w-full overflow-x-hidden">
                     {!activeTopic ? (
-                        <div className="flex-1 flex flex-col items-center justify-center text-center text-stone-400 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="flex-1 flex flex-col items-center justify-center text-center text-stone-400 animate-in fade-in zoom-in-95 duration-500 w-full">
                             <div className="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mb-6">
                                 <MapIcon size={40} className="text-stone-300" />
                             </div>
@@ -1198,8 +1198,8 @@ export function CourseMap() {
                             <p className="font-hand text-stone-400">رحلتك التعليمية تبدأ بخطوة واحدة</p>
                         </div>
                     ) : (
-                        <div className={`max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-[auto] md:min-h-[500px] ${(currentStep === 'context' || (currentStep === 'challenge' && !quizState.isSubmitted)) ? 'justify-start py-8 md:justify-center md:py-0' : ''}`}>
-                            <div className="w-full">
+                        <div className={`w-full max-w-5xl flex-1 flex flex-col min-h-[auto] md:min-h-[500px] ${(currentStep === 'context' || (currentStep === 'challenge' && !quizState.isSubmitted)) ? 'justify-start py-4 md:justify-center md:py-0' : ''}`}>
+                            <div className="w-full flex justify-center">
                                 {isStepLoading ? (
                                     <div className="w-full flex justify-center py-8">
                                          <BrandSkeleton type="lesson" hideMessage={true} />
