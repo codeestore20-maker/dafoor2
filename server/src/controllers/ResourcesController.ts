@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { ragService } from '../services/rag';
+import { LessonGenerator } from '../services/LessonGenerator';
 import { fixEncoding } from '../utils/encoding';
 import path from 'path';
 
@@ -85,6 +86,7 @@ export const ResourcesController = {
             name: resource.title,
             type: resource.type,
             size: resource.size || 'Unknown',
+            status: resource.status || 'READY',
             date: resource.createdAt.toISOString().split('T')[0],
             subjectId: resource.subjectId, 
             subjectName: resource.subject.name,
@@ -135,9 +137,15 @@ export const ResourcesController = {
         // 2. Trigger RAG Processing (Async)
         // Since the file is on URL now, we pass the URL to processFile
         // Note: processFile needs to be updated to handle URLs download
-        ragService.processFile(url, resource.id, type || 'application/pdf').catch(err => {
-            console.error(`[Background] RAG failed for ${resource.id}:`, err);
-        });
+        ragService.processFile(url, resource.id, type || 'application/pdf')
+            .then(async () => {
+                console.log(`[Background] RAG complete for ${resource.id}. Text extraction finished.`);
+                // Automatic content generation is disabled per user request.
+                // User will trigger generation manually from the UI.
+            })
+            .catch(err => {
+                console.error(`[Background] RAG failed for ${resource.id}:`, err);
+            });
 
         res.status(201).json(resource);
 

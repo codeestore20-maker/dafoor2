@@ -200,16 +200,23 @@ export function ScrapbookSubjectView({ subject, viewMode, setViewMode, onBack }:
             <UploadModal
                 isOpen={isUploadOpen}
                 onClose={() => setIsUploadOpen(false)}
-                onUpload={(fileData, lang) => {
-                    resourceService.upload({
+                onUpload={async (fileData, lang) => {
+                    // We return the promise so the modal can handle loading/status
+                    const res = await resourceService.upload({
                         ...fileData,
                         subjectId: subject.id,
                         language: lang
-                    }).then(() => {
-                        refetch();
-                        setIsUploadOpen(false);
-                        if (currentStep === 2) completeStep();
                     });
+                    
+                    // CRITICAL: Do NOT refetch here immediately. 
+                    // Let the Modal handle the "Ready" state and navigation.
+                    // We only want to refetch if the user somehow stays on this page or comes back.
+                    // But doing it now causes re-render which kills the modal.
+                    // refetch(); <--- REMOVED
+                    
+                    if (currentStep === 2) completeStep();
+                    
+                    return res; // Return resource for polling
                 }}
             />
         </motion.div>

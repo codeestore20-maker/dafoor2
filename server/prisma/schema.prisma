@@ -43,6 +43,7 @@ model Resource {
   size      String?  // File size e.g. "2.4 MB"
   content   String?  @db.Text // Extracted text
   language  String   @default("english") // Content language
+  status    String   @default("PENDING") // PENDING, PROCESSING, READY, ERROR
   subjectId String
   subject   Subject  @relation(fields: [subjectId], references: [id])
   createdAt DateTime @default(now())

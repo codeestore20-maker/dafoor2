@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { NotebookPaper } from '../shared/NotebookPaper';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 export function LiveGlossary() {
   const { fileId } = useParams();
@@ -29,8 +30,11 @@ export function LiveGlossary() {
     queryKey: ['glossary', fileId],
     queryFn: () => resourceService.getGlossary(fileId!),
     enabled: !!fileId,
-    retry: false
+    retry: false,
+    staleTime: Infinity, // Cache forever until manual regeneration
   });
+
+  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
 
   const generateMutation = useMutation({
     mutationFn: () => resourceService.generateGlossary(fileId!),
@@ -39,13 +43,10 @@ export function LiveGlossary() {
     }
   });
 
-  if (isLoading) {
+  if (isLoading || (!terms && isProcessing)) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-stone-500">
-         <div className="animate-spin mb-4">
-            <RefreshCw size={32} />
-         </div>
-         <p className="font-hand text-xl">{t('compiling_glossary')}</p>
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="general" message={isProcessing ? "جاري تجميع المصطلحات..." : undefined} hideMessage={!isProcessing} />
       </div>
     );
   }

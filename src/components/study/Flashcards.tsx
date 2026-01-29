@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 export function Flashcards() {
   const { fileId } = useParams();
@@ -20,8 +21,11 @@ export function Flashcards() {
     queryKey: ['flashcards', fileId],
     queryFn: () => resourceService.getFlashcards(fileId!),
     enabled: !!fileId,
-    retry: false
+    retry: false,
+    staleTime: Infinity, // Cache forever until manual regeneration
   });
+
+  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
 
   // Sync local cards with fetched deck
   useEffect(() => {
@@ -79,13 +83,10 @@ export function Flashcards() {
     }, 200);
   };
 
-  if (isLoading) {
+  if (isLoading || (!deck && isProcessing)) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-stone-500">
-         <div className="animate-spin mb-4">
-            <RefreshCw size={32} />
-         </div>
-         <p className="font-hand text-xl font-bold">{t('loading_flashcards')}</p>
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="card" hideMessage={!isProcessing} />
       </div>
     );
   }

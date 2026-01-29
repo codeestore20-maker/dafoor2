@@ -19,10 +19,10 @@ export const LessonsController = {
         return res.json(topics);
       }
 
-      // If no topics, generate them
-      console.log("[LessonsController] No topics found, generating...");
-      const newTopics = await LessonGenerator.extractTopics(id);
-      res.json(newTopics);
+      // If no topics, DO NOT generate automatically. Return empty array.
+      // Generation must be triggered manually via /generate/topics
+      console.log("[LessonsController] No topics found. Returning empty array.");
+      res.json([]);
 
     } catch (error) {
       console.error("Get Topics Error:", error);

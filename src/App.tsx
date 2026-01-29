@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-
 import { LearningApp } from './pages/LearningApp';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from './components/shared/BrandSkeleton';
+import { TopLoader } from './components/shared/TopLoader';
 
 // Lazy load components for performance
 const Library = lazy(() => import('./components/library/Library').then(module => ({ default: module.Library })));
@@ -13,10 +15,9 @@ const LoginPage = lazy(() => import('./pages/LoginPage').then(module => ({ defau
 const RegisterPage = lazy(() => import('./pages/RegisterPage').then(module => ({ default: module.RegisterPage })));
 
 const Loading = () => (
-  <div className="h-screen flex items-center justify-center bg-[#FFF8E7] font-hand text-xl">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-4 border-school-board border-t-transparent rounded-full animate-spin"></div>
-      <span>Loading...</span>
+  <div className="h-screen w-full flex items-center justify-center bg-[#FFF8E7]">
+    <div className="max-w-md w-full">
+       <BrandSkeleton type="general" className="border-none bg-transparent shadow-none" />
     </div>
   </div>
 );
@@ -25,7 +26,7 @@ const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="h-screen flex items-center justify-center bg-[#FFF8E7] font-hand text-xl">Loading...</div>;
+    return <Loading />;
   }
 
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;

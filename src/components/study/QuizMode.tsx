@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 export function QuizMode() {
   const { fileId } = useParams();
@@ -23,8 +24,11 @@ export function QuizMode() {
     queryKey: ['quiz', fileId],
     queryFn: () => resourceService.getQuiz(fileId!),
     enabled: !!fileId,
-    retry: false
+    retry: false,
+    staleTime: Infinity, // Cache forever until manual regeneration
   });
+
+  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
 
   useEffect(() => {
     if (quiz?.questions) {
@@ -78,13 +82,10 @@ export function QuizMode() {
     setCompleted(false);
   };
 
-  if (isLoading) {
+  if (isLoading || (!quiz && isProcessing)) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-stone-500">
-         <div className="animate-spin mb-4">
-            <RefreshCw size={32} />
-         </div>
-         <p className="font-hand text-xl">{t('loading_quiz')}</p>
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="quiz" hideMessage={!isProcessing} />
       </div>
     );
   }

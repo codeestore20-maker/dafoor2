@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 export function FocusReview() {
   const { fileId } = useParams();
@@ -30,11 +31,8 @@ export function FocusReview() {
 
   if (isLoading) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-stone-500">
-         <div className="animate-spin mb-4">
-            <RefreshCw size={32} />
-         </div>
-         <p className="font-hand text-xl">{t('gathering_review')}</p>
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="general" hideMessage={true} />
       </div>
     );
   }

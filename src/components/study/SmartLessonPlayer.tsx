@@ -4,6 +4,7 @@ import { lessonsService } from '../../lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ArrowLeft, ArrowRight, Check, X, BookOpen, Brain, HelpCircle } from 'lucide-react';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 type StepType = 'intro' | 'explanation' | 'question';
 
@@ -53,9 +54,8 @@ export const SmartLessonPlayer = () => {
   const renderContent = () => {
     if (isLoading || !content) {
       return (
-        <div className="flex flex-col items-center justify-center h-64 space-y-4">
-            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-indigo-600 font-medium animate-pulse">جاري تحضير المحتوى...</p>
+        <div className="flex flex-col items-center justify-center h-64">
+           <BrandSkeleton type="lesson" hideMessage={true} />
         </div>
       );
     }
@@ -167,8 +167,8 @@ export const SmartLessonPlayer = () => {
             </AnimatePresence>
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-stone-100 bg-stone-50 flex justify-between items-center">
+        {/* Footer (Desktop) */}
+        <div className="hidden md:flex p-4 border-t border-stone-100 bg-stone-50 justify-between items-center">
             <div className="text-xs text-stone-400 font-medium">
                 {currentStep === 'intro' ? 'الخطوة 1 من 3' : currentStep === 'explanation' ? 'الخطوة 2 من 3' : 'الخطوة 3 من 3'}
             </div>
@@ -187,6 +187,26 @@ export const SmartLessonPlayer = () => {
         </div>
 
       </div>
+
+      {/* Footer (Mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-white/95 backdrop-blur-md border-t border-stone-200 z-50 md:hidden flex justify-between items-center shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            <div className="text-xs text-stone-400 font-medium">
+                {currentStep === 'intro' ? '1 / 3' : currentStep === 'explanation' ? '2 / 3' : '3 / 3'}
+            </div>
+            
+            <button
+                onClick={handleNext}
+                disabled={currentStep === 'question' && !showResult}
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl font-bold transition-all text-sm
+                    ${currentStep === 'question' && !showResult 
+                        ? 'bg-stone-200 text-stone-400 cursor-not-allowed' 
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg hover:shadow-indigo-200 shadow-indigo-100'}`}
+            >
+                {currentStep === 'question' ? 'إنهاء' : 'التالي'}
+                <ArrowLeft size={16} />
+            </button>
+      </div>
+
     </div>
   );
 };

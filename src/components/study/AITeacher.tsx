@@ -183,7 +183,7 @@ export function AITeacher({
   return <div className="flex flex-col h-full bg-[#fdfbf7] border-l-2 border-stone-300 font-serif relative overflow-hidden">
       {/* Paper Texture Overlay */}
       <div className="absolute inset-0 pointer-events-none opacity-50 z-0" style={{
-        backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")`
+        backgroundImage: `repeating-linear-gradient(45deg, #00000005 0, #00000005 1px, transparent 0, transparent 50%)`
       }}></div>
 
       {/* Decorative Stamp/Postmark */}

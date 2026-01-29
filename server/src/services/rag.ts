@@ -22,6 +22,12 @@ export const ragService = {
     try {
       console.log(`[RAG] Processing file: ${filePath} (${mimeType}) for resource ${resourceId}`);
       
+      // Update status to processing
+      await prisma.resource.update({
+        where: { id: resourceId },
+        data: { status: 'PROCESSING' }
+      });
+
       let docs;
 
       // Handle Remote URL (UploadThing)
@@ -72,7 +78,10 @@ export const ragService = {
 
       await prisma.resource.update({
         where: { id: resourceId },
-        data: { content: fullText } 
+        data: { 
+            content: fullText,
+            status: 'READY' // RAG Complete
+        } 
       });
       console.log("[RAG] Resource content updated in DB.");
 

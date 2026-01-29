@@ -82,24 +82,24 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4 bg-black/40 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
         <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 50, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
           transition={{ type: "spring", bounce: 0.3 }}
-          className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] md:max-h-[90vh] border-t-4 md:border-4 border-stone-800 relative flex flex-col"
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-sm md:max-w-lg max-h-[80vh] md:max-h-[90vh] border-2 md:border-4 border-stone-800 relative flex flex-col overflow-hidden"
         >
-          <Tape className="-top-3 left-1/2 -translate-x-1/2 bg-red-300 w-40 rotate-2 hidden md:block" />
+          <Tape className="-top-3 left-1/2 -translate-x-1/2 bg-red-300 w-32 md:w-40 rotate-2 block" />
 
           {/* Header */}
-          <div className="bg-[#fffbf0] px-4 py-3 md:px-6 md:py-6 border-b-2 border-stone-800 flex items-center justify-between relative shrink-0 rounded-t-2xl">
+          <div className="bg-[#fffbf0] px-4 py-3 md:px-6 md:py-6 border-b-2 border-stone-800 flex items-center justify-between relative shrink-0">
              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#444cf7 0.5px, transparent 0.5px)', backgroundSize: '10px 10px' }}></div>
-            <h2 className="font-hand text-xl md:text-3xl font-bold text-stone-800 relative z-10 transform -rotate-1">
+            <h2 className="font-hand text-lg md:text-3xl font-bold text-stone-800 relative z-10 transform -rotate-1">
               {t('create_new_subject')}
             </h2>
-            <button onClick={onClose} className="p-2 hover:bg-stone-200 rounded-full text-stone-500 transition-colors relative z-10 border-2 border-transparent hover:border-stone-800">
-              <X size={20} className="md:w-6 md:h-6" />
+            <button onClick={onClose} className="p-1.5 md:p-2 hover:bg-stone-200 rounded-full text-stone-500 transition-colors relative z-10 border-2 border-transparent hover:border-stone-800">
+              <X size={18} className="md:w-6 md:h-6" />
             </button>
           </div>
 
@@ -107,9 +107,9 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
              <div className="absolute inset-0 pointer-events-none opacity-5" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}></div>
 
             {/* Step 1: Basic Info */}
-            <div className="space-y-5 md:space-y-8 relative z-10">
+            <div className="space-y-4 md:space-y-8 relative z-10">
               <div>
-                <label className="block text-base md:text-xl font-bold font-hand text-stone-800 mb-2 transform rotate-1 inline-block">
+                <label className="block text-sm md:text-xl font-bold font-hand text-stone-800 mb-1.5 md:mb-2 transform rotate-1 inline-block">
                   {t('subject_name')}
                 </label>
                 <input
@@ -117,32 +117,32 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('subject_name_placeholder')}
-                  className="w-full px-4 py-2 md:py-3 bg-[#fffbf0] border-2 border-stone-800 rounded-xl focus:outline-none focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] focus:-translate-y-1 transition-all font-hand text-base md:text-xl placeholder:text-stone-400"
+                  className="w-full px-3 py-2 md:py-3 bg-[#fffbf0] border-2 border-stone-800 rounded-xl focus:outline-none focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] md:focus:shadow-[4px_4px_0px_rgba(0,0,0,1)] focus:-translate-y-0.5 md:focus:-translate-y-1 transition-all font-hand text-sm md:text-xl placeholder:text-stone-400"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-base md:text-xl font-bold font-hand text-stone-800 mb-3 md:mb-4 transform -rotate-1 inline-block">
+                <label className="block text-sm md:text-xl font-bold font-hand text-stone-800 mb-2 md:mb-4 transform -rotate-1 inline-block">
                   {t('choose_color')} & {t('subject_icon')}
                 </label>
-                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                <div className="flex flex-row gap-3 md:gap-6 items-start">
                    {/* Preview */}
                    <div 
-                      className="w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center border-2 border-stone-800 shadow-[4px_4px_0px_rgba(0,0,0,1)] shrink-0 transition-colors transform rotate-3 mx-auto md:mx-0"
+                      className="w-12 h-12 md:w-20 md:h-20 rounded-xl md:rounded-2xl flex items-center justify-center border-2 border-stone-800 shadow-[2px_2px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_rgba(0,0,0,1)] shrink-0 transition-colors transform rotate-3"
                       style={{ backgroundColor: selectedColor }}
                    >
-                      <selectedIcon.icon size={32} className="md:w-10 md:h-10 text-white drop-shadow-md" />
+                      <selectedIcon.icon size={20} className="md:w-10 md:h-10 text-white drop-shadow-md" />
                    </div>
                    
-                   <div className="flex-1 space-y-4 min-w-0">
+                   <div className="flex-1 space-y-3 min-w-0">
                       {/* Color Picker (Paint Blobs) - Horizontal Scroll on Mobile */}
-                      <div className="flex md:flex-wrap overflow-x-auto md:overflow-visible gap-3 pb-2 md:pb-0 px-1 snap-x no-scrollbar">
+                      <div className="flex flex-wrap gap-2">
                         {COLORS.map(color => (
                           <button
                             key={color}
                             onClick={() => setSelectedColor(color)}
-                            className={`w-8 h-8 md:w-8 md:h-8 rounded-full border-2 shrink-0 transition-transform hover:scale-110 snap-center ${selectedColor === color ? 'border-stone-800 scale-125 shadow-sm' : 'border-transparent opacity-80 hover:opacity-100'}`}
+                            className={`w-6 h-6 md:w-8 md:h-8 rounded-full border-2 shrink-0 transition-transform hover:scale-110 ${selectedColor === color ? 'border-stone-800 scale-110 shadow-sm' : 'border-transparent opacity-80 hover:opacity-100'}`}
                             style={{ backgroundColor: color, borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%' }}
                             title="Color"
                           />
@@ -150,15 +150,15 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                       </div>
                       
                       {/* Icon Picker - Horizontal Scroll on Mobile */}
-                      <div className="flex md:flex-wrap overflow-x-auto md:overflow-visible gap-2 max-h-none md:max-h-32 md:overflow-y-auto custom-scrollbar p-1 pb-2 md:pb-0 snap-x no-scrollbar">
+                      <div className="flex flex-wrap gap-1.5 max-h-24 md:max-h-32 overflow-y-auto custom-scrollbar p-0.5">
                         {ICONS.map(item => (
                           <button
                             key={item.id}
                             onClick={() => setSelectedIcon(item)}
-                            className={`p-2 rounded-lg border-2 shrink-0 transition-all snap-center ${selectedIcon.id === item.id ? 'bg-stone-100 border-stone-800 text-stone-800 shadow-sm' : 'border-transparent hover:bg-stone-50 text-stone-400'}`}
+                            className={`p-1.5 md:p-2 rounded-lg border-2 shrink-0 transition-all ${selectedIcon.id === item.id ? 'bg-stone-100 border-stone-800 text-stone-800 shadow-sm' : 'border-transparent hover:bg-stone-50 text-stone-400'}`}
                             title={item.label}
                           >
-                            <item.icon size={20} />
+                            <item.icon size={16} className="md:w-5 md:h-5" />
                           </button>
                         ))}
                       </div>
@@ -166,10 +166,10 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                 </div>
               </div>
 
-              <div className="pt-4 md:pt-6 border-t-2 border-dashed border-stone-300">
-                <label className="block text-base md:text-xl font-bold font-hand text-stone-800 mb-2 md:mb-3 flex justify-between items-center">
+              <div className="pt-3 md:pt-6 border-t-2 border-dashed border-stone-300">
+                <label className="block text-sm md:text-xl font-bold font-hand text-stone-800 mb-2 md:mb-3 flex justify-between items-center">
                   <span>{t('upload_syllabus')}</span>
-                  {file && <span className="text-green-600 text-xs md:text-sm font-sans font-bold flex items-center gap-1 bg-green-100 px-2 py-1 rounded-md border border-green-200"><Check size={12} className="md:w-[14px] md:h-[14px]"/> {t('attached', {defaultValue: 'Attached'})}</span>}
+                  {file && <span className="text-green-600 text-[10px] md:text-sm font-sans font-bold flex items-center gap-1 bg-green-100 px-1.5 py-0.5 md:px-2 md:py-1 rounded-md border border-green-200"><Check size={10} className="md:w-[14px] md:h-[14px]"/> {t('attached', {defaultValue: 'Attached'})}</span>}
                 </label>
                 <div className="relative group cursor-pointer">
                   <input 
@@ -178,11 +178,11 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                   />
                   <div className={`
-                    border-2 border-dashed rounded-xl p-3 md:p-4 flex items-center justify-center gap-3 transition-all
+                    border-2 border-dashed rounded-xl p-3 md:p-4 flex items-center justify-center gap-2 md:gap-3 transition-all
                     ${file ? 'border-green-500 bg-green-50' : 'border-stone-400 bg-stone-50 group-hover:border-stone-800 group-hover:bg-white'}
                   `}>
-                    <Upload size={20} className={`md:w-6 md:h-6 ${file ? 'text-green-600' : 'text-stone-400'}`} />
-                    <span className={`font-hand text-base md:text-lg ${file ? 'text-green-700 font-bold' : 'text-stone-500'}`}>
+                    <Upload size={16} className={`md:w-6 md:h-6 ${file ? 'text-green-600' : 'text-stone-400'}`} />
+                    <span className={`font-hand text-sm md:text-lg ${file ? 'text-green-700 font-bold' : 'text-stone-500'}`}>
                       {file ? file.name : t('drop_file_here')}
                     </span>
                   </div>
@@ -192,22 +192,22 @@ export function CreateSubjectModal({ isOpen, onClose, onCreate }: CreateSubjectM
           </div>
 
           {/* Footer */}
-          <div className="p-4 pt-2 md:p-6 md:pt-0 flex justify-end gap-3 bg-white rounded-b-2xl relative shrink-0 border-t md:border-t-0 border-stone-100 md:border-transparent">
+          <div className="p-3 md:p-6 flex justify-end gap-2 md:gap-3 bg-white relative shrink-0 border-t border-stone-100">
              <button 
                 onClick={onClose}
-                className="px-4 md:px-6 py-2 rounded-xl font-bold font-hand text-stone-500 hover:bg-stone-100 transition-colors text-base md:text-lg"
+                className="px-3 md:px-6 py-1.5 md:py-2 rounded-xl font-bold font-hand text-stone-500 hover:bg-stone-100 transition-colors text-sm md:text-lg"
              >
                {t('cancel')}
              </button>
              <button 
                 onClick={handleSubmit}
                 disabled={!name.trim()}
-                className={`px-6 md:px-8 py-2 rounded-xl font-bold font-hand text-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none flex items-center gap-2
+                className={`px-4 md:px-8 py-1.5 md:py-2 rounded-xl font-bold font-hand text-white transition-all shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 active:translate-y-0 active:shadow-none flex items-center gap-2 text-sm md:text-base
                   ${!name.trim() ? 'bg-stone-400 cursor-not-allowed shadow-none hover:shadow-none hover:translate-y-0' : 'bg-stone-800 hover:bg-stone-900'}
                 `}
              >
-               {t('create_subject', { defaultValue: 'Create' })}
-               <Check size={18} className="md:w-5 md:h-5" />
+               {t('create_subject', { defaultValue: 'إنشاء مادة' })}
+               <Check size={16} className="md:w-5 md:h-5" />
              </button>
           </div>
         </motion.div>

@@ -8,10 +8,11 @@ import {
     Sparkles, Target, Brain, GraduationCap, ArrowRight, ArrowLeft,
     Clock, Menu, X, CheckCircle, AlertCircle, Loader2, Quote,
     Lightbulb, HelpCircle, Map as MapIcon, Flag, ChevronRight, ChevronLeft,
-    Play, Lock, Star, Download, Share2, Check
+    Play, Lock, Star, Download, Share2, Check, RefreshCw
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 // --- 1. TYPES & CONFIGURATION ---
 
@@ -724,7 +725,21 @@ export function CourseMap() {
     // UI State
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
-    const [isMapOpen, setIsMapOpen] = useState(true);
+    
+    // State Persistence for Sidebar
+    const [isMapOpen, setIsMapOpen] = useState(() => {
+        // 1. Try to get from local storage
+        const saved = localStorage.getItem('lms_course_map_open');
+        if (saved !== null) return saved === 'true';
+        
+        // 2. Default logic: ALWAYS OPEN initially for better discovery
+        return true;
+    });
+
+    const toggleMap = (newState: boolean) => {
+        setIsMapOpen(newState);
+        localStorage.setItem('lms_course_map_open', String(newState));
+    };
 
     // Quiz State (Lifted Up)
     const [quizState, setQuizState] = useState({
@@ -733,12 +748,24 @@ export function CourseMap() {
         isSubmitted: false
     });
 
+    // Generation State
+    const [generationStatus, setGenerationStatus] = useState<{
+        state: 'idle' | 'generating_topics' | 'generating_content';
+        progress: number;
+        total: number;
+        currentTopic?: string;
+        currentStep?: string;
+    }>({ state: 'idle', progress: 0, total: 0 });
+
     // --- DATA ---
     const { data: fullResource, isLoading: isResourceLoading } = useQuery({
         queryKey: ['resource', fileId],
         queryFn: () => resourceService.getOne(fileId!),
         enabled: !!fileId
     });
+
+    // --- LOADING SCREEN (Empty State) ---
+    const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
 
     const { data: topics = [], isLoading: isTopicsLoading } = useQuery({
         queryKey: ['topics', fileId],
@@ -748,13 +775,26 @@ export function CourseMap() {
                 return Array.isArray(data) ? data : [];
             } catch (e) { return []; }
         },
-        enabled: !!fileId && !!fullResource
+        enabled: !!fileId && !!fullResource,
+        // Poll every 2 seconds if processing or if we have no topics yet but expecting them
+        refetchInterval: (data) => {
+            if (isProcessing) return 2000;
+            if (!data || data.length === 0) return 2000; 
+            return false;
+        }
     });
 
     // Reset Quiz on Topic Change
     useEffect(() => {
         setQuizState({ currentIndex: 0, answers: {}, isSubmitted: false });
     }, [activeTopicId]);
+
+    // Auto-select first topic if none selected and topics available (especially after generation)
+    useEffect(() => {
+        if (!activeTopicId && topics.length > 0) {
+            setActiveTopicId(topics[0].id);
+        }
+    }, [topics, activeTopicId]);
 
     // Scroll to top on step change
     useEffect(() => {
@@ -763,16 +803,17 @@ export function CourseMap() {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [currentStepIndex, activeTopicId, quizState.currentIndex, quizState.isSubmitted]);
 
-    // Handle Mobile/Desktop Drawer State
+    // Handle Mobile/Desktop Drawer State (Only initial check if not set)
     useEffect(() => {
         const handleResize = () => {
-            // Tablet/Laptop optimization: 
-            // On screens < 1280px (typical laptop/tablet landscape), collapse sidebar by default to give more space to content.
-            // Users can toggle it open if needed.
-            if (window.innerWidth < 1280) setIsMapOpen(false);
-            else setIsMapOpen(true);
+            // Only auto-collapse if user hasn't explicitly set a preference
+            const saved = localStorage.getItem('lms_course_map_open');
+            if (saved === null) {
+                // Force open even on resize if no preference saved
+                setIsMapOpen(true);
+            }
         };
-        handleResize(); // Init
+        // handleResize(); // Don't run on init, we used lazy state initialization
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -797,11 +838,121 @@ export function CourseMap() {
         retry: 1
     });
 
+    // --- INTELLIGENT PRE-FETCHING ---
+    useEffect(() => {
+        if (!activeTopicId || !topics.length) return;
+
+        // 1. Eagerly load ALL steps for current topic immediately
+        const steps: ('intro' | 'explanation' | 'question' | 'outro')[] = ['intro', 'explanation', 'question', 'outro'];
+        
+        steps.forEach(stepType => {
+            // Check if already in cache to avoid spamming
+            const cacheKey = ['stepContent', activeTopicId, stepType];
+            const state = queryClient.getQueryState(cacheKey);
+            if (!state || state.isInvalidated || (!state.data && !state.isFetching)) {
+                queryClient.prefetchQuery({
+                    queryKey: cacheKey,
+                    queryFn: () => lessonsService.getStepContent(activeTopicId, stepType),
+                    staleTime: Infinity
+                });
+            }
+        });
+
+        // 2. Background Load Next Topics (Sequential)
+        const currentIdx = topics.findIndex((t: Topic) => t.id === activeTopicId);
+        if (currentIdx !== -1 && currentIdx < topics.length - 1) {
+            
+            // Wait a bit to let the current topic load first (prioritize UX)
+            const timeoutId = setTimeout(() => {
+                const nextTopic = topics[currentIdx + 1];
+                console.log(`[Smart Pre-fetch] Starting background load for next topic: ${nextTopic.title}`);
+                
+                steps.forEach(stepType => {
+                    queryClient.prefetchQuery({
+                        queryKey: ['stepContent', nextTopic.id, stepType],
+                        queryFn: () => lessonsService.getStepContent(nextTopic.id, stepType),
+                        staleTime: Infinity
+                    });
+                });
+
+                // If there's a topic after that, queue it too (less priority)
+                if (currentIdx < topics.length - 2) {
+                    const nextNextTopic = topics[currentIdx + 2];
+                    setTimeout(() => {
+                         steps.forEach(stepType => {
+                            queryClient.prefetchQuery({
+                                queryKey: ['stepContent', nextNextTopic.id, stepType],
+                                queryFn: () => lessonsService.getStepContent(nextNextTopic.id, stepType),
+                                staleTime: Infinity
+                            });
+                        });
+                    }, 5000);
+                }
+
+            }, 3000); // 3s delay
+
+            return () => clearTimeout(timeoutId);
+        }
+
+    }, [activeTopicId, topics, queryClient]);
+
     const generateTopicsMutation = useMutation({
         mutationFn: () => resourceService.generateTopics(fileId!),
-        onSuccess: () => {
+        onMutate: () => {
+            setGenerationStatus({ state: 'generating_topics', progress: 0, total: 100 });
+        },
+        onSuccess: async (data: any) => {
+             // 1. Optimistic Update
+             queryClient.setQueryData(['topics', fileId], data);
+             
+             const topics = data as Topic[];
+             if (!topics || topics.length === 0) {
+                 setGenerationStatus({ state: 'idle', progress: 0, total: 0 });
+                 return;
+             }
+
+             // 2. Start Generating Content Sequentially
+             const stepTypes: ('intro' | 'explanation' | 'question' | 'outro')[] = ['intro', 'explanation', 'question', 'outro'];
+             const totalSteps = topics.length * stepTypes.length;
+             
+             setGenerationStatus({ 
+                 state: 'generating_content', 
+                 progress: 0, 
+                 total: totalSteps 
+             });
+
+             let completedCount = 0;
+             
+             for (const topic of topics) {
+                 for (const type of stepTypes) {
+                     setGenerationStatus(prev => ({
+                         ...prev,
+                         currentTopic: topic.title,
+                         currentStep: type === 'intro' ? 'المقدمة' : type === 'explanation' ? 'الزبدة' : type === 'question' ? 'الأسئلة' : 'الخاتمة'
+                     }));
+
+                     try {
+                         // Fetching triggers generation if missing
+                         await lessonsService.getStepContent(topic.id, type);
+                     } catch (e) {
+                         console.error(`Failed to generate ${type} for ${topic.title}`, e);
+                     }
+
+                     completedCount++;
+                     setGenerationStatus(prev => ({
+                         ...prev,
+                         progress: completedCount
+                     }));
+                 }
+             }
+             
+             // 3. Finish
+             setGenerationStatus({ state: 'idle', progress: 0, total: 0 });
              queryClient.invalidateQueries({ queryKey: ['topics', fileId] });
              queryClient.invalidateQueries({ queryKey: ['resource', fileId] });
+        },
+        onError: () => {
+            setGenerationStatus({ state: 'idle', progress: 0, total: 0 });
         }
     });
 
@@ -868,12 +1019,44 @@ export function CourseMap() {
     }
 
     // --- LOADING SCREEN (Empty State) ---
-    if (isResourceLoading) return <div className="flex-1 flex items-center justify-center text-stone-400">جاري التحميل...</div>;
+    // Moved up to be used in useQuery
+    // const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
 
-    if (isTopicsLoading || topics.length === 0) {
-         if (isTopicsLoading && !generateTopicsMutation.isPending) {
-             return <div className="flex-1 flex items-center justify-center text-stone-400">جاري استرجاع البيانات...</div>;
+    // Clear processing flag if topics arrive
+    useEffect(() => {
+        if (topics.length > 0 && isProcessing) {
+            localStorage.removeItem(`processing_resource_${fileId}`);
+        }
+    }, [topics, isProcessing, fileId]);
+
+    // 1. Initial Loading or Processing State
+    if (isResourceLoading || (topics.length === 0 && isProcessing)) {
+        return (
+            <div className="h-full w-full flex items-center justify-center bg-[#F5F5F0] min-h-[500px]">
+                 <BrandSkeleton type="general" message="جاري تجهيز خريطة المسار..." />
+            </div>
+        );
+    }
+
+    // 2. Generating Topics State (Explicit)
+    if (generationStatus.state === 'generating_topics' && topics.length === 0) {
+        return (
+            <div className="h-full w-full flex items-center justify-center bg-[#F5F5F0]">
+                 <BrandSkeleton type="general" message="جاري استخراج المواضيع..." />
+            </div>
+        );
+    }
+
+    // 3. Empty State (No Topics & Not Processing)
+    if ((isTopicsLoading || topics.length === 0) && generationStatus.state === 'idle') {
+         if (isTopicsLoading) {
+             return (
+                <div className="h-full w-full flex items-center justify-center bg-[#F5F5F0]">
+                     <BrandSkeleton type="general" />
+                </div>
+            );
          }
+
          return (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center min-h-[400px]">
                 <div className="max-w-md space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -881,18 +1064,15 @@ export function CourseMap() {
                         <MapIcon size={32} className="text-school-board" />
                     </div>
                     <h2 className="text-2xl font-bold text-stone-800 font-hand">رحلة التعلم</h2>
-                    <p className="text-stone-500 font-hand text-lg">جاهز؟ دعنا نقسم هذا الملف إلى دروس ومراحل.</p>
+                    <p className="text-stone-500 font-hand text-lg">لم يتم توليد المواضيع لهذا الملف بعد.</p>
+                    
                     <BrandButton 
                         onClick={() => generateTopicsMutation.mutate()} 
-                        disabled={generateTopicsMutation.isPending}
+                        disabled={generationStatus.state !== 'idle'}
                         className="w-full justify-center shadow-lg"
                         variant="primary"
                     >
-                        {generateTopicsMutation.isPending ? (
-                            <> <Loader2 size={20} className="animate-spin" /> جاري البناء... </>
-                        ) : (
-                            <> <Sparkles size={20} /> ابدأ الرحلة الآن </>
-                        )}
+                         <Sparkles size={20} /> استخراج المواضيع وبدء الرحلة
                     </BrandButton>
                 </div>
             </div>
@@ -915,7 +1095,7 @@ export function CourseMap() {
                         <MapIcon size={16} className="text-school-board" />
                         خريطة المسار
                     </h3>
-                    <button onClick={() => setIsMapOpen(false)} className="text-stone-400 hover:text-stone-600">
+                    <button onClick={() => toggleMap(false)} className="text-stone-400 hover:text-stone-600">
                         <X size={18} />
                     </button>
                 </div>
@@ -926,7 +1106,7 @@ export function CourseMap() {
                         return (
                             <button 
                                 key={topic.id}
-                                onClick={() => { setActiveTopicId(topic.id); setCurrentStepIndex(0); if(window.innerWidth < 1024) setIsMapOpen(false); }}
+                                onClick={() => { setActiveTopicId(topic.id); setCurrentStepIndex(0); if(window.innerWidth < 1024) toggleMap(false); }}
                                 className={`w-full text-right p-3 rounded-xl border-2 transition-all relative overflow-hidden group ${
                                     isActive 
                                     ? 'bg-white border-school-board shadow-sm' 
@@ -966,7 +1146,7 @@ export function CourseMap() {
                 <header className="h-14 bg-white/80 backdrop-blur border-b border-stone-200 flex items-center justify-between px-4 z-10">
                     <div className="flex items-center gap-3">
                         {!isMapOpen && (
-                            <button onClick={() => setIsMapOpen(true)} className="p-2 bg-white border border-stone-200 rounded-lg text-stone-500 hover:text-school-board hover:border-school-board transition-colors shadow-sm">
+                            <button onClick={() => toggleMap(true)} className="p-2 bg-white border border-stone-200 rounded-lg text-stone-500 hover:text-school-board hover:border-school-board transition-colors shadow-sm">
                                 <Menu size={18} />
                             </button>
                         )}
@@ -1021,13 +1201,22 @@ export function CourseMap() {
                         <div className={`max-w-5xl mx-auto w-full flex-1 flex flex-col min-h-[auto] md:min-h-[500px] ${(currentStep === 'context' || (currentStep === 'challenge' && !quizState.isSubmitted)) ? 'justify-start py-8 md:justify-center md:py-0' : ''}`}>
                             <div className="w-full">
                                 {isStepLoading ? (
-                                    <div className="text-center py-20">
-                                        <div className="w-16 h-16 bg-school-board/10 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                                            <Loader2 size={32} className="text-school-board animate-spin" />
-                                        </div>
-                                        <h3 className="text-lg font-bold text-stone-500 font-hand">جاري تحضير {stepConfig.label}...</h3>
-                                        <p className="text-stone-400 text-sm mt-2">نستخدم الذكاء الاصطناعي لاستخراج أفضل محتوى لك</p>
+                                    <div className="w-full flex justify-center py-8">
+                                         <BrandSkeleton type="lesson" hideMessage={true} />
                                     </div>
+                                ) : (isStepError || !stepContent) ? (
+                                    <div className="w-full flex justify-center py-8">
+                                         <PaperCard className="p-12 w-full max-w-3xl min-h-[400px] flex flex-col items-center justify-center text-center">
+                                             <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mb-4 text-stone-400">
+                                                 <AlertCircle size={32} />
+                                             </div>
+                                             <h3 className="text-xl font-bold font-hand text-stone-600 mb-2">المحتوى غير جاهز</h3>
+                                             <p className="text-stone-500 font-hand mb-6">لم نتمكن من جلب محتوى هذا الدرس. قد يكون قيد التوليد الآن.</p>
+                                             <BrandButton onClick={() => refetchStep()} variant="secondary" size="small">
+                                                 <RefreshCw size={16} /> إعادة المحاولة
+                                             </BrandButton>
+                                         </PaperCard>
+                                     </div>
                                 ) : (
                                     <>
                                         {currentStep === 'context' && <ContextStage content={stepContent} />}
@@ -1052,7 +1241,7 @@ export function CourseMap() {
 
                 {/* Floating Navigation Dock */}
                 {activeTopic && (
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-sm px-4">
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 w-full max-w-sm px-4 md:bottom-6">
                         <div className="bg-white/90 backdrop-blur-md border border-stone-200 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl p-1.5 flex items-center justify-between gap-2">
                             <button 
                                 onClick={handlePrev} 

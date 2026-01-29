@@ -7,6 +7,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 interface ExamPredictorProps {
   onPractice?: () => void;
@@ -26,6 +27,8 @@ export function ExamPredictor({
     retry: false
   });
 
+  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
+
   const generateMutation = useMutation({
     mutationFn: () => resourceService.generatePredictions(fileId!),
     onSuccess: () => {
@@ -33,13 +36,10 @@ export function ExamPredictor({
     }
   });
 
-  if (isLoading) {
+  if (isLoading || (!predictions && isProcessing)) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-stone-500">
-         <div className="animate-spin mb-4">
-            <RefreshCw size={32} />
-         </div>
-         <p className="font-hand text-xl">{t('analyzing_patterns')}</p>
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="general" message={isProcessing ? t('analyzing_patterns') : undefined} hideMessage={!isProcessing} />
       </div>
     );
   }

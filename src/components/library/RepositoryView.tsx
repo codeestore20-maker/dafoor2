@@ -33,14 +33,15 @@ export function RepositoryView({ subjectId, subjectName }: RepositoryViewProps) 
     mutationFn: resourceService.upload,
     onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['resources', subjectId] });
-        setIsUploadOpen(false);
+        // Don't close modal here, let it handle the success flow/simulation
+        // setIsUploadOpen(false); 
     }
   });
 
   const handleUpload = (fileData: any, language: string) => {
-    if (!subjectId) return;
+    if (!subjectId) return Promise.reject("No subject ID");
     
-    uploadMutation.mutate({
+    return uploadMutation.mutateAsync({
       ...fileData,
       subjectId,
       language

@@ -8,6 +8,7 @@ import { resourceService } from '../../lib/api';
 import ReactMarkdown from 'react-markdown';
 import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 export function DeepSummary() {
   const { fileId } = useParams();
@@ -23,8 +24,11 @@ export function DeepSummary() {
     queryKey: ['summary', fileId],
     queryFn: () => resourceService.getSummary(fileId!),
     enabled: !!fileId,
-    retry: false
+    retry: false,
+    staleTime: Infinity, // Cache forever until manual regeneration
   });
+
+  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
 
   const generateMutation = useMutation({
     mutationFn: () => resourceService.generateSummary(fileId!),
@@ -64,13 +68,10 @@ export function DeepSummary() {
     setLastScrollY(currentScrollY);
   };
 
-  if (isLoading) {
+  if (isLoading || (!summary && isProcessing)) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-stone-500">
-         <div className="animate-spin mb-4">
-            <RefreshCw size={32} />
-         </div>
-         <p className="font-hand text-xl">{t('loading_summary')}</p>
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="summary" message={isProcessing ? "جاري صياغة الملخص الشامل..." : undefined} hideMessage={!isProcessing} />
       </div>
     );
   }
@@ -122,7 +123,7 @@ export function DeepSummary() {
         <>
            {/* Floating Toggle Button (Bottom Corner - Text Only) */}
            <div className={`
-             md:hidden fixed bottom-6 z-50
+             md:hidden fixed bottom-24 z-50
              transition-all duration-300 ease-in-out
              ${isRTL ? 'right-6' : 'left-6'}
              ${isMobileMenuOpen ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}

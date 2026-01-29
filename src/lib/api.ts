@@ -204,7 +204,7 @@ export const resourceService = {
 };
 
 export const lessonsService = {
-  getStepContent: async (topicId: string, type: 'intro' | 'explanation' | 'question') => {
+  getStepContent: async (topicId: string, type: 'intro' | 'explanation' | 'question' | 'outro') => {
     const response = await api.get(`/lessons/${topicId}/step/${type}`);
     return response.data;
   },

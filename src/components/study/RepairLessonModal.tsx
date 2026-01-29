@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
 
 interface RepairLessonModalProps {
   isOpen: boolean;
@@ -70,9 +71,8 @@ export function RepairLessonModal({
 
             <NotebookPaper title={t('mini_lesson_title', { concept })} className="min-h-[500px] p-4 md:p-8">
               {isLoading ? (
-                <div className="flex flex-col items-center justify-center h-64 text-stone-500">
-                  <RefreshCw size={32} className="animate-spin mb-4" />
-                  <p className="font-hand text-xl">{t('preparing_lesson')}</p>
+                <div className="flex flex-col items-center justify-center h-64">
+                  <BrandSkeleton type="lesson" hideMessage={true} />
                 </div>
               ) : isError || !lesson ? (
                 <div className="text-center p-8 text-red-500">

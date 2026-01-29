@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { ViewMode } from '../components/study/StudySidebar';
 import { AITeacher } from '../components/study/AITeacher';
-import { Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff, Menu, MessageSquare, X } from 'lucide-react';
+import { Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff, Menu, MessageSquare, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../components/shared/BrandSkeleton';
 
 export function LearningApp() {
   const location = useLocation();
@@ -45,8 +46,6 @@ export function LearningApp() {
         {/* Main Content Area */}
         <div className={`flex-1 transition-all duration-300 relative z-0 flex flex-col ${focusMode && isStudyMode ? 'w-full' : 'w-auto'}`}>
            
-           {/* Mobile Header removed */}
-
            {/* Focus Mode Toggle (Top Right of Content) */}
            {isStudyMode && (
              <button
@@ -59,7 +58,22 @@ export function LearningApp() {
            )}
            
            <div className="flex-1 overflow-hidden relative">
-             <Outlet context={{ currentView, setCurrentView, focusMode, isSidebarOpen, setIsSidebarOpen }} />
+             <Suspense fallback={
+               <div className="w-full h-full flex items-center justify-center bg-[#F5F5F0]">
+                 <BrandSkeleton type="general" />
+               </div>
+             }>
+               {/* Removed AnimatePresence mode='wait' to prevent transition deadlocks/empty screens */}
+               <motion.div
+                 key={location.pathname}
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 transition={{ duration: 0.3 }}
+                 className="h-full w-full"
+               >
+                 <Outlet context={{ currentView, setCurrentView, focusMode, isSidebarOpen, setIsSidebarOpen, setIsMobileChatOpen }} />
+               </motion.div>
+             </Suspense>
            </div>
         </div>
 
@@ -97,8 +111,8 @@ export function LearningApp() {
               <AITeacher currentView={currentView} />
             </div>
 
-            {/* Mobile Chat FAB */}
-            <div className="xl:hidden fixed bottom-4 right-6 rtl:left-6 rtl:right-auto z-40">
+            {/* Mobile Chat FAB - HIDDEN in favor of Toolbar Button */}
+            <div className="hidden fixed bottom-4 right-6 rtl:left-6 rtl:right-auto z-40">
                <button
                  onClick={() => setIsMobileChatOpen(true)}
                  className="w-12 h-12 bg-school-board text-white rounded-2xl shadow-xl flex items-center justify-center border-2 border-stone-800 hover:scale-110 transition-transform active:scale-95"
@@ -116,29 +130,36 @@ export function LearningApp() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setIsMobileChatOpen(false)}
-                    className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 xl:hidden"
+                    className="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 lg:hidden"
                   />
                   <motion.div
                     initial={{ y: '100%' }}
                     animate={{ y: 0 }}
                     exit={{ y: '100%' }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="fixed inset-x-0 bottom-0 h-[85vh] bg-white z-50 xl:hidden rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden border-t-4 border-school-board"
+                    className="fixed inset-x-0 bottom-0 h-[85vh] bg-white z-50 lg:hidden rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden border-t-4 border-school-board"
                   >
                     {/* Handle Bar */}
                     <div className="w-full flex justify-center pt-3 pb-1" onClick={() => setIsMobileChatOpen(false)}>
                        <div className="w-16 h-1.5 bg-stone-300 rounded-full"></div>
                     </div>
                     
-                    {/* Header */}
-                    <div className="px-6 py-2 flex items-center justify-between border-b border-stone-100">
+                    {/* Header - REMOVED to avoid double headers, AITeacher has its own */}
+                    {/* <div className="px-6 py-2 flex items-center justify-between border-b border-stone-100">
                        <h3 className="font-hand font-bold text-xl text-stone-800">AI Teacher</h3>
                        <button onClick={() => setIsMobileChatOpen(false)} className="p-2 text-stone-400 hover:text-red-500">
                          <X size={24} />
                        </button>
-                    </div>
+                    </div> */}
 
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1 overflow-hidden relative">
+                         {/* Close button overlay for mobile */}
+                         <button 
+                            onClick={() => setIsMobileChatOpen(false)} 
+                            className="absolute top-4 left-4 z-50 p-2 bg-white/50 backdrop-blur rounded-full text-stone-500 shadow-sm md:hidden"
+                         >
+                            <X size={20} />
+                         </button>
                       <AITeacher currentView={currentView} />
                     </div>
                   </motion.div>

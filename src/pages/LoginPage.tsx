@@ -3,13 +3,14 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { LogIn } from 'lucide-react';
+import { LogIn, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../components/auth/AuthLayout';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -17,6 +18,7 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     try {
       const data = await authService.login({ email, password });
       login(data.token, data.user);
@@ -27,6 +29,8 @@ export function LoginPage() {
       if (errorMsg === 'User not found') setError(t('user_not_found'));
       else if (errorMsg === 'Invalid password') setError(t('invalid_password'));
       else setError(t('login_failed'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -48,9 +52,10 @@ export function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg"
+              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg disabled:opacity-50"
               placeholder={t('email_placeholder')}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-1">
@@ -59,18 +64,20 @@ export function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg"
+              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg disabled:opacity-50"
               placeholder={t('password_placeholder')}
               required
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-school-board text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-school-board/90 transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 text-lg border-2 border-transparent hover:border-school-board/50"
+            disabled={isLoading}
+            className="w-full bg-school-board text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-school-board/90 transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 text-lg border-2 border-transparent hover:border-school-board/50 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <LogIn size={20} />
-            {t('login_btn')}
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <LogIn size={20} />}
+            {isLoading ? t('logging_in') || "جاري الدخول..." : t('login_btn')}
           </button>
         </form>
 

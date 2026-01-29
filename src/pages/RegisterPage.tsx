@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../components/auth/AuthLayout';
 
 export function RegisterPage() {
@@ -11,6 +11,7 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     try {
       const data = await authService.register({ name, email, password });
       login(data.token, data.user);
@@ -26,6 +28,8 @@ export function RegisterPage() {
       const errorMsg = err.response?.data?.error;
       if (errorMsg === 'User already exists') setError(t('user_exists'));
       else setError(t('registration_failed'));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,9 +51,10 @@ export function RegisterPage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg"
+              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg disabled:opacity-50"
               placeholder={t('name_placeholder')}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-1">
@@ -58,9 +63,10 @@ export function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg"
+              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg disabled:opacity-50"
               placeholder={t('email_placeholder')}
               required
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-1">
@@ -69,18 +75,20 @@ export function RegisterPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg"
+              className="w-full p-3.5 rounded-xl border-2 border-stone-300 focus:border-school-board focus:ring-4 focus:ring-school-board/10 outline-none transition-all bg-white font-sans text-lg disabled:opacity-50"
               placeholder={t('password_placeholder')}
               required
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-school-board text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-school-board/90 transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 text-lg border-2 border-transparent hover:border-school-board/50"
+            disabled={isLoading}
+            className="w-full bg-school-board text-white font-bold py-3.5 rounded-xl shadow-lg hover:bg-school-board/90 transition-all transform hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-2 text-lg border-2 border-transparent hover:border-school-board/50 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <UserPlus size={20} />
-            {t('register_btn')}
+            {isLoading ? <Loader2 size={20} className="animate-spin" /> : <UserPlus size={20} />}
+            {isLoading ? t('registering') || "جاري التسجيل..." : t('register_btn')}
           </button>
         </form>
 
