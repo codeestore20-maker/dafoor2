@@ -275,7 +275,12 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                                 allowedContent: "text-xs text-stone-400"
                             }}
                             content={{
-                                button: ({ ready }) => (ready ? "اختر ملفاً" : "جاري التحميل..."),
+                                button: ({ ready, isUploading, files, uploadProgress }) => {
+                                    if (isUploading) return `جاري الرفع... ${uploadProgress}%`;
+                                    if (files && files.length > 0) return "تأكيد وبدء الرفع";
+                                    if (ready) return "اختر ملفاً";
+                                    return "جاري التحميل...";
+                                },
                                 label: "اسحب الملف هنا أو اضغط للاختيار",
                                 allowedContent: "PDF, DOCX, TXT حتى 32 ميجابايت"
                             }}
