@@ -274,6 +274,11 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                                 label: "text-stone-500 text-sm hover:text-school-board",
                                 allowedContent: "text-xs text-stone-400"
                             }}
+                            content={{
+                                button: ({ ready }) => (ready ? "اختر ملفاً" : "جاري التحميل..."),
+                                label: "اسحب الملف هنا أو اضغط للاختيار",
+                                allowedContent: "PDF, DOCX, TXT حتى 32 ميجابايت"
+                            }}
                         />
                     </div>
                   </div>

@@ -19,9 +19,10 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF8E7] flex items-center justify-center p-4 font-hand overflow-hidden relative">
+    // Fixed absolute positioning ensures it fills the viewport exactly, regardless of parent flex quirks
+    <div className="absolute inset-0 bg-[#FFF8E7] overflow-y-auto custom-scrollbar font-hand z-50">
        {/* Desk Texture Background */}
-       <div className="absolute inset-0 z-0 opacity-40 pointer-events-none" style={{
+       <div className="fixed inset-0 z-0 opacity-40 pointer-events-none" style={{
         backgroundImage: `url("https://www.transparenttextures.com/patterns/wood-pattern.png")`,
         backgroundColor: '#d4c4a8'
       }}></div>
@@ -29,20 +30,23 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       {/* Language Switcher */}
       <button 
         onClick={toggleLanguage}
-        className="absolute top-6 right-6 rtl:left-6 rtl:right-auto z-50 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-lg border-2 border-stone-800 hover:bg-school-board hover:text-white transition-all transform hover:scale-110 active:scale-95"
+        className="fixed top-4 right-4 rtl:left-4 rtl:right-auto z-50 bg-white/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg border-2 border-stone-800 hover:bg-school-board hover:text-white transition-all transform hover:scale-110 active:scale-95"
         title={t('switch_language')}
       >
-        <Languages size={24} />
+        <Languages size={20} />
       </button>
 
-      {/* Main Card Container - WIDER now (max-w-6xl) */}
-      <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[650px] relative z-10 border-4 border-stone-800">
-        
-        {/* Marketing Section (Left in LTR, Right in RTL) */}
-        <div className={`
-          w-full md:w-5/12 bg-school-board text-white p-6 md:p-12 flex flex-col justify-between relative overflow-hidden
-          ${isRtl ? 'order-last md:order-last' : 'order-first md:order-first'}
-        `}>
+      {/* Scrollable Content Container */}
+      <div className="min-h-full w-full flex flex-col md:flex-row items-center justify-center p-4 md:p-8 relative z-10 py-12 md:py-8">
+      
+        {/* Main Card Container */}
+        <div className="w-full max-w-5xl bg-white rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[auto] md:min-h-[600px] border-2 md:border-4 border-stone-800 relative">
+          
+          {/* Marketing Section (Hidden on very small screens, visible on md+) */}
+          <div className={`
+            hidden md:flex w-full md:w-5/12 bg-school-board text-white p-8 md:p-12 flex-col justify-between relative overflow-hidden
+            ${isRtl ? 'order-last md:order-last' : 'order-first md:order-first'}
+          `}>
            {/* Pattern Overlay */}
            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
               backgroundImage: `url("https://www.transparenttextures.com/patterns/cubes.png")`
@@ -113,7 +117,13 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
 
         {/* Form Section (Right in LTR, Left in RTL) */}
-        <div className="w-full md:w-7/12 bg-[#fdfbf7] p-8 md:p-10 lg:p-16 flex flex-col justify-center relative">
+        <div className="w-full md:w-7/12 bg-[#fdfbf7] p-6 sm:p-8 md:p-10 lg:p-16 flex flex-col justify-center relative">
+          {/* Mobile Header (Visible only on mobile) */}
+          <div className="md:hidden flex items-center gap-2 mb-6 justify-center text-school-board">
+             <GraduationCap size={32} />
+             <span className="font-bold tracking-wider uppercase text-lg">{t('app_name')}</span>
+          </div>
+
           {/* Paper Texture */}
           <div className="absolute inset-0 opacity-50 pointer-events-none" style={{
             backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")`
@@ -130,6 +140,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
         </div>
 
       </div>
+    </div>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { FocusReview } from './FocusReview';
 import { CourseMap } from './CourseMap';
 import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Menu, X, FileText, ChevronLeft, MessageSquare, Map as MapIcon, LayoutGrid, BrainCircuit, BookOpen, PenTool, GraduationCap } from 'lucide-react';
+import { Menu, X, FileText, ChevronLeft, MessageSquare, Map as MapIcon, LayoutGrid, BrainCircuit, BookOpen, PenTool, GraduationCap, TrendingUp, BookA, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { useQuery } from '@tanstack/react-query';
@@ -35,51 +35,88 @@ const MobileStudyHeader = ({ title, onBack, onChat }: { title: string, onBack: (
 );
 
 const MobileStudyToolbar = ({ currentView, onViewChange, onTools }: { currentView: ViewMode, onViewChange: (v: ViewMode) => void, onTools: () => void }) => {
-    return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 pb-safe z-[100] lg:hidden px-6 py-2">
-            <div className="flex items-center justify-between max-w-sm mx-auto">
-                <button 
-                    onClick={() => onViewChange('course_map')}
-                    className={`flex flex-col items-center gap-1 transition-all ${currentView === 'course_map' ? 'text-school-board' : 'text-stone-400'}`}
-                >
-                    <div className={`p-1.5 rounded-xl ${currentView === 'course_map' ? 'bg-school-board/10' : 'bg-transparent'}`}>
-                        <MapIcon size={24} strokeWidth={currentView === 'course_map' ? 2.5 : 2} />
-                    </div>
-                    <span className="text-[10px] font-bold font-hand">الخريطة</span>
-                </button>
+    const { t } = useTranslation();
+    const NavButton = ({ view, icon: Icon, label, isActive }: { view: ViewMode, icon: any, label: string, isActive: boolean }) => (
+        <button 
+            onClick={() => onViewChange(view)}
+            className={`flex flex-col items-center gap-1 transition-all group ${isActive ? 'text-school-board' : 'text-stone-400'}`}
+        >
+            <div className={`p-1.5 md:p-2 rounded-xl transition-all ${isActive ? 'bg-school-board/10' : 'bg-transparent group-hover:bg-stone-50'}`}>
+                <Icon size={22} className="md:w-7 md:h-7" strokeWidth={isActive ? 2.5 : 2} />
+            </div>
+            <span className="text-[10px] md:text-xs font-bold font-hand">{label}</span>
+        </button>
+    );
 
+    return (
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 pb-safe z-[100] lg:hidden px-4 md:px-8 py-2 md:py-3">
+            <div className="flex items-center justify-between max-w-md md:max-w-2xl mx-auto w-full">
+                {/* 1. Course Map */}
+                <NavButton view="course_map" icon={MapIcon} label={t('course_map')} isActive={currentView === 'course_map'} />
+
+                {/* 2. Summary (Swapped with Review) */}
+                <NavButton view="summary" icon={BookOpen} label={t('deep_summary')} isActive={currentView === 'summary'} />
+
+                {/* 3. Tools (Floating Center) */}
                 <button 
                     onClick={onTools}
-                    className="flex flex-col items-center gap-1 text-stone-400 active:text-stone-600 transition-colors"
+                    className="flex flex-col items-center gap-1 text-stone-400 active:text-stone-600 transition-colors -mt-8 md:-mt-10"
                 >
-                    <div className="p-3 -mt-6 bg-school-board text-white rounded-full shadow-lg border-4 border-stone-100">
-                        <LayoutGrid size={24} />
+                    <div className="p-3 md:p-4 bg-school-board text-white rounded-full shadow-lg border-4 border-stone-100 transform active:scale-95 transition-transform hover:bg-school-board/90">
+                        <LayoutGrid size={24} className="md:w-8 md:h-8" />
                     </div>
-                    <span className="text-[10px] font-bold font-hand">الأدوات</span>
+                    <span className="text-[10px] md:text-xs font-bold font-hand translate-y-1">الأدوات</span>
                 </button>
 
-                <button 
-                    onClick={() => onViewChange('summary')}
-                    className={`flex flex-col items-center gap-1 transition-all ${currentView === 'summary' ? 'text-school-board' : 'text-stone-400'}`}
-                >
-                    <div className={`p-1.5 rounded-xl ${currentView === 'summary' ? 'bg-school-board/10' : 'bg-transparent'}`}>
-                        <BookOpen size={24} strokeWidth={currentView === 'summary' ? 2.5 : 2} />
-                    </div>
-                    <span className="text-[10px] font-bold font-hand">الملخص</span>
-                </button>
+                {/* 4. Quiz */}
+                <NavButton view="quiz" icon={GraduationCap} label={t('quizzes')} isActive={currentView === 'quiz'} />
+
+                {/* 5. Review */}
+                <NavButton view="review" icon={AlertTriangle} label={t('focus_review')} isActive={currentView === 'review'} />
             </div>
         </div>
     );
 };
 
 const ToolsSheet = ({ isOpen, onClose, currentView, onViewChange }: any) => {
-    const tools = [
-        { id: 'summary', label: 'ملخص عميق', icon: BookOpen, color: 'bg-blue-100 text-blue-600' },
-        { id: 'notes', label: 'ملاحظات ذكية', icon: PenTool, color: 'bg-amber-100 text-amber-600' },
-        { id: 'flashcards', label: 'بطاقات', icon: BrainCircuit, color: 'bg-pink-100 text-pink-600' },
-        { id: 'quiz', label: 'اختبارات', icon: GraduationCap, color: 'bg-green-100 text-green-600' },
-        { id: 'notebooks', label: 'دفاتري', icon: FileText, color: 'bg-stone-100 text-stone-600' },
+    const { t } = useTranslation();
+    
+    // 1. AI Learning
+    const aiTools = [
+        { id: 'course_map', label: t('course_map'), icon: MapIcon, color: 'bg-indigo-100 text-indigo-600' },
+        { id: 'summary', label: t('deep_summary'), icon: BookOpen, color: 'bg-blue-100 text-blue-600' },
+        { id: 'notes', label: t('smart_notes'), icon: PenTool, color: 'bg-amber-100 text-amber-600' },
+        { id: 'predictor', label: t('exam_predictor'), icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
+        { id: 'glossary', label: t('live_glossary'), icon: BookA, color: 'bg-teal-100 text-teal-600' },
     ];
+
+    // 2. Study Space
+    const studyTools = [
+        { id: 'flashcards', label: t('flashcards'), icon: BrainCircuit, color: 'bg-pink-100 text-pink-600' },
+        { id: 'quiz', label: t('quizzes'), icon: GraduationCap, color: 'bg-green-100 text-green-600' },
+        { id: 'review', label: t('focus_review'), icon: AlertTriangle, color: 'bg-red-100 text-red-600' },
+    ];
+
+    // 3. Notebooks
+    const notebookTools = [
+        { id: 'notebooks', label: t('my_notebook'), icon: FileText, color: 'bg-stone-100 text-stone-600' },
+    ];
+
+    const ToolButton = ({ tool }: any) => {
+        const Icon = tool.icon;
+        const isActive = currentView === tool.id;
+        return (
+            <button 
+                onClick={() => { onViewChange(tool.id); onClose(); }}
+                className={`flex flex-col items-center gap-2 p-2 rounded-xl border-2 transition-all ${isActive ? 'border-school-board bg-stone-50' : 'border-transparent hover:bg-stone-50'}`}
+            >
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${tool.color}`}>
+                    <Icon size={20} />
+                </div>
+                <span className="text-[10px] font-bold font-hand text-stone-700 text-center leading-tight line-clamp-2">{tool.label}</span>
+            </button>
+        );
+    };
 
     return (
         <AnimatePresence>
@@ -93,28 +130,34 @@ const ToolsSheet = ({ isOpen, onClose, currentView, onViewChange }: any) => {
                     <motion.div
                         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[120] lg:hidden p-6 pb-safe border-t border-stone-200 shadow-2xl"
+                        className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl z-[120] lg:hidden p-6 pb-safe border-t border-stone-200 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar"
                     >
-                        <div className="w-12 h-1.5 bg-stone-200 rounded-full mx-auto mb-6" />
-                        <h3 className="text-lg font-bold font-hand text-stone-800 mb-4 text-center">أدوات الدراسة</h3>
+                        <div className="w-12 h-1.5 bg-stone-200 rounded-full mx-auto mb-6 flex-shrink-0" />
                         
-                        <div className="grid grid-cols-3 gap-4 mb-8">
-                            {tools.map((tool) => {
-                                const Icon = tool.icon;
-                                const isActive = currentView === tool.id;
-                                return (
-                                    <button 
-                                        key={tool.id}
-                                        onClick={() => { onViewChange(tool.id); onClose(); }}
-                                        className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${isActive ? 'border-school-board bg-stone-50' : 'border-transparent hover:bg-stone-50'}`}
-                                    >
-                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tool.color}`}>
-                                            <Icon size={24} />
-                                        </div>
-                                        <span className="text-xs font-bold font-hand text-stone-700">{tool.label}</span>
-                                    </button>
-                                );
-                            })}
+                        <div className="space-y-6 pb-8">
+                            {/* Section 1: AI Learning */}
+                            <div>
+                                <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3 px-1 font-hand">تعلم ذكي</h3>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                    {aiTools.map(tool => <ToolButton key={tool.id} tool={tool} />)}
+                                </div>
+                            </div>
+
+                            {/* Section 2: Study Space */}
+                            <div>
+                                <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3 px-1 font-hand">مساحة الدراسة</h3>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                    {studyTools.map(tool => <ToolButton key={tool.id} tool={tool} />)}
+                                </div>
+                            </div>
+
+                            {/* Section 3: Notebooks */}
+                            <div>
+                                <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-3 px-1 font-hand">دفاتر</h3>
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                    {notebookTools.map(tool => <ToolButton key={tool.id} tool={tool} />)}
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
                 </>

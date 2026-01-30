@@ -724,16 +724,37 @@ export function CourseMap() {
     
     // UI State
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
-    const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+    const [activeTopicId, setActiveTopicId] = useState<string | null>(() => {
+        // Initialize from local storage if available for this file
+        if (fileId) {
+            return localStorage.getItem(`lms_last_topic_${fileId}`);
+        }
+        return null;
+    });
+
+    // Save active topic to local storage whenever it changes
+    useEffect(() => {
+        if (fileId) {
+            if (activeTopicId) {
+                localStorage.setItem(`lms_last_topic_${fileId}`, activeTopicId);
+            } else {
+                // Optional: Clear if null, but maybe better to keep last known state? 
+                // Let's keep it to allow "resuming" even if deselected momentarily
+            }
+        }
+    }, [activeTopicId, fileId]);
     
     // State Persistence for Sidebar
     const [isMapOpen, setIsMapOpen] = useState(() => {
-        // 1. Try to get from local storage
+        // ALWAYS open on larger screens initially, regardless of previous history
+        // This ensures the sidebar is visible on iPad/Desktop by default
+        if (window.innerWidth >= 768) return true;
+        
+        // On mobile, check storage or default to closed
         const saved = localStorage.getItem('lms_course_map_open');
         if (saved !== null) return saved === 'true';
         
-        // 2. Default logic: ALWAYS OPEN initially for better discovery
-        return true;
+        return false;
     });
 
     const toggleMap = (newState: boolean) => {
@@ -789,13 +810,6 @@ export function CourseMap() {
         setQuizState({ currentIndex: 0, answers: {}, isSubmitted: false });
     }, [activeTopicId]);
 
-    // Auto-select first topic if none selected and topics available (especially after generation)
-    useEffect(() => {
-        if (!activeTopicId && topics.length > 0) {
-            setActiveTopicId(topics[0].id);
-        }
-    }, [topics, activeTopicId]);
-
     // Scroll to top on step change
     useEffect(() => {
         const mainContent = document.querySelector('main');
@@ -809,8 +823,8 @@ export function CourseMap() {
             // Only auto-collapse if user hasn't explicitly set a preference
             const saved = localStorage.getItem('lms_course_map_open');
             if (saved === null) {
-                // Force open even on resize if no preference saved
-                setIsMapOpen(true);
+                // < 768px (Mobile) -> Closed, >= 768px (Tablet/Desktop) -> Open
+                setIsMapOpen(window.innerWidth >= 768);
             }
         };
         // handleResize(); // Don't run on init, we used lazy state initialization
@@ -1143,12 +1157,44 @@ export function CourseMap() {
             <div className="flex-1 flex flex-col min-w-0 relative">
                 
                 {/* Header */}
-                <header className="h-14 bg-white/80 backdrop-blur border-b border-stone-200 flex items-center justify-between px-4 z-10">
-                    <div className="flex items-center gap-3">
+                <header className="h-14 bg-white/80 backdrop-blur border-b border-stone-200 flex items-center justify-between px-4 z-10 relative">
+                    <div className="flex items-center gap-3 relative">
                         {!isMapOpen && (
-                            <button onClick={() => toggleMap(true)} className="p-2 bg-white border border-stone-200 rounded-lg text-stone-500 hover:text-school-board hover:border-school-board transition-colors shadow-sm">
-                                <Menu size={18} />
-                            </button>
+                            <div className="relative">
+                                <button 
+                                    onClick={() => toggleMap(true)} 
+                                    className={`
+                                        p-2 bg-white border border-stone-200 rounded-lg text-stone-500 hover:text-school-board hover:border-school-board transition-all shadow-sm
+                                        ${!activeTopic ? 'animate-pulse ring-4 ring-school-board/20 border-school-board/50 text-school-board' : ''}
+                                    `}
+                                >
+                                    <Menu size={18} />
+                                </button>
+                                
+                                {/* Helper Arrow for Empty State */}
+                                {!activeTopic && (
+                                    <div className="absolute top-14 -left-16 z-50 pointer-events-none">
+                                        <style>
+                                            {`
+                                            @keyframes float-arrow {
+                                                0%, 100% { transform: translateY(0); }
+                                                50% { transform: translateY(-8px); }
+                                            }
+                                            `}
+                                        </style>
+                                        <div className="relative flex flex-col items-center" style={{ animation: 'float-arrow 3s ease-in-out infinite' }}>
+                                            {/* Hand-drawn Arrow SVG Pointing UP - LARGER */}
+                                            <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-school-board transform rotate-6 mb-1">
+                                                {/* Arrow pointing UP from bottom-left to top-right (relative to box) */}
+                                                <path d="M15 45 Q25 25 40 5 M40 5 L30 5 M40 5 L42 15" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                            <span className="text-xs font-bold font-hand text-school-board transform -rotate-6 w-24 text-center leading-tight">
+                                                اضغط هنا<br/>لفتح القائمة
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )}
                         <div className="flex flex-col justify-center">
                             <h1 className="font-hand font-bold text-stone-800 text-xs min-[400px]:text-sm md:text-base line-clamp-2 leading-tight max-w-[100px] min-[360px]:max-w-[130px] min-[400px]:max-w-[200px] sm:max-w-md" title={activeTopic ? activeTopic.title : ''}>
