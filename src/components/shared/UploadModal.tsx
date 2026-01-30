@@ -248,7 +248,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                        قم برفع الملف أولاً، ثم سنقوم بضبط الإعدادات.
                     </p>
                     
-                    <div className="border-2 border-dashed border-stone-300 rounded-xl p-2 hover:border-school-board transition-colors bg-stone-50/50">
+                    <div className="w-full">
                         <UploadDropzone
                             endpoint="pdfUploader"
                             onClientUploadComplete={(res) => {
@@ -269,17 +269,17 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                                 setError(error.message);
                             }}
                             appearance={{
-                                button: "bg-school-board text-white font-hand font-bold rounded-lg px-4 py-2 hover:bg-school-board/90",
-                                container: "flex flex-col items-center justify-center gap-2 text-stone-600 font-hand",
-                                label: "text-stone-500 text-sm hover:text-school-board",
-                                allowedContent: "text-xs text-stone-400"
+                                container: "flex flex-col items-center justify-center gap-4 h-64 w-full border-2 border-dashed border-stone-300 rounded-xl hover:border-school-board bg-stone-50/50 transition-colors cursor-pointer relative",
+                                button: "z-20 bg-school-board text-white font-hand font-bold rounded-lg px-6 py-2.5 hover:bg-school-board/90 transition-transform hover:scale-105 active:scale-95 shadow-sm",
+                                label: "text-stone-500 text-sm font-bold hover:text-school-board cursor-pointer",
+                                allowedContent: "text-xs text-stone-400 font-medium"
                             }}
                             content={{
                                 button: ({ ready, isUploading, files, uploadProgress }) => {
                                     if (isUploading) return `جاري الرفع... ${uploadProgress}%`;
                                     if (files && files.length > 0) return "تأكيد وبدء الرفع";
                                     if (ready) return "اختر ملفاً";
-                                    return "جاري التحميل...";
+                                    return "يرجى الانتظار...";
                                 },
                                 label: "اسحب الملف هنا أو اضغط للاختيار",
                                 allowedContent: "PDF, DOCX, TXT حتى 32 ميجابايت"
