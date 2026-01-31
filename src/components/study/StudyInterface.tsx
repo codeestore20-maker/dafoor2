@@ -85,7 +85,6 @@ const ToolsSheet = ({ isOpen, onClose, currentView, onViewChange }: any) => {
     const aiTools = [
         { id: 'course_map', label: t('course_map'), icon: MapIcon, color: 'bg-indigo-100 text-indigo-600' },
         { id: 'summary', label: t('deep_summary'), icon: BookOpen, color: 'bg-blue-100 text-blue-600' },
-        { id: 'notes', label: t('smart_notes'), icon: PenTool, color: 'bg-amber-100 text-amber-600' },
         { id: 'predictor', label: t('exam_predictor'), icon: TrendingUp, color: 'bg-purple-100 text-purple-600' },
         { id: 'glossary', label: t('live_glossary'), icon: BookA, color: 'bg-teal-100 text-teal-600' },
     ];
@@ -219,8 +218,6 @@ export function StudyInterface() {
     switch (currentView) {
       case 'course_map':
         return <CourseMap />;
-      case 'notes':
-        return <SmartNotes />;
       case 'summary':
         return <DeepSummary />;
       case 'predictor':

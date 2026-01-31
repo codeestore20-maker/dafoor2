@@ -679,7 +679,9 @@ export const ragService = {
             },
             { 
               role: "user", 
-              content: `You are an exam expert. Predict potential exam topics/questions based on the text. Return a JSON array of objects with keys: 'topic' (string), 'probability' (number 0-100), 'reasoning' (string), 'keyConcepts' (array of strings), 'frequency' (string: 'High', 'Medium', 'Low').
+              content: `You are an exam expert. Predict potential exam topics/questions based on the text. 
+              Return a JSON OBJECT with a single key "predictions" containing an array of objects.
+              Each object must have: 'topic' (string), 'probability' (number 0-100), 'reasoning' (string), 'keyConcepts' (array of strings), 'frequency' (string: 'High', 'Medium', 'Low').
               
               IMPORTANT: The reasoning and topics MUST be in ${language}.
               CRITICAL: Keep 'keyConcepts' and technical terms in their original language (usually English).` 
@@ -690,13 +692,27 @@ export const ragService = {
         });
   
         const content = completion.choices[0].message.content;
+        console.log("[ExamPrediction] Raw Content:", content); // Debug log
+
         if (!content) throw new Error("No predictions generated");
 
         let predictionsData;
         try {
             const parsed = JSON.parse(content);
-            predictionsData = Array.isArray(parsed) ? parsed : (parsed.predictions || parsed.topics || []);
+            // Robustly find the array
+            if (Array.isArray(parsed)) {
+                predictionsData = parsed;
+            } else if (parsed.predictions && Array.isArray(parsed.predictions)) {
+                predictionsData = parsed.predictions;
+            } else if (parsed.topics && Array.isArray(parsed.topics)) {
+                predictionsData = parsed.topics;
+            } else {
+                // Fallback: take the first array value found in the object
+                const firstArray = Object.values(parsed).find(val => Array.isArray(val));
+                predictionsData = firstArray || [];
+            }
         } catch (e) {
+            console.error("[ExamPrediction] JSON Parse Error", e);
             throw new Error("Failed to parse predictions JSON");
         }
   
@@ -705,11 +721,11 @@ export const ragService = {
             const prediction = await prisma.examPrediction.create({
                 data: {
                     resourceId,
-                    topic: item.topic,
-                    probability: item.probability,
-                    reasoning: item.reasoning,
-                    keyConcepts: item.keyConcepts || [],
-                    frequency: item.frequency
+                    topic: item.topic || "Untitled Topic",
+                    probability: typeof item.probability === 'number' ? item.probability : parseInt(item.probability) || 50,
+                    reasoning: item.reasoning || "No reasoning provided.",
+                    keyConcepts: Array.isArray(item.keyConcepts) ? item.keyConcepts : [],
+                    frequency: item.frequency || "Medium"
                 }
             });
             createdPredictions.push(prediction);

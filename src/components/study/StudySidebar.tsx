@@ -70,7 +70,6 @@ export function StudySidebar({
           </h3>
           <NavItem view="course_map" icon={Map} label={t('course_map')} />
           <NavItem view="summary" icon={BookOpen} label={t('deep_summary')} />
-          <NavItem view="notes" icon={PenTool} label={t('smart_notes')} />
           <NavItem view="predictor" icon={TrendingUp} label={t('exam_predictor')} badge={t('new_badge')} />
           <NavItem view="glossary" icon={BookA} label={t('live_glossary')} />
         </div>

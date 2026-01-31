@@ -172,12 +172,12 @@ export function LiveGlossary() {
                               </button>
                             </div>
                             
-                            <div className={`p-4 flex-1 flex flex-col relative z-10 ${studyMode ? 'blur-md hover:blur-none cursor-help select-none' : ''}`}>
+                            <div className="p-4 flex-1 flex flex-col relative z-10">
                               <div className="mb-3 flex-1">
                                 <span className="text-xs font-bold text-school-board uppercase tracking-wider bg-school-board/10 px-1.5 py-0.5 rounded mr-2 rtl:mr-0 rtl:ml-2 inline-block mb-1">
                                   {t('definition')}:
                                 </span>
-                                <p className="font-hand text-base text-stone-700 leading-relaxed break-words whitespace-pre-wrap inline">
+                                <p className={`font-hand text-base text-stone-700 leading-relaxed break-words whitespace-pre-wrap inline ${studyMode ? 'blur-md hover:blur-none cursor-help select-none transition-all duration-300' : ''}`}>
                                   {term.definition}
                                 </p>
                               </div>

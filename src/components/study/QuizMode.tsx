@@ -28,7 +28,17 @@ export function QuizMode() {
     staleTime: Infinity, // Cache forever until manual regeneration
   });
 
-  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
+  const [isProcessing, setIsProcessing] = useState(() => 
+    localStorage.getItem(`processing_quiz_${fileId}`) === 'true'
+  );
+
+  // Clear processing state if we have results
+  useEffect(() => {
+    if (quiz?.questions && quiz.questions.length > 0 && isProcessing) {
+      localStorage.removeItem(`processing_quiz_${fileId}`);
+      setIsProcessing(false);
+    }
+  }, [quiz, isProcessing, fileId]);
 
   useEffect(() => {
     if (quiz?.questions) {
@@ -38,9 +48,19 @@ export function QuizMode() {
   }, [quiz]);
 
   const generateMutation = useMutation({
-    mutationFn: () => resourceService.generateQuiz(fileId!),
+    mutationFn: async () => {
+        localStorage.setItem(`processing_quiz_${fileId}`, 'true');
+        setIsProcessing(true);
+        return resourceService.generateQuiz(fileId!);
+    },
     onSuccess: () => {
+      localStorage.removeItem(`processing_quiz_${fileId}`);
+      setIsProcessing(false);
       queryClient.invalidateQueries({ queryKey: ['quiz', fileId] });
+    },
+    onError: () => {
+        localStorage.removeItem(`processing_quiz_${fileId}`);
+        setIsProcessing(false);
     }
   });
 

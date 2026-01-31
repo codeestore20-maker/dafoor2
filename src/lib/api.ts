@@ -115,8 +115,16 @@ export const resourceService = {
   },
 
   getPredictions: async (resourceId: string) => {
-    const response = await api.get(`/resources/${resourceId}/predictions`);
-    return response.data;
+    try {
+      const response = await api.get(`/resources/${resourceId}/predictions`);
+      return response.data;
+    } catch (error) {
+      // Fallback: return empty array on 404 to avoid breaking the UI
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return [];
+      }
+      throw error;
+    }
   },
   generatePredictions: async (resourceId: string) => {
     const response = await api.post(`/resources/${resourceId}/generate/predictions`);

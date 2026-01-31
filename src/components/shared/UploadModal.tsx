@@ -194,10 +194,10 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
               localStorage.setItem(`processing_resource_${res.id}`, 'true');
               setStep('preparing'); 
           } else {
-             setError("لم يتم استلام معرف الملف. يرجى المحاولة مرة أخرى.");
+             setError(t('error_no_id'));
           }
       } catch (e) {
-          setError("فشل في بدء المعالجة");
+          setError(t('error_processing_start'));
       } finally {
           setIsSaving(false);
       }
@@ -226,7 +226,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
               <div className="p-4 border-b-2 border-stone-100 flex items-center justify-between bg-stone-50">
                 <h3 className="text-xl font-bold font-hand text-stone-800 flex items-center gap-2">
                   <Upload size={20} className="text-school-board flip-rtl" />
-                  {step === 'upload' ? t('upload_file') : 'إعداد الملف'}
+                  {step === 'upload' ? t('upload_file') : t('prepare_file')}
                 </h3>
                 {step !== 'preparing' && (
                   <button 
@@ -245,7 +245,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                   /* STEP 1: UPLOAD */
                   <div className="space-y-4">
                     <p className="text-stone-600 font-medium text-center mb-4">
-                       قم برفع الملف أولاً، ثم سنقوم بضبط الإعدادات.
+                       {t('upload_instruction_modal')}
                     </p>
                     
                     <div className="w-full">
@@ -276,13 +276,13 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                             }}
                             content={{
                                 button: ({ ready, isUploading, files, uploadProgress }) => {
-                                    if (isUploading) return `جاري الرفع... ${uploadProgress}%`;
-                                    if (files && files.length > 0) return "تأكيد وبدء الرفع";
-                                    if (ready) return "اختر ملفاً";
-                                    return "يرجى الانتظار...";
+                                    if (isUploading) return `${t('uploading')} ${uploadProgress}%`;
+                                    if (files && files.length > 0) return t('confirm_upload');
+                                    if (ready) return t('choose_file');
+                                    return t('please_wait');
                                 },
-                                label: "اسحب الملف هنا أو اضغط للاختيار",
-                                allowedContent: "PDF, DOCX, TXT حتى 32 ميجابايت"
+                                label: t('drag_drop_label'),
+                                allowedContent: t('allowed_content')
                             }}
                         />
                     </div>
@@ -296,7 +296,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                     {/* File Name Input */}
                     <div>
                       <label className="block text-stone-700 font-bold font-hand text-lg mb-2">
-                        اسم الملف
+                        {t('file_name')}
                       </label>
                       <div className="flex items-center gap-2 bg-stone-50 border-2 border-stone-200 rounded-xl px-3 py-2 focus-within:border-school-board focus-within:ring-2 focus-within:ring-school-board/20 transition-all">
                         <FileText size={20} className="text-stone-400" />
@@ -305,7 +305,7 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                           value={fileName}
                           onChange={(e) => setFileName(e.target.value)}
                           className="bg-transparent border-none focus:ring-0 w-full font-hand font-bold text-stone-800 placeholder-stone-400"
-                          placeholder="أدخل اسم الملف..."
+                          placeholder={t('enter_file_name')}
                         />
                       </div>
                     </div>
@@ -313,11 +313,11 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                     {/* Language Selection */}
                     <div>
                       <label className="block text-stone-700 font-bold font-hand text-lg mb-1">
-                        لغة الشرح والدراسة
+                        {t('study_language')}
                       </label>
                       <p className="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-100 p-2 rounded-lg mb-3 flex items-start gap-2">
                         <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
-                        اختر اللغة التي تريد أن يشرح لك المعلم بها (وليس لغة الملف الأصلية).
+                        {t('study_language_desc')}
                       </p>
                       
                       <div className="flex gap-2 flex-wrap">

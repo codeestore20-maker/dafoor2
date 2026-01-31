@@ -152,8 +152,8 @@ export const AIController = {
             where: { resourceId: id },
             orderBy: { probability: 'desc' }
         });
-        if (!predictions || predictions.length === 0) return res.status(404).json({ error: "Predictions not found" });
-        res.json(predictions);
+        // Return empty array instead of 404 to prevent frontend errors
+        res.json(predictions || []);
     } catch (error) {
         console.error("Get Predictions Error:", error);
         res.status(500).json({ error: "Failed to fetch predictions" });

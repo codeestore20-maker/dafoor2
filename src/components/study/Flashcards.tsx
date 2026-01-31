@@ -25,7 +25,17 @@ export function Flashcards() {
     staleTime: Infinity, // Cache forever until manual regeneration
   });
 
-  const isProcessing = localStorage.getItem(`processing_resource_${fileId}`) === 'true';
+  const [isProcessing, setIsProcessing] = useState(() => 
+    localStorage.getItem(`processing_flashcards_${fileId}`) === 'true'
+  );
+
+  // Clear processing state if we have results
+  useEffect(() => {
+    if (deck?.cards && deck.cards.length > 0 && isProcessing) {
+      localStorage.removeItem(`processing_flashcards_${fileId}`);
+      setIsProcessing(false);
+    }
+  }, [deck, isProcessing, fileId]);
 
   // Sync local cards with fetched deck
   useEffect(() => {
@@ -38,9 +48,19 @@ export function Flashcards() {
   }, [deck]);
 
   const generateMutation = useMutation({
-    mutationFn: () => resourceService.generateFlashcards(fileId!),
+    mutationFn: async () => {
+        localStorage.setItem(`processing_flashcards_${fileId}`, 'true');
+        setIsProcessing(true);
+        return resourceService.generateFlashcards(fileId!);
+    },
     onSuccess: () => {
+      localStorage.removeItem(`processing_flashcards_${fileId}`);
+      setIsProcessing(false);
       queryClient.invalidateQueries({ queryKey: ['flashcards', fileId] });
+    },
+    onError: () => {
+        localStorage.removeItem(`processing_flashcards_${fileId}`);
+        setIsProcessing(false);
     }
   });
 
