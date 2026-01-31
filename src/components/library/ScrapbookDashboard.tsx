@@ -239,7 +239,7 @@ export function ScrapbookDashboard({ subjects, onSelectSubject, onAddSubject }: 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="w-full h-full overflow-y-auto custom-scrollbar p-4 md:p-6 lg:p-8 pb-32"
+            className="w-full h-full overflow-y-auto custom-scrollbar p-4 md:p-6 lg:p-8 pb-20"
         >
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
                 

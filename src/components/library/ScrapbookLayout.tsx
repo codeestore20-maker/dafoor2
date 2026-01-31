@@ -202,7 +202,7 @@ function ScrapbookLayoutContent() {
       // 2. Tab Views
       if (activeMobileTab === 'profile') {
           return (
-              <div className="p-4 space-y-6 pb-24">
+              <div className="p-4 space-y-6 pb-20">
                   <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm text-center">
                        <div className="w-24 h-24 mx-auto bg-stone-100 rounded-full mb-4 overflow-hidden border-4 border-white shadow-sm">
                            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`} alt="User" className="w-full h-full object-cover" />
