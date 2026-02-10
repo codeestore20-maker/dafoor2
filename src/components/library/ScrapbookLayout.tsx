@@ -103,8 +103,8 @@ const MobileHeader = ({ title, showBack, onBack, user }: { title: string, showBa
                     <ChevronLeft size={24} className="rtl:rotate-180" />
                 </button>
             ) : (
-                <div className="w-8 h-8 bg-school-board text-white rounded-lg flex items-center justify-center transform -rotate-3 shadow-sm border border-stone-800">
-                    <span className="text-sm">✏️</span>
+                <div className="w-8 h-8 flex items-center justify-center">
+                    <img src="/favicon.png" alt="Dafoor Ai" className="w-full h-full object-contain drop-shadow-sm" />
                 </div>
             )}
             <h1 className="font-bold text-lg text-stone-800 font-hand truncate max-w-[200px]">{title}</h1>
@@ -322,8 +322,8 @@ function ScrapbookLayoutContent() {
                 <Menu size={18} />
             </button>
 
-            <div className="w-10 h-10 bg-school-board text-white rounded-lg flex items-center justify-center transform -rotate-3 shadow-md border-2 border-stone-800 hidden md:flex">
-               <span className="text-2xl">✏️</span>
+            <div className="w-14 h-14 flex items-center justify-center hidden md:flex">
+               <img src="/favicon.png" alt="Dafoor Ai" className="w-full h-full object-contain drop-shadow-md transform scale-125" />
             </div>
             <h1 className="font-bold tracking-tight text-stone-800 flex items-center gap-1" style={{ fontSize: 'clamp(1.25rem, 2vw, 1.5rem)' }}>
               {t('app_name')}

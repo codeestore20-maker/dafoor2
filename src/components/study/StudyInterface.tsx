@@ -17,19 +17,31 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { recentFilesService } from '../../lib/recentFiles';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 // --- Mobile Components ---
 
 const MobileStudyHeader = ({ title, onBack, onChat }: { title: string, onBack: () => void, onChat: () => void }) => (
     <div className="fixed top-0 left-0 right-0 h-14 bg-white/90 backdrop-blur-md border-b border-stone-200 z-[100] lg:hidden px-4 flex items-center justify-between shadow-sm">
-        <button onClick={onBack} className="p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-full active:bg-stone-200 transition-colors">
-            <ChevronLeft size={24} className="rtl:rotate-180" />
-        </button>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+            <button onClick={onBack} className="flex-shrink-0 p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-full active:bg-stone-200 transition-colors">
+                <ChevronLeft size={24} className="rtl:rotate-180" />
+            </button>
+            <h1 className="font-bold text-base text-stone-800 font-hand truncate">{title}</h1>
+        </div>
         
-        <h1 className="font-bold text-base text-stone-800 font-hand truncate max-w-[200px]">{title}</h1>
-        
-        <button onClick={onChat} className="p-2 -mr-2 text-school-board hover:bg-stone-100 rounded-full active:bg-stone-200 transition-colors">
-            <MessageSquare size={22} />
+        <button 
+            onClick={onChat} 
+            className="flex-shrink-0 flex items-center gap-2 pl-3 pr-2 py-1.5 -mr-2 text-school-board bg-school-board/5 hover:bg-school-board/10 border border-school-board/20 rounded-full active:bg-school-board/20 transition-all shadow-sm"
+        >
+            <span className="text-xs font-bold font-hand">المعلم AI</span>
+            <div className="relative">
+                <MessageSquare size={20} />
+                <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border border-white"></span>
+                </span>
+            </div>
         </button>
     </div>
 );
@@ -93,7 +105,6 @@ const ToolsSheet = ({ isOpen, onClose, currentView, onViewChange }: any) => {
     const studyTools = [
         { id: 'flashcards', label: t('flashcards'), icon: BrainCircuit, color: 'bg-pink-100 text-pink-600' },
         { id: 'quiz', label: t('quizzes'), icon: GraduationCap, color: 'bg-green-100 text-green-600' },
-        { id: 'review', label: t('focus_review'), icon: AlertTriangle, color: 'bg-red-100 text-red-600' },
     ];
 
     // 3. Notebooks
@@ -201,6 +212,8 @@ export function StudyInterface() {
 
   const rawFileName = resource?.name || "";
   const fileName = rawFileName ? rawFileName.replace(/\.[^/.]+$/, "") : ""; // Strip extension
+
+  usePageTitle(fileName || t('study_space'));
 
   const onBack = () => {
       if (resource?.subjectId) {

@@ -11,6 +11,13 @@ type StepType = 'intro' | 'explanation' | 'question';
 export const SmartLessonPlayer = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
+
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
+
+  usePageTitle(topic?.title || t('course_map'));
+
+  // --- SOUND EFFECTS ---
   
   const [currentStep, setCurrentStep] = useState<StepType>('intro');
   const [content, setContent] = useState<any>(null);

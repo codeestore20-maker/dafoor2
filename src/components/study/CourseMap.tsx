@@ -13,6 +13,8 @@ import {
 import ReactMarkdown from 'react-markdown';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BrandSkeleton } from '../shared/BrandSkeleton';
+import { usePageTitle } from '../../hooks/usePageTitle';
+import { useTranslation } from 'react-i18next';
 
 // --- 1. TYPES & CONFIGURATION ---
 
@@ -718,10 +720,13 @@ const TakeawayStage = ({ content, onFinish }: { content: any, onFinish: () => vo
 // --- 4. MAIN COMPONENT ---
 
 export function CourseMap() {
+    const { t } = useTranslation();
     const { fileId } = useParams();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     
+    usePageTitle(t('course_map'));
+
     // UI State
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [activeTopicId, setActiveTopicId] = useState<string | null>(() => {
@@ -1120,7 +1125,7 @@ export function CourseMap() {
                         return (
                             <button 
                                 key={topic.id}
-                                onClick={() => { setActiveTopicId(topic.id); setCurrentStepIndex(0); if(window.innerWidth < 1024) toggleMap(false); }}
+                                onClick={() => { setActiveTopicId(topic.id); setCurrentStepIndex(0); toggleMap(false); }}
                                 className={`w-full text-right p-3 rounded-xl border-2 transition-all relative overflow-hidden group ${
                                     isActive 
                                     ? 'bg-white border-school-board shadow-sm' 

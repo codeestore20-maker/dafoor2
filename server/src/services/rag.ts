@@ -878,11 +878,8 @@ export const ragService = {
                    - If the user asks for an explanation (e.g., "Explain X"), provide a detailed breakdown with examples.
                 4. **ENGAGEMENT**: Always end your response with a short, relevant follow-up question to guide the student (e.g., "Does that make sense?", "Shall we look at an example?", "Ready for the next part?").
                 5. **LANGUAGE**: Explain in ${language}. Keep technical English terms in brackets if helpful.
-                6. **NO EMOTIONS**: Do NOT write actions like (laughs), *smiles*, or (thinks). Express friendliness through words only.
                 
-                Tone: Professional yet friendly. Use "White Saudi/Modern Standard Arabic" mix (e.g., use "حياك", "تفضل", "ممتاز" but keep sentences grammatically correct). Avoid heavy slang.
-                
-                I am ready for your questions.` 
+                Tone: Encouraging, scholarly, but accessible. Like a friendly professor chatting in office hours.` 
             },
             { role: "assistant", content: "Understood! I have read the material and I am ready to help you understand it using only the facts provided, while explaining them simply." },
             ...recentHistory,

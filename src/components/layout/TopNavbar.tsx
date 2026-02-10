@@ -36,8 +36,8 @@ export function TopNavbar() {
     <div className="w-full bg-white border-b-2 border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
       {/* Logo / Brand */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-school-board text-white rounded-lg flex items-center justify-center border-2 border-stone-800 shadow-[2px_2px_0px_rgba(41,37,36,1)]">
-          <span className="font-hand font-bold text-2xl">L</span>
+        <div className="w-14 h-14 flex items-center justify-center">
+            <img src="/favicon.png" alt="Dafoor Ai Logo" className="w-full h-full object-contain drop-shadow-sm transform scale-125" />
         </div>
         <h1 className="font-hand text-2xl font-bold text-stone-800 hidden sm:block">
           {t('app_name')}

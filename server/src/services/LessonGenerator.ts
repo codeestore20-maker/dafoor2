@@ -355,7 +355,7 @@ export const LessonGenerator = {
         `,
         question: `
           Create a set of multiple-choice questions to test understanding of "${topic.title}".
-          Language: Saudi Najdi Dialect (لهجة سعودية نجدية).
+          Language: Standard Arabic (Natural, Clear, Academic but not archaic).
           Difficulty Level: ${topic.difficulty || "Medium"}
           
           ${questionPromptExtra}
@@ -367,7 +367,7 @@ export const LessonGenerator = {
                 "options": ["A", "B", "C", "D"], 
                 "correctIndex": 0, 
                 "explanation": "Scientific explanation of why this is correct (Fact only, no congrats).",
-                "successMessage": "Encouraging phrase like 'كفو!' or 'صح عليك!'"
+                "successMessage": "Encouraging phrase like 'أحسنت!' or 'إجابة موفقة!'"
               }
             ]
           }

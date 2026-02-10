@@ -27,34 +27,13 @@ interface ChatSession {
 
 // Custom Owl Mascot Component
 const WiseOwl = ({ isThinking }: { isThinking: boolean }) => (
-  <svg width="60" height="60" viewBox="0 0 100 100" className="drop-shadow-md">
-    <circle cx="50" cy="50" r="45" fill="#fdfbf7" stroke="#292524" strokeWidth="3" />
-    {/* Ears */}
-    <path d="M25 25 L15 10 L35 20 Z" fill="#292524" />
-    <path d="M75 25 L85 10 L65 20 Z" fill="#292524" />
-    {/* Body/Face */}
-    <path d="M20 50 Q20 20 50 20 Q80 20 80 50 Q80 85 50 85 Q20 85 20 50" fill="#e7e5e4" stroke="#292524" strokeWidth="2" />
-    {/* Eyes */}
-    <g className={isThinking ? "animate-pulse" : ""}>
-      <circle cx="35" cy="45" r="12" fill="white" stroke="#292524" strokeWidth="2" />
-      <circle cx="65" cy="45" r="12" fill="white" stroke="#292524" strokeWidth="2" />
-      <circle cx="35" cy="45" r="4" fill="#292524">
-        {isThinking && <animate attributeName="cy" values="45;42;45" dur="1s" repeatCount="indefinite" />}
-      </circle>
-      <circle cx="65" cy="45" r="4" fill="#292524">
-        {isThinking && <animate attributeName="cy" values="45;42;45" dur="1s" repeatCount="indefinite" />}
-      </circle>
-    </g>
-    {/* Glasses */}
-    <path d="M23 45 A12 12 0 0 1 47 45" fill="none" stroke="#d97706" strokeWidth="2" />
-    <path d="M53 45 A12 12 0 0 1 77 45" fill="none" stroke="#d97706" strokeWidth="2" />
-    <line x1="47" y1="45" x2="53" y2="45" stroke="#d97706" strokeWidth="2" />
-    {/* Beak */}
-    <path d="M50 55 L45 60 L55 60 Z" fill="#d97706" />
-    {/* Graduation Cap (Mini) */}
-    <path d="M30 15 L50 5 L70 15 L50 25 Z" fill="#292524" />
-    <path d="M70 15 L70 25" stroke="#f59e0b" strokeWidth="2" />
-  </svg>
+  <div className="relative w-[60px] h-[60px]">
+    <img 
+      src="/favicon.png" 
+      alt="Dafoor Mascot" 
+      className={`w-full h-full object-contain drop-shadow-md transition-transform duration-300 ${isThinking ? 'scale-110 animate-pulse' : 'scale-100'}`} 
+    />
+  </div>
 );
 
 export function AITeacher({

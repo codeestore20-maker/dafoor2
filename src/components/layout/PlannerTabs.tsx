@@ -36,8 +36,8 @@ export function PlannerTabs({
 
       {/* Header / Logo */}
       <div className="p-6 pb-4 relative z-10 flex items-center gap-3">
-        <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border-2 border-white/20">
-           <span className="text-2xl">🎓</span>
+        <div className="w-14 h-14 flex items-center justify-center">
+           <img src="/favicon.png" alt="Dafoor Ai" className="w-full h-full object-contain drop-shadow-sm brightness-0 invert transform scale-125" />
         </div>
         <div>
           <h1 className="font-hand text-2xl font-bold text-white leading-none tracking-wide text-shadow-sm">

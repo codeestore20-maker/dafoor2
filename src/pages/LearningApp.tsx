@@ -50,7 +50,7 @@ export function LearningApp() {
            {isStudyMode && (
              <button
                onClick={() => setFocusMode(!focusMode)}
-               className={`absolute top-4 right-4 rtl:right-auto rtl:left-4 z-40 p-2 text-white rounded-full shadow-lg transition-all border-2 border-stone-800 hidden md:block ${focusMode ? 'bg-red-500 hover:bg-red-600' : 'bg-school-board hover:bg-school-board/90'}`}
+               className={`absolute top-4 right-4 rtl:right-auto rtl:left-4 z-40 p-2 text-white rounded-full shadow-lg transition-all border-2 border-stone-800 hidden lg:block ${focusMode ? 'bg-red-500 hover:bg-red-600' : 'bg-school-board hover:bg-school-board/90'}`}
                title={focusMode ? 'Exit Focus Mode' : 'Enter Focus Mode'}
              >
                {focusMode ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -90,8 +90,8 @@ export function LearningApp() {
                   ltr:border-l-2 ltr:rounded-l-lg
                   rtl:border-r-2 rtl:rounded-r-lg
                   hover:bg-school-board/90 transition-all duration-300
-                  hidden xl:flex 
-                  ${isChatOpen ? 'right-80 rtl:right-auto rtl:left-80' : 'right-0 rtl:right-auto rtl:left-0'}
+                  hidden lg:flex 
+                  ${isChatOpen ? 'right-72 xl:right-80 rtl:right-auto rtl:left-72 rtl:xl:left-80' : 'right-0 rtl:right-auto rtl:left-0'}
                 `}
                 title={isChatOpen ? 'Close Chat' : 'Open Chat'}
               >
@@ -102,7 +102,7 @@ export function LearningApp() {
             {/* Desktop Chat Sidebar */}
             <div
             className={`
-                hidden xl:block h-full relative z-10 shadow-xl bg-white transition-all duration-300
+                hidden lg:block h-full relative z-10 shadow-xl bg-white transition-all duration-300
                 ltr:border-l-2 ltr:border-stone-200
                 rtl:border-r-2 rtl:border-stone-200
                 ${(focusMode || !isChatOpen) ? 'w-0 overflow-hidden opacity-0' : 'w-80 opacity-100'}
@@ -139,28 +139,25 @@ export function LearningApp() {
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                     className="fixed inset-x-0 bottom-0 h-[85vh] bg-white z-50 lg:hidden rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden border-t-4 border-school-board"
                   >
-                    {/* Handle Bar */}
-                    <div className="w-full flex justify-center pt-3 pb-1" onClick={() => setIsMobileChatOpen(false)}>
-                       <div className="w-16 h-1.5 bg-stone-300 rounded-full"></div>
-                    </div>
-                    
-                    {/* Header - REMOVED to avoid double headers, AITeacher has its own */}
-                    {/* <div className="px-6 py-2 flex items-center justify-between border-b border-stone-100">
-                       <h3 className="font-hand font-bold text-xl text-stone-800">AI Teacher</h3>
-                       <button onClick={() => setIsMobileChatOpen(false)} className="p-2 text-stone-400 hover:text-red-500">
-                         <X size={24} />
+                    {/* Smart Drawer Header */}
+                    <div className="relative w-full flex items-center justify-center py-3 border-b border-stone-100/50">
+                       {/* Drag Handle */}
+                       <div 
+                         className="w-16 h-1.5 bg-stone-300 rounded-full cursor-pointer hover:bg-stone-400 transition-colors"
+                         onClick={() => setIsMobileChatOpen(false)}
+                       ></div>
+
+                       {/* Smart Close Button - Positioned away from content */}
+                       <button 
+                          onClick={() => setIsMobileChatOpen(false)} 
+                          className="absolute right-4 rtl:left-4 top-1/2 -translate-y-1/2 p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                       >
+                          <X size={20} />
                        </button>
-                    </div> */}
+                    </div>
 
                     <div className="flex-1 overflow-hidden relative">
-                         {/* Close button overlay for mobile */}
-                         <button 
-                            onClick={() => setIsMobileChatOpen(false)} 
-                            className="absolute top-4 left-4 z-50 p-2 bg-white/50 backdrop-blur rounded-full text-stone-500 shadow-sm md:hidden"
-                         >
-                            <X size={20} />
-                         </button>
-                      <AITeacher currentView={currentView} />
+                       <AITeacher currentView={currentView} />
                     </div>
                   </motion.div>
                 </>

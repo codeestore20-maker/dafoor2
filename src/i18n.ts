@@ -7,7 +7,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
-      "app_name": "Studdy",
+      "app_name": "Dafoor Ai",
       "your_subjects": "Your Subjects",
       "add_subject": "Add Subject",
       "student_name": "Student Name", // Placeholder
@@ -262,7 +262,7 @@ const resources = {
   },
   ar: {
     translation: {
-      "app_name": "رفيق الدراسة",
+      "app_name": "دافور Ai",
       "add": "إضافة",
       "your_subjects": "مواضيعك",
       "last_viewed": "آخر مراجعة",
@@ -331,11 +331,6 @@ const resources = {
       "ai_learning": "مذاكرة ذكية",
       "course_map": "مسار التعلم",
       "course_map_desc": "رحلتك لإتقان هذا الملف خطوة بخطوة",
-      "step_hook": "الخُطّاف",
-      "step_analogy": "بالمختصر",
-      "step_core": "الزبدة",
-      "step_quiz": "تحدي سريع",
-      "high_impact": "مهم جداً",
       "preparing_magic": "جاري تحضير السحر...",
       "exit_lesson": "خروج من الدرس",
       "building_map": "جاري بناء مسار التعلم...",
@@ -397,11 +392,11 @@ const resources = {
       "close": "سكر",
 
       // AI Teacher
-      "prof_owl": "اسأل البومة",
+      "prof_owl": "اسأل الدافور",
       "academic_guide": "خويك للدراسة",
-      "welcome_message": "هلا والله! أنا البروفيسور بومة. موجود عشان أسهل عليك المذاكرة. وش ودك نمسك اليوم؟",
+      "welcome_message": "هلا والله! أنا الدافور. موجود عشان أسهل عليك المذاكرة. وش ودك نمسك اليوم؟",
       "past_sessions": "سوالفنا قبل",
-      "ask_prof_placeholder": "اسأل البروفيسور...",
+      "ask_prof_placeholder": "اسأل الدافور...",
       "ai_connection_error": "معليش، الاتصال يقطع شوي. جرب مرة ثانية.",
       "approved": "تم الاعتماد",
       "new_chat": "سالفة جديدة",

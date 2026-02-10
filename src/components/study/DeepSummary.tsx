@@ -253,13 +253,18 @@ export function DeepSummary() {
           <NotebookPaper title={hasChapters ? summary.chapters[activeChapterIndex].title : t('deep_summary')} className="max-w-4xl mx-auto">
             <article className="text-stone-800 leading-relaxed prose prose-stone max-w-none">
               {/* Header Metadata */}
-              <div className="mb-8 not-prose border-b-2 border-dashed border-stone-300 pb-4">
+              <div className="mb-8 not-prose border-b-2 border-dashed border-stone-300 pb-4 flex flex-col md:flex-row md:items-center justify-between">
                  <div className="flex items-center gap-2 text-sm text-stone-500 italic">
                   <span>{t('ai_generated')}</span>
                   <span>•</span>
                   <span>{t('min_read', { count: Math.ceil((activeContent.length || 0) / 1000) })}</span>
                   <span>•</span>
                   <span>{new Date(summary.createdAt).toLocaleDateString()}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-stone-400 text-xs font-hand mt-4 md:mt-0">
+                  <Sparkles size={12} />
+                  <span>تم إنشاء هذا الملخص بواسطة دافور Ai</span>
                 </div>
               </div>
 

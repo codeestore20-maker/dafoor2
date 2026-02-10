@@ -5,6 +5,7 @@ import { authService } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { LogIn, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../components/auth/AuthLayout';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  usePageTitle(t('login_btn'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
