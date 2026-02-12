@@ -5,6 +5,10 @@ import { LessonGenerator } from '../services/LessonGenerator';
 import { fixEncoding } from '../utils/encoding';
 import path from 'path';
 
+import { UTApi } from "uploadthing/server";
+
+const utapi = new UTApi();
+
 function formatBytes(bytes: number, decimals = 2) {
     if (!+bytes) return '0 Bytes';
     const k = 1024;
@@ -103,6 +107,14 @@ export const ResourcesController = {
     try {
         if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
 
+        // Check limits
+        const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        if (user.role !== 'ADMIN' && user.filesCount >= user.fileLimit) {
+             return res.status(403).json({ error: "File limit reached. Upgrade or delete files." });
+        }
+
         const { subjectId, language, name, url, key, size, type } = req.body;
         
         if (!subjectId) {
@@ -134,6 +146,12 @@ export const ResourcesController = {
             }
         });
 
+        // Update user file count
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { filesCount: { increment: 1 } }
+        });
+
         // 2. Trigger RAG Processing (Async)
         // Since the file is on URL now, we pass the URL to processFile
         // Note: processFile needs to be updated to handle URLs download
@@ -152,6 +170,59 @@ export const ResourcesController = {
     } catch (error) {
         console.error("Upload Error:", error);
         res.status(500).json({ error: "Upload failed" });
+    }
+  },
+
+  delete: async (req: Request, res: Response) => {
+    try {
+        if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+        const { id } = req.params;
+
+        const resource = await prisma.resource.findUnique({
+            where: { id },
+            include: { subject: true }
+        });
+
+        if (!resource) return res.status(404).json({ error: "Resource not found" });
+
+        // Check ownership or admin
+        // Note: req.user.role might need to be casted or checked if it exists on type
+        // Assuming authMiddleware adds it.
+        const userRole = (req.user as any).role;
+
+        if (resource.subject.userId !== req.user.id && userRole !== 'ADMIN') {
+             return res.status(403).json({ error: "Forbidden" });
+        }
+
+        // Try to delete from UploadThing
+        try {
+            // Extract key from URL if possible, or use a stored key field if we had one.
+            // URL format: https://utfs.io/f/KEY
+            const fileKey = resource.url.split('/').pop();
+            if (fileKey) {
+                console.log(`Deleting file from UploadThing: ${fileKey}`);
+                await utapi.deleteFiles(fileKey);
+            }
+        } catch (utError) {
+            console.error("Failed to delete file from UploadThing:", utError);
+            // Continue to delete from DB anyway to avoid zombie records
+        }
+
+        await prisma.resource.delete({ where: { id } });
+
+        // Decrement count for the resource owner
+        const owner = await prisma.user.findUnique({ where: { id: resource.subject.userId } });
+        if (owner && owner.filesCount > 0) {
+            await prisma.user.update({
+                where: { id: resource.subject.userId },
+                data: { filesCount: { decrement: 1 } }
+            });
+        }
+
+        res.json({ message: "Resource deleted" });
+    } catch (error) {
+        console.error("Delete Resource Error:", error);
+        res.status(500).json({ error: "Failed to delete resource" });
     }
   }
 };

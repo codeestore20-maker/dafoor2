@@ -12,6 +12,7 @@ router.use(authMiddleware);
 router.get('/', ResourcesController.getAll);
 router.get('/:id', ResourcesController.getOne);
 router.post('/upload', ResourcesController.upload);
+router.delete('/:id', ResourcesController.delete);
 
 // AI Features
 

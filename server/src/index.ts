@@ -5,6 +5,7 @@ import subjectsRouter from './routes/subjects.routes';
 import resourcesRouter from './routes/resources.routes';
 import authRouter from './routes/auth.routes';
 import lessonsRouter from './routes/lessons.routes';
+import adminRouter from './routes/admin.routes';
 
 import { createRouteHandler } from "uploadthing/express";
 import { uploadRouter } from "./utils/uploadthing";
@@ -48,7 +49,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/subjects', subjectsRouter);
 app.use('/api/resources', resourcesRouter);
 app.use('/api/lessons', lessonsRouter);
+app.use('/api/admin', adminRouter);
 
+// Force Restart 3
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

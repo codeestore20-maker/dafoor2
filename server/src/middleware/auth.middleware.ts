@@ -9,6 +9,7 @@ declare global {
       user?: {
         id: string;
         email: string;
+        role?: string;
       };
     }
   }
@@ -37,10 +38,18 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     const decoded = jwt.verify(token, authConfig.jwtSecret) as any;
     req.user = {
       id: decoded.id,
-      email: decoded.email
+      email: decoded.email,
+      role: decoded.role
     };
     return next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
+};
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access denied. Admins only.' });
+    }
+    next();
 };

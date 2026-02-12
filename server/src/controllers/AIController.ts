@@ -300,6 +300,15 @@ export const AIController = {
   // Chat
   chat: async (req: Request, res: Response) => {
     try {
+        if (!req.user) return res.status(401).json({ error: 'Unauthorized' });
+
+        const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        if (user.role !== 'ADMIN' && user.messagesCount >= user.messageLimit) {
+            return res.status(403).json({ error: "Message limit reached. Upgrade plan." });
+        }
+
         const { query, history } = req.body;
         // Get resourceId from params OR body
         const resourceId = req.params.id || req.body.resourceId;
@@ -313,6 +322,12 @@ export const AIController = {
             return res.status(400).json({ error: "Query message is required" });
         }
         
+        // Increment message count
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { messagesCount: { increment: 1 } }
+        });
+
         // Set headers for SSE (Server-Sent Events)
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');

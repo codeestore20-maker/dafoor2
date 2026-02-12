@@ -96,14 +96,14 @@ const MobileTabBar = ({ activeTab, onTabChange }: { activeTab: string, onTabChan
 };
 
 const MobileHeader = ({ title, showBack, onBack, user }: { title: string, showBack?: boolean, onBack?: () => void, user?: any }) => (
-    <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-stone-200 z-[100] md:hidden h-14 px-4 flex items-center justify-between shadow-sm">
+    <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md border-b border-stone-200 z-[100] md:hidden h-[70px] px-4 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
             {showBack ? (
                 <button onClick={onBack} className="p-2 -ml-2 text-stone-600 hover:bg-stone-100 rounded-full active:bg-stone-200 transition-colors">
                     <ChevronLeft size={24} className="rtl:rotate-180" />
                 </button>
             ) : (
-                <div className="w-8 h-8 flex items-center justify-center">
+                <div className="w-[60px] h-[60px] min-w-[60px] min-h-[60px] flex items-center justify-center">
                     <img src="/favicon.png" alt="Dafoor Ai" className="w-full h-full object-contain drop-shadow-sm" />
                 </div>
             )}

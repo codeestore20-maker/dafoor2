@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bell, Search, User, Settings, LogOut, Languages, HelpCircle, ChevronDown } from 'lucide-react';
+import { Bell, Search, User, Settings, LogOut, Languages, HelpCircle, ChevronDown, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 export function TopNavbar() {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isRtl = i18n.language === 'ar';
@@ -33,11 +35,11 @@ export function TopNavbar() {
   }, []);
 
   return (
-    <div className="w-full bg-white border-b-2 border-stone-200 px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+    <div className="w-full bg-white border-b-2 border-stone-200 px-4 sm:px-6 py-1 sm:py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
       {/* Logo / Brand */}
       <div className="flex items-center gap-3">
-        <div className="w-14 h-14 flex items-center justify-center">
-            <img src="/favicon.png" alt="Dafoor Ai Logo" className="w-full h-full object-contain drop-shadow-sm transform scale-125" />
+        <div className="w-[90px] h-[90px] min-w-[90px] min-h-[90px] sm:w-14 sm:h-14 sm:min-w-[3.5rem] sm:min-h-[3.5rem] flex items-center justify-center">
+            <img src="/favicon.png" alt="Dafoor Ai Logo" className="w-full h-full object-contain drop-shadow-sm" />
         </div>
         <h1 className="font-hand text-2xl font-bold text-stone-800 hidden sm:block">
           {t('app_name')}
@@ -108,6 +110,18 @@ export function TopNavbar() {
                       <Settings size={16} className="text-stone-400" />
                       {t('settings')}
                    </button>
+                   {user?.role === 'ADMIN' && (
+                     <button 
+                        onClick={() => {
+                            navigate('/admin');
+                            setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left rtl:text-right px-3 py-2 rounded-lg hover:bg-stone-50 text-stone-700 font-medium text-sm flex items-center gap-3 transition-colors"
+                     >
+                        <ShieldCheck size={16} className="text-stone-400" />
+                        لوحة التحكم
+                     </button>
+                   )}
                    <button 
                       onClick={toggleLanguage}
                       className="w-full text-left rtl:text-right px-3 py-2 rounded-lg hover:bg-stone-50 text-stone-700 font-medium text-sm flex items-center gap-3 transition-colors"

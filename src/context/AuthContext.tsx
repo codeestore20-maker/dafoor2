@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  role?: 'USER' | 'ADMIN';
 }
 
 interface AuthContextType {
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Let's assume the interceptor will pick up the token from localStorage or state
            api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
            const response = await api.get('/auth/me');
+           console.log("Auth Init User Data:", response.data); // Debug log
            setUser(response.data);
            setToken(storedToken);
         } catch (error) {
