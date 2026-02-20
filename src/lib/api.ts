@@ -18,13 +18,33 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export const ticketService = {
+  create: async (data: { message: string, subject?: string }) => {
+    const response = await api.post('/tickets', data);
+    return response.data;
+  },
+  getAll: async () => {
+    const response = await api.get('/tickets');
+    return response.data;
+  },
+  updateStatus: async (id: string, status: string) => {
+    const response = await api.patch(`/tickets/${id}/status`, { status });
+    return response.data;
+  }
+};
+
 export const authService = {
+
   login: async (data: any) => {
     const response = await api.post('/auth/login', data);
     return response.data;
   },
   register: async (data: any) => {
     const response = await api.post('/auth/register', data);
+    return response.data;
+  },
+  googleLogin: async (accessToken: string) => {
+    const response = await api.post('/auth/google', { accessToken });
     return response.data;
   },
   me: async () => {

@@ -11,7 +11,8 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
-  password  String   // Hashed password
+  password  String?   // Hashed password (optional for Google Auth)
+  googleId  String?   @unique // Google ID
   name      String?
   role      Role     @default(USER)
   
@@ -28,6 +29,18 @@ model User {
   chatSessions  ChatSession[]
   quizAttempts  QuizAttempt[]
   notebooks     Notebook[]
+  tickets       Ticket[]
+}
+
+model Ticket {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String?  // Optional: Ticket title
+  message   String   @db.Text
+  status    String   @default("OPEN") // OPEN, CLOSED, IN_PROGRESS
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum Role {

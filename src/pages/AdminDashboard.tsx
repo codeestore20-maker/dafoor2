@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Edit, Save, X, FileText, Users, AlertTriangle, Search, ChevronDown, Folder, File, ArrowRight, ShieldCheck, Activity, CreditCard, BarChart2, Bell, Settings } from 'lucide-react';
+import { Trash2, Edit, Save, X, FileText, Users, AlertTriangle, Search, ChevronDown, Folder, File, ArrowRight, ShieldCheck, Activity, CreditCard, BarChart2, Bell, Settings, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AdminTickets } from '../components/admin/AdminTickets';
 
 interface User {
     id: string;
@@ -35,6 +36,7 @@ export const AdminDashboard = () => {
     const navigate = useNavigate();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'users' | 'tickets'>('users');
     const [editingUser, setEditingUser] = useState<string | null>(null);
     const [editLimits, setEditLimits] = useState({ fileLimit: 10, messageLimit: 50 });
     
@@ -154,10 +156,19 @@ export const AdminDashboard = () => {
                     <div className="text-xs font-bold text-stone-400 px-3 mb-2 font-sans">القائمة الرئيسية</div>
                     
                     <button 
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${true ? 'bg-amber-50 text-amber-700 font-bold' : 'text-stone-500 hover:bg-stone-50'}`}
+                        onClick={() => setActiveTab('users')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'users' ? 'bg-amber-50 text-amber-700 font-bold shadow-sm' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}
                     >
                         <Users size={20} />
                         المستخدمين
+                    </button>
+
+                    <button 
+                        onClick={() => setActiveTab('tickets')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'tickets' ? 'bg-amber-50 text-amber-700 font-bold shadow-sm' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700'}`}
+                    >
+                        <MessageSquare size={20} />
+                        تذاكر الدعم
                     </button>
                     
                     <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-stone-500 hover:bg-stone-50 transition-all opacity-50 cursor-not-allowed" title="قريباً">
@@ -201,139 +212,147 @@ export const AdminDashboard = () => {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Top Header */}
-                <header className="bg-white border-b border-stone-200 px-8 py-4 flex justify-between items-center shadow-sm z-10">
-                    <h2 className="text-2xl font-bold text-stone-800">المستخدمين المسجلين</h2>
-                    <div className="flex items-center gap-4">
-                        <div className="bg-stone-100 px-4 py-2 rounded-lg flex items-center gap-2 text-stone-500 border border-stone-200">
-                            <Search size={18} />
-                            <input 
-                                type="text" 
-                                placeholder="بحث عن مستخدم..." 
-                                className="bg-transparent border-none outline-none text-sm font-sans w-64"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span className="text-sm font-bold text-amber-800">{users.length} مستخدم نشط</span>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Content Scrollable Area */}
-                <main className="flex-1 overflow-y-auto p-8">
-                    <div className="max-w-6xl mx-auto">
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center h-96 text-stone-400">
-                                <div className="w-12 h-12 border-4 border-stone-200 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-                                <p>جاري تحميل البيانات...</p>
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-right">
-                                        <thead className="bg-stone-50 text-stone-600 font-bold text-sm border-b border-stone-100">
-                                            <tr>
-                                                <th className="p-5 w-1/3">المستخدم</th>
-                                                <th className="p-5">تاريخ التسجيل</th>
-                                                <th className="p-5 text-center">الملفات</th>
-                                                <th className="p-5 text-center">الرسائل</th>
-                                                <th className="p-5 text-left">إجراءات</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-stone-100">
-                                            {users.map(u => (
-                                                <tr 
-                                                    key={u.id} 
-                                                    onClick={() => handleUserClick(u)}
-                                                    className={`cursor-pointer transition-colors group ${selectedUser?.id === u.id ? 'bg-amber-50' : 'hover:bg-stone-50'}`}
-                                                >
-                                                    <td className="p-5">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${u.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-stone-100 text-stone-500'}`}>
-                                                                {u.name.charAt(0).toUpperCase()}
-                                                            </div>
-                                                            <div>
-                                                                <div className="font-bold text-stone-800 flex items-center gap-2">
-                                                                    {u.name}
-                                                                    {u.role === 'ADMIN' && <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded-full font-sans shadow-sm">ADMIN</span>}
-                                                                </div>
-                                                                <div className="text-sm text-stone-400 font-sans">{u.email}</div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5 text-stone-500 text-sm font-sans">
-                                                        {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                                    </td>
-                                                    <td className="p-5">
-                                                        {editingUser === u.id ? (
-                                                            <div className="flex justify-center" onClick={e => e.stopPropagation()}>
-                                                                <input 
-                                                                    type="number" 
-                                                                    value={editLimits.fileLimit}
-                                                                    onChange={e => setEditLimits({...editLimits, fileLimit: Number(e.target.value)})}
-                                                                    className="w-20 border-2 border-amber-300 rounded-lg px-2 py-1 text-center font-sans focus:outline-none shadow-sm"
-                                                                    autoFocus
-                                                                />
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex flex-col items-center">
-                                                                <span className="font-bold text-stone-700 font-sans text-sm mb-1">{u.filesCount} <span className="text-stone-300">/</span> {u.fileLimit}</span>
-                                                                <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
-                                                                    <div 
-                                                                        className={`h-full rounded-full transition-all duration-500 ${u.filesCount >= u.fileLimit ? 'bg-red-400' : 'bg-green-400'}`} 
-                                                                        style={{ width: `${Math.min((u.filesCount / u.fileLimit) * 100, 100)}%` }}
-                                                                    ></div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-5">
-                                                        {editingUser === u.id ? (
-                                                            <div className="flex justify-center" onClick={e => e.stopPropagation()}>
-                                                                <input 
-                                                                    type="number" 
-                                                                    value={editLimits.messageLimit}
-                                                                    onChange={e => setEditLimits({...editLimits, messageLimit: Number(e.target.value)})}
-                                                                    className="w-24 border-2 border-amber-300 rounded-lg px-2 py-1 text-center font-sans focus:outline-none shadow-sm"
-                                                                />
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex flex-col items-center">
-                                                                <span className="font-bold text-stone-700 font-sans text-sm mb-1">{u.messagesCount} <span className="text-stone-300">/</span> {u.messageLimit}</span>
-                                                                <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
-                                                                    <div 
-                                                                        className={`h-full rounded-full transition-all duration-500 ${u.messagesCount >= u.messageLimit ? 'bg-red-400' : 'bg-blue-400'}`} 
-                                                                        style={{ width: `${Math.min((u.messagesCount / u.messageLimit) * 100, 100)}%` }}
-                                                                    ></div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            {editingUser === u.id ? (
-                                                                <>
-                                                                    <button onClick={(e) => saveUserLimits(u.id, e)} className="text-white bg-green-500 hover:bg-green-600 p-2 rounded-lg transition shadow-sm"><Save size={16} /></button>
-                                                                    <button onClick={(e) => { e.stopPropagation(); setEditingUser(null); }} className="text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 p-2 rounded-lg transition shadow-sm"><X size={16} /></button>
-                                                                </>
-                                                            ) : (
-                                                                <button onClick={(e) => startEditUser(u, e)} className="text-stone-500 bg-white border border-stone-200 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 p-2 rounded-lg transition shadow-sm" title="تعديل الحدود"><Edit size={16} /></button>
-                                                            )}
-                                                            {u.role !== 'ADMIN' && (
-                                                                <button onClick={(e) => handleDeleteUser(u.id, e)} className="text-stone-500 bg-white border border-stone-200 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-2 rounded-lg transition shadow-sm" title="حذف المستخدم"><Trash2 size={16} /></button>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                {activeTab === 'users' ? (
+                    <>
+                        {/* Top Header */}
+                        <header className="bg-white border-b border-stone-200 px-8 py-4 flex justify-between items-center shadow-sm z-10">
+                            <h2 className="text-2xl font-bold text-stone-800">المستخدمين المسجلين</h2>
+                            <div className="flex items-center gap-4">
+                                <div className="bg-stone-100 px-4 py-2 rounded-lg flex items-center gap-2 text-stone-500 border border-stone-200">
+                                    <Search size={18} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="بحث عن مستخدم..." 
+                                        className="bg-transparent border-none outline-none text-sm font-sans w-64"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span className="text-sm font-bold text-amber-800">{users.length} مستخدم نشط</span>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                </main>
+                        </header>
+
+                        {/* Content Scrollable Area */}
+                        <main className="flex-1 overflow-y-auto p-8">
+                            <div className="max-w-6xl mx-auto">
+                                {loading ? (
+                                    <div className="flex flex-col items-center justify-center h-96 text-stone-400">
+                                        <div className="w-12 h-12 border-4 border-stone-200 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+                                        <p>جاري تحميل البيانات...</p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white rounded-3xl shadow-sm border border-stone-200 overflow-hidden">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-right">
+                                                <thead className="bg-stone-50 text-stone-600 font-bold text-sm border-b border-stone-100">
+                                                    <tr>
+                                                        <th className="p-5 w-1/3">المستخدم</th>
+                                                        <th className="p-5">تاريخ التسجيل</th>
+                                                        <th className="p-5 text-center">الملفات</th>
+                                                        <th className="p-5 text-center">الرسائل</th>
+                                                        <th className="p-5 text-left">إجراءات</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-stone-100">
+                                                    {users.map(u => (
+                                                        <tr 
+                                                            key={u.id} 
+                                                            onClick={() => handleUserClick(u)}
+                                                            className={`cursor-pointer transition-colors group ${selectedUser?.id === u.id ? 'bg-amber-50' : 'hover:bg-stone-50'}`}
+                                                        >
+                                                            <td className="p-5">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg ${u.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-stone-100 text-stone-500'}`}>
+                                                                        {u.name.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="font-bold text-stone-800 flex items-center gap-2">
+                                                                            {u.name}
+                                                                            {u.role === 'ADMIN' && <span className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded-full font-sans shadow-sm">ADMIN</span>}
+                                                                        </div>
+                                                                        <div className="text-sm text-stone-400 font-sans">{u.email}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="p-5 text-stone-500 text-sm font-sans">
+                                                                {new Date(u.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                            </td>
+                                                            <td className="p-5">
+                                                                {editingUser === u.id ? (
+                                                                    <div className="flex justify-center" onClick={e => e.stopPropagation()}>
+                                                                        <input 
+                                                                            type="number" 
+                                                                            value={editLimits.fileLimit}
+                                                                            onChange={e => setEditLimits({...editLimits, fileLimit: Number(e.target.value)})}
+                                                                            className="w-20 border-2 border-amber-300 rounded-lg px-2 py-1 text-center font-sans focus:outline-none shadow-sm"
+                                                                            autoFocus
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center">
+                                                                        <span className="font-bold text-stone-700 font-sans text-sm mb-1">{u.filesCount} <span className="text-stone-300">/</span> {u.fileLimit}</span>
+                                                                        <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
+                                                                            <div 
+                                                                                className={`h-full rounded-full transition-all duration-500 ${u.filesCount >= u.fileLimit ? 'bg-red-400' : 'bg-green-400'}`} 
+                                                                                style={{ width: `${Math.min((u.filesCount / u.fileLimit) * 100, 100)}%` }}
+                                                                            ></div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </td>
+                                                            <td className="p-5">
+                                                                {editingUser === u.id ? (
+                                                                    <div className="flex justify-center" onClick={e => e.stopPropagation()}>
+                                                                        <input 
+                                                                            type="number" 
+                                                                            value={editLimits.messageLimit}
+                                                                            onChange={e => setEditLimits({...editLimits, messageLimit: Number(e.target.value)})}
+                                                                            className="w-24 border-2 border-amber-300 rounded-lg px-2 py-1 text-center font-sans focus:outline-none shadow-sm"
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex flex-col items-center">
+                                                                        <span className="font-bold text-stone-700 font-sans text-sm mb-1">{u.messagesCount} <span className="text-stone-300">/</span> {u.messageLimit}</span>
+                                                                        <div className="w-24 h-2 bg-stone-100 rounded-full overflow-hidden">
+                                                                            <div 
+                                                                                className={`h-full rounded-full transition-all duration-500 ${u.messagesCount >= u.messageLimit ? 'bg-red-400' : 'bg-blue-400'}`} 
+                                                                                style={{ width: `${Math.min((u.messagesCount / u.messageLimit) * 100, 100)}%` }}
+                                                                            ></div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </td>
+                                                            <td className="p-5">
+                                                                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    {editingUser === u.id ? (
+                                                                        <>
+                                                                            <button onClick={(e) => saveUserLimits(u.id, e)} className="text-white bg-green-500 hover:bg-green-600 p-2 rounded-lg transition shadow-sm"><Save size={16} /></button>
+                                                                            <button onClick={(e) => { e.stopPropagation(); setEditingUser(null); }} className="text-stone-500 bg-white border border-stone-200 hover:bg-stone-50 p-2 rounded-lg transition shadow-sm"><X size={16} /></button>
+                                                                        </>
+                                                                    ) : (
+                                                                        <button onClick={(e) => startEditUser(u, e)} className="text-stone-500 bg-white border border-stone-200 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 p-2 rounded-lg transition shadow-sm" title="تعديل الحدود"><Edit size={16} /></button>
+                                                                    )}
+                                                                    {u.role !== 'ADMIN' && (
+                                                                        <button onClick={(e) => handleDeleteUser(u.id, e)} className="text-stone-500 bg-white border border-stone-200 hover:text-red-600 hover:border-red-200 hover:bg-red-50 p-2 rounded-lg transition shadow-sm" title="حذف المستخدم"><Trash2 size={16} /></button>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </main>
+                    </>
+                ) : (
+                    <main className="flex-1 overflow-y-auto bg-stone-50">
+                        <AdminTickets />
+                    </main>
+                )}
             </div>
 
             {/* User Details Modal / Panel */}

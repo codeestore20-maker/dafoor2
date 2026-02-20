@@ -76,11 +76,13 @@ export function Dashboard({ onAddSubject }: { onAddSubject?: () => void }) {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  /*
   const stats = [
     { label: t('study_hours'), value: '12.5', icon: Clock, color: 'text-stone-800', bg: 'bg-[#FFEB3B]', rotate: '-rotate-2' },
     { label: t('completed_tasks'), value: '8', icon: CheckCircle2, color: 'text-stone-800', bg: 'bg-[#4DD0E1]', rotate: 'rotate-1' },
     { label: t('streak_days'), value: '5', icon: TrendingUp, color: 'text-stone-800', bg: 'bg-[#FF9800]', rotate: '-rotate-1' },
   ];
+  */
 
   const handleFileClick = (id: string, name: string) => {
     navigate(`/app/study/${id}?view=course_map`);
@@ -205,32 +207,6 @@ export function Dashboard({ onAddSubject }: { onAddSubject?: () => void }) {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
-          {/* Stats Cards */}
-          {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05, rotate: 0 }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`${stat.bg} p-3 md:p-4 rounded-xl shadow-sm border border-black/5 relative overflow-hidden group`}
-            >
-              <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                <stat.icon size={40} />
-              </div>
-              
-              <div className="flex flex-col h-full justify-between relative z-10">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="bg-white/40 p-1.5 rounded-lg">
-                    <stat.icon size={16} className="text-stone-800" />
-                  </div>
-                  <span className="font-hand font-bold text-xs md:text-sm text-stone-800 opacity-70 leading-none">{stat.label}</span>
-                </div>
-                <div className="font-hand text-2xl md:text-3xl font-bold text-stone-900">{stat.value}</div>
-              </div>
-            </motion.div>
-          ))}
-
           {/* Focus Timer Widget (Takes 1 slot on mobile, 1 on desktop) */}
           <div className="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-stone-200 flex flex-col justify-between relative overflow-hidden group hover:border-school-board transition-colors">
             <div className="flex justify-between items-center mb-1">

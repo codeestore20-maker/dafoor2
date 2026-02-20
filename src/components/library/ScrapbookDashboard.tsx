@@ -65,37 +65,7 @@ const FOLDER_COLORS = [
 // --- Widgets ---
 
 const StatsWidget = ({ t }: { t: any }) => {
-    const stats = [
-        { label: t('study_hours'), value: '12.5', icon: Clock, bg: 'bg-yellow-100', rotate: '-rotate-2' },
-        { label: t('completed_tasks'), value: '8', icon: CheckCircle2, bg: 'bg-green-100', rotate: 'rotate-1' },
-        { label: t('streak_days'), value: '5', icon: TrendingUp, bg: 'bg-blue-100', rotate: '-rotate-1' },
-    ];
-
-    return (
-        <div className="grid grid-cols-3 gap-1.5 md:gap-4 mb-6 md:mb-8 w-full max-w-full">
-            {stats.map((stat, i) => (
-                <motion.div 
-                    key={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    whileHover={{ scale: 1.05, rotate: 0 }}
-                    className={`
-                        w-full p-0.5 md:p-4 rounded-lg md:rounded-xl shadow-sm md:shadow-md border border-stone-800/5 
-                        ${stat.bg} ${stat.rotate} flex flex-col items-center justify-center gap-0 md:gap-2 relative group min-h-[110px] md:min-h-[120px] overflow-hidden
-                    `}
-                >
-                    <div className="absolute -top-1.5 md:-top-3 left-1/2 -translate-x-1/2 w-6 h-6 md:w-8 md:h-8 bg-white/80 rounded-full flex items-center justify-center shadow-sm border border-stone-200 z-10">
-                        <stat.icon size={12} className="text-stone-700 md:hidden" />
-                        <stat.icon size={16} className="text-stone-700 hidden md:block" />
-                    </div>
-                    <span className="font-bold text-stone-800 font-hand mt-3 md:mt-2 relative z-0" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.25rem)' }}>{stat.value}</span>
-                    <span className="font-bold text-stone-600 uppercase tracking-wide text-center leading-tight px-0.5" style={{ fontSize: 'clamp(0.65rem, 1.5vw, 0.9rem)' }}>{stat.label}</span>
-                    <div className="absolute -top-1 md:-top-2 left-1/2 -translate-x-1/2 w-8 md:w-16 h-1.5 md:h-4 bg-red-300/50 -rotate-1"></div>
-                </motion.div>
-            ))}
-        </div>
-    );
+    return null;
 };
 
 const QuoteWidget = ({ t }: { t: any }) => (

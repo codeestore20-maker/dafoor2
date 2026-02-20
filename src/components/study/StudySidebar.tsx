@@ -1,6 +1,7 @@
-import React from 'react';
-import { BookOpen, BrainCircuit, GraduationCap, PenTool, FileText, TrendingUp, BookA, AlertTriangle, Plus, ChevronLeft, Languages, Map } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookOpen, BrainCircuit, GraduationCap, PenTool, FileText, TrendingUp, BookA, AlertTriangle, Plus, ChevronLeft, Languages, Map, HelpCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { HelpModal } from '../shared/HelpModal';
 
 export type ViewMode = 'course_map' | 'notes' | 'summary' | 'predictor' | 'glossary' | 'flashcards' | 'quiz' | 'review' | 'notebooks';
 interface StudySidebarProps {
@@ -16,6 +17,7 @@ export function StudySidebar({
   onBack
 }: StudySidebarProps) {
   const { t, i18n } = useTranslation();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'ar' ? 'en' : 'ar';
@@ -84,30 +86,21 @@ export function StudySidebar({
           <NavItem view="review" icon={AlertTriangle} label={t('focus_review')} />
         </div>
 
-        {/* Section 3: Notebooks */}
+        {/* Section 3: Help */}
         <div>
-          <div className="flex items-center justify-between px-3 mb-3">
-            <h3 className="text-xs font-bold text-stone-400 uppercase tracking-wider font-hand">
-              {t('notebooks')}
-            </h3>
-            <button onClick={() => onViewChange('notebooks')} className="p-1 hover:bg-stone-200 rounded text-stone-500 transition-colors">
-              <Plus size={14} />
-            </button>
-          </div>
-          <NavItem view="notebooks" icon={FileText} label={t('my_notebook')} />
-
-          <div className="mt-2 pl-3 rtl:pl-0 rtl:pr-3 space-y-2">
-            <button className="flex items-center gap-2 text-stone-500 hover:text-school-board transition-colors text-sm font-hand">
-              <div className="w-1.5 h-1.5 rounded-full bg-school-pencil"></div>
-              <span>Biology Draft 1</span>
-            </button>
-            <button className="flex items-center gap-2 text-stone-500 hover:text-school-board transition-colors text-sm font-hand">
-              <div className="w-1.5 h-1.5 rounded-full bg-school-blue"></div>
-              <span>Lab Ideas</span>
-            </button>
-          </div>
+           <button 
+             onClick={() => setIsHelpOpen(true)} 
+             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all mb-1 text-start text-stone-600 hover:bg-stone-200"
+           >
+             <HelpCircle size={18} className="text-stone-400 group-hover:text-stone-600" />
+             <span className="font-hand font-bold text-lg">
+               {t('need_help')}
+             </span>
+           </button>
         </div>
       </div>
+
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
 
       {/* Footer */}
       <div className="p-4 border-t border-stone-200 bg-stone-50 space-y-3">

@@ -89,7 +89,8 @@ export function PlannerOverview({ onSelectSubject }: { onSelectSubject: (id: str
           </div>
         </div>
 
-        {/* Stats Row (Sticky Notes) */}
+        {/* Stats Row (Sticky Notes) - HIDDEN */}
+        {/*
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {stats.map((stat, index) => (
             <motion.div
@@ -112,6 +113,7 @@ export function PlannerOverview({ onSelectSubject }: { onSelectSubject: (id: str
             </motion.div>
           ))}
         </div>
+        */}
 
         {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

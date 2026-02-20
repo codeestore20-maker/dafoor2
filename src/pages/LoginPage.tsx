@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../lib/api';
 import { useTranslation } from 'react-i18next';
+import { useGoogleLogin } from '@react-oauth/google';
 import { LogIn, Loader2 } from 'lucide-react';
 import { AuthLayout } from '../components/auth/AuthLayout';
 import { usePageTitle } from '../hooks/usePageTitle';
@@ -17,6 +18,30 @@ export function LoginPage() {
   const { t } = useTranslation();
   usePageTitle(t('login_btn'));
 
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        const data = await authService.googleLogin(tokenResponse.access_token);
+        login(data.token, data.user);
+        
+        if (data.user.role === 'ADMIN') {
+          navigate('/admin');
+        } else {
+          navigate('/app');
+        }
+      } catch (err: any) {
+        console.error(err);
+        setError(t('login_failed'));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      setError(t('login_failed'));
+    }
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -24,7 +49,12 @@ export function LoginPage() {
     try {
       const data = await authService.login({ email, password });
       login(data.token, data.user);
-      navigate('/app');
+      
+      if (data.user.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/app');
+      }
     } catch (err: any) {
       // Map backend errors to translation keys if possible, or fallback
       const errorMsg = err.response?.data?.error;
@@ -90,7 +120,11 @@ export function LoginPage() {
         </div>
 
         <div className="space-y-3">
-            <button className="w-full bg-white text-stone-700 font-bold py-3.5 rounded-xl border-2 border-stone-200 hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md group transform hover:-translate-y-0.5">
+            <button 
+                onClick={() => handleGoogleLogin()}
+                type="button"
+                className="w-full bg-white text-stone-700 font-bold py-3.5 rounded-xl border-2 border-stone-200 hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md group transform hover:-translate-y-0.5"
+            >
                 {/* Real Google SVG Icon */}
                 <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
