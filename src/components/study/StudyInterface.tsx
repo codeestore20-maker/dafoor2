@@ -9,7 +9,7 @@ import { QuizMode } from './QuizMode';
 import { SmartNotebooks } from './SmartNotebooks';
 import { FocusReview } from './FocusReview';
 import { CourseMap } from './CourseMap';
-import { useOutletContext, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, FileText, ChevronLeft, MessageSquare, Map as MapIcon, LayoutGrid, BrainCircuit, BookOpen, PenTool, GraduationCap, TrendingUp, BookA, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +18,7 @@ import { useQuery } from '@tanstack/react-query';
 import { resourceService } from '../../lib/api';
 import { recentFilesService } from '../../lib/recentFiles';
 import { usePageTitle } from '../../hooks/usePageTitle';
+import { useUIStore } from '../../store/uiStore';
 
 // --- Mobile Components ---
 
@@ -182,12 +183,7 @@ export function StudyInterface() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
   
-  const { currentView, setCurrentView, focusMode, setIsMobileChatOpen } = useOutletContext<{ 
-    currentView: ViewMode; 
-    setCurrentView: (view: ViewMode) => void;
-    focusMode: boolean;
-    setIsMobileChatOpen: (open: boolean) => void;
-  }>();
+  const { currentView, setCurrentView, focusMode, setIsMobileChatOpen } = useUIStore();
 
   const [isToolsOpen, setIsToolsOpen] = useState(false);
 
@@ -274,10 +270,6 @@ export function StudyInterface() {
 
       {/* Center Workspace (Dynamic) */}
       <div className="flex-1 relative z-10 overflow-hidden h-full flex flex-col pt-14 pb-20 lg:py-0">
-        
-        {/* Desktop Mobile Menu Button (Hidden in new mobile layout) */}
-        {/* We removed the old top bar entirely for mobile, as we have the fixed header now */}
-
         <div className="flex-1 overflow-y-auto custom-scrollbar relative">
           {renderContent()}
         </div>

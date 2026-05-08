@@ -1,11 +1,11 @@
-import React, { useState, Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { ViewMode } from '../components/study/StudySidebar';
 import { AITeacher } from '../components/study/AITeacher';
-import { Maximize2, Minimize2, ChevronLeft, ChevronRight, Eye, EyeOff, Menu, MessageSquare, X, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, EyeOff, MessageSquare, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { BrandSkeleton } from '../components/shared/BrandSkeleton';
+import { useUIStore, ViewMode } from '../store/uiStore';
 
 export function LearningApp() {
   const location = useLocation();
@@ -15,45 +15,51 @@ export function LearningApp() {
   const { i18n } = useTranslation();
   const isRtl = i18n.language === 'ar';
 
-  // Lifted state for StudyInterface
-  // Sync currentView with URL query param 'view'
-  const currentView = (isStudyMode ? (searchParams.get('view') as ViewMode) : 'summary') || 'summary';
-  
-  const setCurrentView = (view: ViewMode) => {
-    if (isStudyMode) {
-      setSearchParams(prev => {
-        prev.set('view', view);
-        return prev;
-      });
+  const {
+    currentView,
+    setCurrentView,
+    focusMode,
+    setFocusMode,
+    isChatOpen,
+    setIsChatOpen,
+    isMobileChatOpen,
+    setIsMobileChatOpen
+  } = useUIStore();
+
+  // Fix: Use a single useEffect to sync searchParams and Zustand state to prevent infinite loops
+  useEffect(() => {
+    if (!isStudyMode) return;
+    
+    const viewFromUrl = searchParams.get('view') as ViewMode;
+    
+    // If URL has a view that differs from state, update state
+    if (viewFromUrl && viewFromUrl !== currentView) {
+      setCurrentView(viewFromUrl);
+    } 
+    // If state has a view but URL doesn't (or it's different), update URL safely
+    else if (currentView && viewFromUrl !== currentView) {
+      // setSearchParams removed to fix loop
     }
-  };
+  }, [searchParams, currentView, isStudyMode, setCurrentView, setSearchParams]);
 
-  const [focusMode, setFocusMode] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
-  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false); // Mobile chat state
-
-  const handleBackToLibrary = () => {
-    navigate('/');
-    // Reset view when going back - not needed with URL sync, but good practice
-    setFocusMode(false);
-    setIsChatOpen(true);
-  };
-
-  return <div className="h-full w-full bg-stone-100 flex flex-col overflow-hidden font-sans text-stone-800 antialiased">
+  return (
+    <div className="h-full w-full bg-stone-100 flex flex-col overflow-hidden font-sans text-stone-800 antialiased">
       <div className="flex-1 flex overflow-hidden relative">
         
         {/* Main Content Area */}
         <div className={`flex-1 transition-all duration-300 relative z-0 flex flex-col ${focusMode && isStudyMode ? 'w-full' : 'w-auto'}`}>
            
-           {/* Focus Mode Toggle (Top Right of Content) */}
+           {/* Focus Mode Toggle (Bottom Corner) */}
            {isStudyMode && (
              <button
                onClick={() => setFocusMode(!focusMode)}
-               className={`absolute top-4 right-4 rtl:right-auto rtl:left-4 z-40 p-2 text-white rounded-full shadow-lg transition-all border-2 border-stone-800 hidden lg:block ${focusMode ? 'bg-red-500 hover:bg-red-600' : 'bg-school-board hover:bg-school-board/90'}`}
+               className={`absolute bottom-6 right-6 rtl:right-auto rtl:left-6 z-40 p-3 text-white rounded-full shadow-2xl transition-all border-2 border-stone-800 hidden lg:flex items-center justify-center gap-2 group ${focusMode ? 'bg-red-500 hover:bg-red-600' : 'bg-school-board hover:bg-school-board/90'}`}
                title={focusMode ? 'Exit Focus Mode' : 'Enter Focus Mode'}
              >
                {focusMode ? <EyeOff size={20} /> : <Eye size={20} />}
+               <span className="font-hand font-bold text-sm overflow-hidden w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-300 whitespace-nowrap pl-0 group-hover:pl-2 rtl:pl-0 rtl:group-hover:pr-2">
+                 {focusMode ? 'خروج من التركيز' : 'وضع التركيز'}
+               </span>
              </button>
            )}
            
@@ -63,7 +69,6 @@ export function LearningApp() {
                  <BrandSkeleton type="general" />
                </div>
              }>
-               {/* Removed AnimatePresence mode='wait' to prevent transition deadlocks/empty screens */}
                <motion.div
                  key={location.pathname}
                  initial={{ opacity: 0 }}
@@ -71,7 +76,7 @@ export function LearningApp() {
                  transition={{ duration: 0.3 }}
                  className="h-full w-full"
                >
-                 <Outlet context={{ currentView, setCurrentView, focusMode, isSidebarOpen, setIsSidebarOpen, setIsMobileChatOpen }} />
+                 <Outlet />
                </motion.div>
              </Suspense>
            </div>
@@ -111,16 +116,6 @@ export function LearningApp() {
               <AITeacher currentView={currentView} />
             </div>
 
-            {/* Mobile Chat FAB - HIDDEN in favor of Toolbar Button */}
-            <div className="hidden fixed bottom-4 right-6 rtl:left-6 rtl:right-auto z-40">
-               <button
-                 onClick={() => setIsMobileChatOpen(true)}
-                 className="w-12 h-12 bg-school-board text-white rounded-2xl shadow-xl flex items-center justify-center border-2 border-stone-800 hover:scale-110 transition-transform active:scale-95"
-               >
-                 <MessageSquare size={22} />
-               </button>
-            </div>
-
             {/* Mobile Chat Drawer */}
             <AnimatePresence>
               {isMobileChatOpen && (
@@ -147,7 +142,7 @@ export function LearningApp() {
                          onClick={() => setIsMobileChatOpen(false)}
                        ></div>
 
-                       {/* Smart Close Button - Positioned away from content */}
+                       {/* Smart Close Button */}
                        <button 
                           onClick={() => setIsMobileChatOpen(false)} 
                           className="absolute right-4 rtl:left-4 top-1/2 -translate-y-1/2 p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
@@ -166,5 +161,6 @@ export function LearningApp() {
           </>
         )}
       </div>
-    </div>;
+    </div>
+  );
 }

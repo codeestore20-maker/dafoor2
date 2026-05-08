@@ -28,7 +28,8 @@
     "react-i18next": "^16.5.1",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.26.2",
-    "uploadthing": "^7.7.4"
+    "uploadthing": "^7.7.4",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@types/node": "^20.11.18",
