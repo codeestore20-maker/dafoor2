@@ -270,7 +270,6 @@ const resources = {
       "unknown_user": "Unknown User",
       "mark_as_closed": "Mark as Closed",
       "mark_as_open": "Reopen Ticket",
-      "close": "Close",
       "reopen": "Reopen",
       "failed_to_load_tickets": "Failed to load tickets"
     }
@@ -420,7 +419,6 @@ const resources = {
       "mnemonic": "عشان تحفظها:",
       "quick_check": "شيك ع فهمك",
       "i_understand": "وصلت الفكرة",
-      "close": "سكر",
 
       // AI Teacher
       "help_ticket_title": "افتح تذكرة جديدة",
@@ -433,7 +431,6 @@ const resources = {
       "ticket_sent": "تم إرسال التذكرة بنجاح!",
       "ticket_sent_desc": "راح نرد عليك في أقرب وقت.",
       "we_are_here_to_help": "نحن هنا للمساعدة",
-      "cancel": "إلغاء",
       "prof_owl": "الدكتور دافور",
       "academic_guide": "تحتاج فزعة ؟",
       "welcome_message": "اهلا , انا دافور, عندك درس مو فاهمه او تبغى نفرم المنهج مع بعض ؟",

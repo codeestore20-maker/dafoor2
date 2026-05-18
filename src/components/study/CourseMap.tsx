@@ -803,7 +803,8 @@ export function CourseMap() {
         },
         enabled: !!fileId && !!fullResource,
         // Poll every 2 seconds if processing or if we have no topics yet but expecting them
-        refetchInterval: (data) => {
+        refetchInterval: (query) => {
+            const data = query.state?.data as any[];
             if (isProcessing) return 2000;
             if (!data || data.length === 0) return 2000; 
             return false;
@@ -868,7 +869,7 @@ export function CourseMap() {
             // Check if already in cache to avoid spamming
             const cacheKey = ['stepContent', activeTopicId, stepType];
             const state = queryClient.getQueryState(cacheKey);
-            if (!state || state.isInvalidated || (!state.data && !state.isFetching)) {
+            if (!state || state.isInvalidated || (!state.data && state.fetchStatus !== 'fetching')) {
                 queryClient.prefetchQuery({
                     queryKey: cacheKey,
                     queryFn: () => lessonsService.getStepContent(activeTopicId, stepType),

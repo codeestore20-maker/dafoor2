@@ -25,6 +25,13 @@ export function LoginPage() {
         const data = await authService.googleLogin(tokenResponse.access_token);
         login(data.token, data.user);
         
+        // Snapchat Pixel: LOGIN event
+        if (typeof window !== 'undefined' && (window as any).snaptr) {
+          (window as any).snaptr('track', 'LOGIN', {
+            user_email: data.user?.email || '',
+          });
+        }
+        
         if (data.user.role === 'ADMIN') {
           navigate('/admin');
         } else {
@@ -49,6 +56,13 @@ export function LoginPage() {
     try {
       const data = await authService.login({ email, password });
       login(data.token, data.user);
+      
+      // Snapchat Pixel: LOGIN event
+      if (typeof window !== 'undefined' && (window as any).snaptr) {
+        (window as any).snaptr('track', 'LOGIN', {
+          user_email: email || '',
+        });
+      }
       
       if (data.user.role === 'ADMIN') {
         navigate('/admin');

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type ViewMode = 'summary' | 'flashcards' | 'quiz' | 'map' | 'weakpoints' | 'predictions' | 'glossary';
+export type ViewMode = 'summary' | 'flashcards' | 'quiz' | 'map' | 'course_map' | 'weakpoints' | 'predictions' | 'glossary' | 'predictor' | 'notebooks' | 'review' | 'notes';
 
 interface UIState {
   currentView: ViewMode;
@@ -21,6 +21,9 @@ interface UIState {
   // To handle loading states globally without losing them on page transition
   globalLoading: boolean;
   setGlobalLoading: (isLoading: boolean) => void;
+
+  activeSubjectId: string | null;
+  setActiveSubjectId: (id: string | null) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -41,4 +44,7 @@ export const useUIStore = create<UIState>((set) => ({
   
   globalLoading: false,
   setGlobalLoading: (isLoading) => set({ globalLoading: isLoading }),
+
+  activeSubjectId: null,
+  setActiveSubjectId: (id) => set({ activeSubjectId: id }),
 }));

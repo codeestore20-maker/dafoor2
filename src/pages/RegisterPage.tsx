@@ -25,6 +25,15 @@ export function RegisterPage() {
         setIsLoading(true);
         const data = await authService.googleLogin(tokenResponse.access_token);
         login(data.token, data.user);
+        
+        // Snapchat Pixel: SIGN_UP event
+        if (typeof window !== 'undefined' && (window as any).snaptr) {
+          (window as any).snaptr('track', 'SIGN_UP', {
+            user_email: data.user?.email || '',
+            sign_up_method: 'google',
+          });
+        }
+        
         navigate('/app');
       } catch (err: any) {
         console.error(err);
@@ -45,6 +54,15 @@ export function RegisterPage() {
     try {
       const data = await authService.register({ name, email, password });
       login(data.token, data.user);
+      
+      // Snapchat Pixel: SIGN_UP event
+      if (typeof window !== 'undefined' && (window as any).snaptr) {
+        (window as any).snaptr('track', 'SIGN_UP', {
+          user_email: email || '',
+          sign_up_method: 'email',
+        });
+      }
+      
       navigate('/app');
     } catch (err: any) {
       const errorMsg = err.response?.data?.error;
