@@ -28,7 +28,13 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
   const navigate = useNavigate();
   const isRtl = i18n.language === 'ar';
   
-  const languages = ["Arabic", "English", "Spanish", "French", "German"];
+  const languages = [
+    { value: "Arabic", label: t('arabic') },
+    { value: "English", label: t('english') },
+    { value: "Spanish", label: t('spanish') },
+    { value: "French", label: t('french') },
+    { value: "German", label: t('german') },
+  ];
 
   const handleClose = () => {
     if (step === 'preparing') return; // Prevent closing during preparation
@@ -296,17 +302,17 @@ export function UploadModal({ isOpen, onClose, onUpload, isUploading, subjectId 
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {languages.map((lang) => (
                         <button
-                          key={lang}
-                          onClick={() => setSelectedLanguage(lang)}
+                          key={lang.value}
+                          onClick={() => setSelectedLanguage(lang.value)}
                           className={`py-2 px-3 rounded-xl border text-sm font-medium transition-all flex items-center justify-center gap-1
-                            ${selectedLanguage === lang 
+                            ${selectedLanguage === lang.value 
                               ? 'border-school-board bg-school-board/5 text-school-board shadow-sm' 
                               : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300 hover:bg-stone-50'
                             }
                           `}
                         >
-                          {selectedLanguage === lang && <Check size={14} />}
-                          {lang}
+                          {selectedLanguage === lang.value && <Check size={14} />}
+                          {lang.label}
                         </button>
                       ))}
                     </div>

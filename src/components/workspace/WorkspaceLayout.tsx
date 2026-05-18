@@ -90,7 +90,7 @@ export function WorkspaceLayout() {
         <main className="flex-1 overflow-y-auto relative pt-14 md:pt-0 scroll-smooth bg-stone-100/80">
           <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8 min-h-full">
             {!activeSubjectId ? (
-              <WorkspaceOverview onUploadClick={() => setIsUploadModalOpen(true)} onCreateClick={() => setIsCreateModalOpen(true)} subjects={subjects} />
+              <WorkspaceOverview onCreateClick={() => setIsCreateModalOpen(true)} subjects={subjects} />
             ) : (
               <WorkspaceSubjectView subjectId={activeSubjectId} onUploadClick={() => setIsUploadModalOpen(true)} />
             )}
@@ -195,7 +195,7 @@ const pop = { hidden: { opacity: 0, scale: 0.9, y: 10 }, show: { opacity: 1, sca
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } };
 
 // ─── HOME PAGE ───
-function WorkspaceOverview({ onUploadClick, onCreateClick, subjects }: { onUploadClick: () => void, onCreateClick: () => void, subjects: any[] }) {
+function WorkspaceOverview({ onCreateClick, subjects }: { onUploadClick: () => void, onCreateClick: () => void, subjects: any[] }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -293,12 +293,8 @@ function WorkspaceOverview({ onUploadClick, onCreateClick, subjects }: { onUploa
           </p>
 
           <div className="flex flex-wrap gap-2">
-            <button onClick={onUploadClick}
-              className="bg-school-pencil text-school-graphite px-4 py-2 rounded-xl font-hand font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2 text-sm border-2 border-yellow-500/50">
-              <Upload size={16} /> ارفع ملف
-            </button>
             <button onClick={onCreateClick}
-              className="bg-white/10 text-white hover:bg-white/20 px-4 py-2 rounded-xl font-hand font-bold backdrop-blur-sm transition-all hover:-translate-y-0.5 flex items-center gap-2 text-sm border-2 border-dashed border-white/30">
+              className="bg-school-pencil text-school-graphite px-4 py-2 rounded-xl font-hand font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2 text-sm border-2 border-yellow-500/50">
               <Plus size={16} /> مادة جديدة
             </button>
           </div>
@@ -424,11 +420,13 @@ function WorkspaceOverview({ onUploadClick, onCreateClick, subjects }: { onUploa
                   <div className="pl-16 pr-5 py-10 text-center">
                     <div className="text-4xl mb-3">📭</div>
                     <p className="font-hand font-bold text-school-graphite mb-1">لا توجد ملفات بعد!</p>
-                    <p className="font-hand text-sm text-stone-400 mb-4">ارفع محاضراتك وانا اجهزها لك</p>
-                    <button onClick={onUploadClick}
-                      className="bg-school-pencil text-school-graphite px-4 py-2 rounded-xl font-hand font-bold hover:-translate-y-0.5 transition-transform text-sm inline-flex items-center gap-2 shadow-sm border border-yellow-400">
-                      <Upload size={16} /> ارفع اول ملف
-                    </button>
+                    <p className="font-hand text-sm text-stone-400 mb-4">ادخل احد الموادات وارفع ملفك هناك</p>
+                    {subjects.length === 0 && (
+                      <button onClick={onCreateClick}
+                        className="bg-school-pencil text-school-graphite px-4 py-2 rounded-xl font-hand font-bold hover:-translate-y-0.5 transition-transform text-sm inline-flex items-center gap-2 shadow-sm border border-yellow-400">
+                        <Plus size={16} /> انشئ مادة اولاً
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -440,12 +438,9 @@ function WorkspaceOverview({ onUploadClick, onCreateClick, subjects }: { onUploa
             <motion.div variants={pop} className="bg-school-board/5 rounded-2xl p-6 border-2 border-dashed border-school-board/20 text-center">
               <div className="text-5xl mb-3">🎓</div>
               <h3 className="font-hand text-xl font-bold text-school-graphite mb-2">جاهز تبدأ؟</h3>
-              <p className="font-hand text-sm text-school-graphite/60 mb-4 max-w-md mx-auto">ارفع ملف PDF او صورة محاضرة والذكاء الاصطناعي يجهزلك ملخص وخرائط ذهنية وفلاش كاردز!</p>
-              <div className="flex justify-center gap-3">
-                <button onClick={onUploadClick} className="bg-school-board text-white px-5 py-2.5 rounded-xl font-hand font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                  <Upload size={16} /> ارفع ملف
-                </button>
-                <button onClick={onCreateClick} className="bg-white text-school-board px-5 py-2.5 rounded-xl font-hand font-bold border-2 border-school-board/20 hover:border-school-board/40 transition-all flex items-center gap-2">
+              <p className="font-hand text-sm text-school-graphite/60 mb-4 max-w-md mx-auto">أنشئ مادة جديدة اولاً، ثم ارفع ملفاتك داخلها والذكاء الاصطناعي يجهزلك ملخص وخرائط ذهنية وفلاش كاردز!</p>
+              <div className="flex justify-center">
+                <button onClick={onCreateClick} className="bg-school-board text-white px-5 py-2.5 rounded-xl font-hand font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-2">
                   <Plus size={16} /> انشئ مادة
                 </button>
               </div>

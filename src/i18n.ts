@@ -271,7 +271,19 @@ const resources = {
       "mark_as_closed": "Mark as Closed",
       "mark_as_open": "Reopen Ticket",
       "reopen": "Reopen",
-      "failed_to_load_tickets": "Failed to load tickets"
+      "failed_to_load_tickets": "Failed to load tickets",
+
+      // Upload Modal
+      "document_language": "Document Language",
+      "next_step": "Next",
+      "back": "Back",
+      "start_magic": "Start Magic",
+      "analyzing_step_1": "Extracting text from file...",
+      "analyzing_step_2": "Building lessons and concepts...",
+      "analyzing_step_3": "Putting the finishing touches...",
+      "step_extract": "Extract text",
+      "step_struct": "Structure content",
+      "step_generate": "Generate AI content"
     }
   },
   ar: {
@@ -593,7 +605,19 @@ const resources = {
       "testimonial_1": "والله التطبيق فك أزمة! ارتفع معدلي بسببه.",
       "testimonial_author_1": "سارة، طب بشري",
       "stat_users": "طالب دافور",
-      "stat_hours": "ساعة وفرناها"
+      "stat_hours": "ساعة وفرناها",
+
+      // Upload Modal
+      "document_language": "لغة الملف",
+      "next_step": "التالي",
+      "back": "رجوع",
+      "start_magic": "ابدأ السحر",
+      "analyzing_step_1": "جاري استخراج النص من الملف...",
+      "analyzing_step_2": "بناء الدروس والمفاهيم...",
+      "analyzing_step_3": "نضع اللمسات الأخيرة...",
+      "step_extract": "استخراج النص",
+      "step_struct": "ترتيب المحتوى",
+      "step_generate": "توليد المحتوى بالذكاء الاصطناعي"
     }
   }
 };
