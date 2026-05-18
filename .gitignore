@@ -1,14 +1,39 @@
+# Dependencies
 node_modules
+**/node_modules
+
+# Build
 dist
+dist-ssr
+
+# Environment
 .env
 .env.*
 !.env.example
+
+# Archives
 *.rar
 *.zip
 *.7z
 *.tar.gz
+
+# Fonts (installed via npm or copied separately)
 *.otf
+
+# Old folders
+dafoor2-master
 dafoor2-repo
+
+# Uploads (user data)
+server/uploads
+
+# IDE
 .vscode
 .idea
 .DS_Store
+*.suo
+*.sw?
+*.log
+
+# Temp files
+.trae
