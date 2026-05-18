@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+.env.*
+!.env.example
+*.rar
+*.zip
+*.7z
+*.tar.gz
+*.otf
+dafoor2-repo
+.vscode
+.idea
+.DS_Store

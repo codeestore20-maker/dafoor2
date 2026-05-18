@@ -1,0 +1,351 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RefreshCw, Check, RotateCcw, Shuffle, Sparkles, Layers, ChevronRight, ChevronLeft } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { resourceService } from '../../lib/api';
+import { useTranslation } from 'react-i18next';
+import { BrandSkeleton } from '../shared/BrandSkeleton';
+
+export function Flashcards() {
+  const { fileId } = useParams();
+  const queryClient = useQueryClient();
+  const { t, i18n } = useTranslation();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [masteredCount, setMasteredCount] = useState(0);
+  const [localCards, setLocalCards] = useState<any[]>([]);
+  const isRtl = i18n.language === 'ar';
+
+  const { data: deck, isLoading, isError } = useQuery({
+    queryKey: ['flashcards', fileId],
+    queryFn: () => resourceService.getFlashcards(fileId!),
+    enabled: !!fileId,
+    retry: false,
+    staleTime: Infinity, // Cache forever until manual regeneration
+  });
+
+  const [isProcessing, setIsProcessing] = useState(() => 
+    localStorage.getItem(`processing_flashcards_${fileId}`) === 'true'
+  );
+
+  // Clear processing state if we have results
+  useEffect(() => {
+    if (deck?.cards && deck.cards.length > 0 && isProcessing) {
+      localStorage.removeItem(`processing_flashcards_${fileId}`);
+      setIsProcessing(false);
+    }
+  }, [deck, isProcessing, fileId]);
+
+  // Sync local cards with fetched deck
+  useEffect(() => {
+    if (deck?.cards) {
+      setLocalCards(deck.cards);
+      setCurrentIndex(0);
+      setMasteredCount(0);
+      setIsFlipped(false);
+    }
+  }, [deck]);
+
+  const generateMutation = useMutation({
+    mutationFn: async () => {
+        localStorage.setItem(`processing_flashcards_${fileId}`, 'true');
+        setIsProcessing(true);
+        return resourceService.generateFlashcards(fileId!);
+    },
+    onSuccess: () => {
+      localStorage.removeItem(`processing_flashcards_${fileId}`);
+      setIsProcessing(false);
+      queryClient.invalidateQueries({ queryKey: ['flashcards', fileId] });
+    },
+    onError: () => {
+        localStorage.removeItem(`processing_flashcards_${fileId}`);
+        setIsProcessing(false);
+    }
+  });
+
+  const mistakeMutation = useMutation({
+    mutationFn: (concept: string) => resourceService.recordMistake(fileId!, concept)
+  });
+
+  const handleShuffle = () => {
+    const shuffled = [...localCards].sort(() => Math.random() - 0.5);
+    setLocalCards(shuffled);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+  };
+
+  const handleMastered = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setMasteredCount(prev => prev + 1);
+    handleNext();
+  };
+
+  const handleMistake = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (currentCard?.front) {
+      mistakeMutation.mutate(currentCard.front);
+    }
+    handleNext();
+  };
+
+  const handleNext = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex(prev => (prev + 1) % localCards.length);
+    }, 200);
+  };
+
+  const handlePrev = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex(prev => (prev - 1 + localCards.length) % localCards.length);
+    }, 200);
+  };
+
+  if (isLoading || (!deck && isProcessing)) {
+    return (
+      <div className="h-full w-full flex items-center justify-center bg-[#fdfbf7]">
+         <BrandSkeleton type="card" hideMessage={!isProcessing} />
+      </div>
+    );
+  }
+
+  if (isError || !deck || !localCards.length) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center p-8">
+        <div className="max-w-md text-center relative">
+          {/* Background Doodle */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-school-board/5 rounded-full blur-3xl -z-10"></div>
+          
+          <div className="bg-white border-2 border-stone-200 w-24 h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 text-school-board shadow-[4px_4px_0px_rgba(0,0,0,0.1)] rotate-3">
+            <Layers size={48} />
+          </div>
+          <h2 className="font-hand text-4xl font-bold text-stone-800 mb-4">
+            {t('flashcards_empty')}
+          </h2>
+          <p className="font-hand text-stone-500 mb-8 text-lg leading-relaxed">
+            {t('flashcards_desc')}
+          </p>
+          
+          <button
+            onClick={() => generateMutation.mutate()}
+            disabled={generateMutation.isPending}
+            className="px-8 py-4 bg-school-board text-white rounded-xl font-hand font-bold text-xl shadow-[4px_4px_0px_rgba(41,37,36,1)] border-2 border-stone-800 hover:translate-y-[2px] hover:shadow-[2px_2px_0px_rgba(41,37,36,1)] transition-all active:translate-y-[4px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
+          >
+            {generateMutation.isPending ? (
+              <>
+                <RefreshCw size={24} className="animate-spin" />
+                {t('generating')}
+              </>
+            ) : (
+              <>
+                <Sparkles size={24} />
+                {t('generate_flashcards')}
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const progress = ((currentIndex + 1) / localCards.length) * 100;
+  const currentCard = localCards[currentIndex];
+
+  return (
+    <div className="h-full flex flex-col items-center relative overflow-hidden bg-transparent">
+      
+      {/* Top Header Area */}
+      <div className="w-full max-w-5xl mx-auto flex items-center justify-between p-4 md:p-8 z-20 pb-0 md:pb-8">
+         {/* Mastered Counter - Sticker Style */}
+         <div className="flex items-center gap-2 bg-[#e6f4ea] border-2 border-[#1e8e3e] text-[#1e8e3e] px-3 py-1 md:px-4 md:py-2 rounded-lg shadow-sm transform -rotate-2 scale-90 md:scale-100">
+            <Check size={18} strokeWidth={3} className="md:w-5 md:h-5" />
+            <span className="font-hand font-bold text-base md:text-lg pt-1">{t('mastered_count', { count: masteredCount })}</span>
+         </div>
+         
+         {/* Central Progress Ruler */}
+         <div className="flex-1 mx-2 md:mx-16 max-w-md hidden md:block">
+            <div className="relative h-4 bg-[#f0ebd8] rounded-sm border border-stone-300 shadow-inner overflow-hidden">
+                {/* Ruler markings */}
+                <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(90deg, transparent 95%, #a8a29e 95%)', backgroundSize: '10px 100%' }}></div>
+                
+                <motion.div 
+                    className="h-full bg-school-board/80 relative" 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ type: "spring", stiffness: 50, damping: 15 }}
+                >
+                    <div className="absolute right-0 top-0 bottom-0 w-1 bg-school-board shadow-[0_0_10px_rgba(0,0,0,0.2)]"></div>
+                </motion.div>
+            </div>
+            <div className="flex justify-between mt-1 px-1">
+                <span className="font-hand text-xs font-bold text-stone-400">{currentIndex + 1}</span>
+                <span className="font-hand text-xs font-bold text-stone-400">{localCards.length}</span>
+            </div>
+         </div>
+
+         {/* Shuffle Button */}
+         <button 
+            onClick={handleShuffle} 
+            className="p-2 md:p-3 bg-white border-2 border-stone-200 text-stone-400 rounded-xl hover:text-school-board hover:border-school-board hover:rotate-6 transition-all shadow-sm active:scale-95" 
+            title="Shuffle Deck"
+         >
+            <Shuffle size={18} className="md:w-5 md:h-5" />
+         </button>
+      </div>
+
+      {/* Main Study Area */}
+      <div className="w-full max-w-7xl flex flex-col items-center justify-center gap-2 md:gap-8 flex-1 relative z-10 px-4 pt-0 md:pt-0">
+        
+        {/* Card Container */}
+        <div className="w-full max-w-2xl perspective-1000 relative -mt-16 md:-mt-16">
+            <div className="relative aspect-[1.3/1] md:aspect-[1.6/1] w-full cursor-pointer group mb-4 md:mb-8" onClick={() => setIsFlipped(!isFlipped)}>
+            <motion.div 
+                className="w-full h-full absolute preserve-3d" 
+                initial={false} 
+                animate={{ rotateY: isFlipped ? 180 : 0 }} 
+                transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            >
+                {/* Front of Card - White Paper */}
+                <div className="absolute inset-0 backface-hidden rounded-2xl md:rounded-[2rem] bg-white overflow-hidden shadow-[2px_8px_30px_rgba(0,0,0,0.1)] border border-stone-200" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateX(0deg)' }}>
+                    <div className="h-full w-full flex flex-col relative">
+                        {/* Paper Texture & Lines */}
+                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cream-paper.png")` }}></div>
+                        <div className="absolute inset-0" style={{ 
+                            backgroundImage: 'repeating-linear-gradient(transparent, transparent 31px, #e5e7eb 31px, #e5e7eb 32px)',
+                            backgroundAttachment: 'local'
+                        }}></div>
+                        
+                        {/* Red Margin Line */}
+                        <div className="absolute top-0 bottom-0 left-12 rtl:right-12 rtl:left-auto w-0.5 bg-red-400/20 z-0"></div>
+                        
+                        {/* Content Area */}
+                        <div className="flex-1 flex items-center justify-center w-full px-6 md:px-24 z-10 overflow-y-auto my-4 custom-scrollbar-hide">
+                            <h3 className="font-hand text-xl sm:text-2xl md:text-4xl text-stone-800 font-bold leading-relaxed text-center w-full break-words" dir="auto">
+                                {currentCard.front}
+                            </h3>
+                        </div>
+
+                        {/* Bottom Hint */}
+                        <div className="w-full pb-6 z-10 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-stone-100/80 text-stone-400 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm">
+                                <span>{t('tap_to_flip')}</span>
+                                <RotateCcw size={12} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Back of Card - Green Chalkboard Style */}
+                <div className="absolute inset-0 backface-hidden rounded-2xl md:rounded-[2rem] bg-school-board overflow-hidden shadow-[2px_8px_30px_rgba(0,0,0,0.25)] border-4 border-stone-800" style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                    <div className="h-full w-full flex flex-col relative">
+                        {/* Chalk Texture */}
+                        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+                            backgroundImage: `url("https://www.transparenttextures.com/patterns/black-scales.png")`
+                        }}></div>
+                        <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay" style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                        }}></div>
+                        
+                        {/* Content Area */}
+                        <div className="flex-1 flex items-center justify-center w-full px-4 md:px-20 z-10 pt-2 md:pt-8 overflow-y-auto my-2 custom-scrollbar-hide">
+                            <div className="w-full relative">
+                                <h3 className="font-hand text-lg sm:text-xl md:text-3xl text-white font-bold leading-relaxed text-center whitespace-pre-wrap drop-shadow-md break-words" dir="auto">
+                                    {currentCard.back}
+                                </h3>
+                            </div>
+                        </div>
+
+                        {/* Bottom Hint */}
+                        <div className="w-full pb-4 md:pb-6 z-10 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                             <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-colors">
+                                <span>{t('tap_to_flip')}</span>
+                                <RotateCcw size={12} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+            </div>
+
+            {/* Smart Control Bar - Optimized Performance */}
+            <div 
+                className="flex items-center justify-between gap-4 bg-white p-2 rounded-2xl border-2 border-stone-200 shadow-lg mx-auto w-full max-w-md mt-6 h-16 relative overflow-hidden" 
+                dir="ltr"
+            >
+                {/* Prev */}
+                <button 
+                    onClick={handlePrev}
+                    className="p-3 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-school-board transition-colors active:scale-95 flex-shrink-0 z-10"
+                    title={t('prev')}
+                >
+                    <ChevronLeft size={24} strokeWidth={2.5} />
+                </button>
+
+                {/* Center Content: Counter OR Actions */}
+                <div className="flex-1 relative h-full flex items-center justify-center">
+                    <AnimatePresence mode="wait" initial={false}>
+                        {!isFlipped ? (
+                            <motion.div
+                                key="counter"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="px-4 py-2 bg-stone-100 rounded-lg font-hand font-bold text-lg md:text-xl text-stone-700 text-center select-none w-full"
+                            >
+                                {currentIndex + 1} <span className="text-stone-400 text-base md:text-lg">/</span> {localCards.length}
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="actions"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex items-center justify-center gap-2 w-full"
+                            >
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMistake();
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-2 py-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 border border-red-100 transition-colors active:scale-95"
+                                    title={t('review_again')}
+                                >
+                                    <RotateCcw size={18} strokeWidth={2.5} />
+                                    <span className="font-hand font-bold text-xs md:text-sm whitespace-nowrap">{t('review_again')}</span>
+                                </button>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleMastered();
+                                    }}
+                                    className="flex-1 flex items-center justify-center gap-2 px-2 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 border border-green-100 transition-colors active:scale-95"
+                                    title={t('mastered')}
+                                >
+                                    <Check size={18} strokeWidth={3} />
+                                    <span className="font-hand font-bold text-xs md:text-sm whitespace-nowrap">{t('mastered')}</span>
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                {/* Next */}
+                <button 
+                    onClick={handleNext}
+                    className="p-3 rounded-xl hover:bg-stone-100 text-stone-400 hover:text-school-board transition-colors active:scale-95 flex-shrink-0 z-10"
+                    title={t('next')}
+                >
+                    <ChevronRight size={24} strokeWidth={2.5} />
+                </button>
+            </div>
+        </div>
+      </div>
+
+    </div>
+  );
+}
